@@ -1699,3 +1699,76 @@ body { overflow-x: hidden; }
   cursor: pointer; transition: background .15s;
 }
 .img-lightbox-close:hover { background: rgba(255,255,255,.22); }
+
+/* ══ STICKY FOOTER ═══════════════════════════════════════════════════════════ */
+html, body { height: 100%; }
+body { display: flex; flex-direction: column; min-height: 100vh; }
+body > * { flex-shrink: 0; }
+
+/* ══ CALC TOGGLE ═════════════════════════════════════════════════════════════ */
+.calc-toggle {
+  width: 100%; background: none; border: none; padding: 0;
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--fh); font-size: 13px; font-weight: 600;
+  color: var(--text); cursor: pointer;
+}
+.calc-body { margin-top: 18px; }
+
+/* ══ МОБИЛЬНАЯ ШАПКА ════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  #hdr { padding: 0 12px; gap: 8px; }
+  #hdr nav { display: none; }
+  .hbts { gap: 4px; }
+  /* скрываем лишние кнопки на совсем маленьких экранах */
+  .hbts a[href*="yandex"], .hbts a[href*="t.me"] { display: none; }
+}
+
+/* ══ TOAST АНИМАЦИЯ ══════════════════════════════════════════════════════════ */
+@keyframes mIn {
+  from { opacity: 0; transform: scale(.94) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+
+/* ══ ФИКСИМ #main НА СТРАНИЦЕ ТОВАРА ═══════════════════════════════════════ */
+main { flex: 1; }
+
+/* ══ КНОПКИ ПРОДУКТА ════════════════════════════════════════════════════════ */
+.prod-add-btn {
+  flex: 1; min-width: 160px; height: 50px; border-radius: 12px;
+  background: var(--accent); color: #fff; border: none;
+  font-size: 15px; font-weight: 600; transition: background .15s; cursor: pointer;
+}
+.prod-add-btn:hover { background: var(--accent-h); }
+
+.prod-call-btn {
+  height: 50px; padding: 0 20px; border-radius: 12px;
+  background: var(--surface2); color: var(--text);
+  border: 1.5px solid var(--border);
+  font-size: 14px; font-weight: 500; transition: all .15s; cursor: pointer;
+  white-space: nowrap;
+}
+.prod-call-btn:hover { border-color: var(--dark); background: var(--tag); }
+
+.prod-callback {
+  background: var(--surface2); border-radius: var(--r);
+  border: 1px solid var(--border); padding: 14px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.prod-callback-ok {
+  font-size: 13px; color: var(--success); font-weight: 500; text-align: center;
+}
+
+/* ══ СТРАНИЦА ТОВАРА МОБИЛКА ════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .prod-layout { grid-template-columns: 1fr; gap: 20px; }
+  .prod-title  { font-size: 17px; }
+  .prod-price  { font-size: 26px; }
+  .prod-cta    { flex-direction: column; }
+  .prod-add-btn { min-width: unset; }
+}
+
+/* ══ CHECKOUT МОБИЛКА ═══════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .checkout-panel { border-radius: 20px 20px 0 0; }
+  .covl2 { align-items: flex-end; padding: 0; }
+}

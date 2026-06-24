@@ -29,6 +29,7 @@ export function CheckoutModal() {
   const { checkoutOpen, closeCheckout } = useUI()
   const [form, setForm] = useState<CheckoutForm>(EMPTY)
   const [loading, setLoading] = useState(false)
+  const [done, setDone] = useState(false)
 
   if (!checkoutOpen) return null
 
@@ -45,96 +46,104 @@ export function CheckoutModal() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ form, items, total: finalTotal }),
     })
-    clear(); closeCheckout(); setForm(EMPTY); setLoading(false)
-    alert('Спасибо! Менеджер свяжется с вами.')
+    clear(); setDone(true); setLoading(false)
   }
 
-  const inp = 'w-full px-3 py-2 rounded-xl border border-gray-700 bg-[var(--bg)] text-sm outline-none focus:border-gray-500'
+  const handleClose = () => { closeCheckout(); setForm(EMPTY); setDone(false) }
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/60 z-50" onClick={closeCheckout} />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-[var(--panel)] rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
-            <h2 className="font-bold text-lg">Оформление заказа</h2>
-            <button onClick={closeCheckout} className="text-[var(--muted)] hover:text-white text-xl">✕</button>
+      <div className="covl2" onClick={handleClose} />
+      <div className="covl2" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+        <div className="checkout-panel">
+          <div className="co-header">
+            <span>Оформление заказа</span>
+            <button onClick={handleClose}>✕</button>
           </div>
 
-          <div className="px-5 py-4 flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-[var(--muted)]">Имя *</label>
-                <input className={inp} placeholder="Иван Иванов" value={form.name} onChange={e => set({ name: e.target.value })} />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-[var(--muted)]">Телефон *</label>
-                <input className={inp} placeholder="+7 (___) ___-__-__" value={form.phone}
-                  onChange={e => set({ phone: formatPhone(e.target.value) })} inputMode="tel" />
-              </div>
+          {done ? (
+            <div className="co-success" style={{ padding: '40px 24px' }}>
+              <div className="tick">✅</div>
+              <h3>Заказ принят!</h3>
+              <p>Менеджер свяжется с вами в течение 15 минут.<br />Спасибо, что выбрали PLATFORMA!</p>
+              <button className="co-submit" style={{ marginTop: 24 }} onClick={handleClose}>Закрыть</button>
             </div>
+          ) : (
+            <div className="coform">
+              <div className="frow2">
+                <div className="finp-wrap">
+                  <label>Имя *</label>
+                  <input className="finp" placeholder="Иван Иванов" value={form.name} onChange={e => set({ name: e.target.value })} />
+                </div>
+                <div className="finp-wrap">
+                  <label>Телефон *</label>
+                  <input className="finp" placeholder="+7 (___) ___-__-__" value={form.phone}
+                    onChange={e => set({ phone: formatPhone(e.target.value) })} inputMode="tel" />
+                </div>
+              </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-[var(--muted)]">Email</label>
-              <input className={inp} type="email" placeholder="email@example.com" value={form.email} onChange={e => set({ email: e.target.value })} />
-            </div>
+              <div className="finp-wrap">
+                <label>Email</label>
+                <input className="finp" type="email" placeholder="email@example.com" value={form.email} onChange={e => set({ email: e.target.value })} />
+              </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-xs text-[var(--muted)]">Способ доставки</label>
-              <div className="flex gap-2">
-                {(['pvz', 'courier'] as DeliveryMethod[]).map(m => (
-                  <div key={m} onClick={() => set({ deliveryMethod: m })}
-                    className={`flex-1 text-center text-sm py-2 rounded-xl border cursor-pointer transition-colors ${form.deliveryMethod === m ? 'border-white bg-white/10' : 'border-gray-700 hover:border-gray-500'}`}>
-                    {m === 'pvz' ? '📦 Пункт выдачи' : '🚚 Курьер'}
+              <div className="finp-wrap">
+                <label>Способ доставки</label>
+                <div className="sub-methods">
+                  {(['pvz', 'courier'] as DeliveryMethod[]).map(m => (
+                    <div key={m} onClick={() => set({ deliveryMethod: m })}
+                      className={`sub-method ${form.deliveryMethod === m ? 'active' : ''}`}>
+                      <div className="sm-icon">{m === 'pvz' ? '📦' : '🚚'}</div>
+                      {m === 'pvz' ? 'Самовывоз / ПВЗ' : 'Доставка курьером'}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {form.deliveryMethod === 'courier' && (
+                <div className="finp-wrap">
+                  <label>Адрес доставки *</label>
+                  <input className="finp" placeholder="Город, улица, дом" value={form.address} onChange={e => set({ address: e.target.value })} />
+                </div>
+              )}
+              {form.deliveryMethod === 'pvz' && (
+                <div className="finp-wrap">
+                  <label>Адрес пункта выдачи</label>
+                  <input className="finp" placeholder="Введите адрес ПВЗ" value={form.pvzAddress} onChange={e => set({ pvzAddress: e.target.value })} />
+                </div>
+              )}
+
+              <div className="finp-wrap">
+                <label>Комментарий</label>
+                <textarea className="ftarea" placeholder="Пожелания к заказу..." value={form.comment} onChange={e => set({ comment: e.target.value })} />
+              </div>
+
+              <div className="co-items-preview">
+                {items.map((item, i) => (
+                  <div key={i} className="co-item-line">
+                    <span>{item.title} × {item.qty}</span>
+                    <span>{item.price > 0 ? fmt(item.price * item.qty) + ' ₽' : '—'}</span>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            {form.deliveryMethod === 'courier' && (
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-[var(--muted)]">Адрес доставки *</label>
-                <input className={inp} placeholder="Город, улица, дом, квартира" value={form.address} onChange={e => set({ address: e.target.value })} />
-              </div>
-            )}
-            {form.deliveryMethod === 'pvz' && (
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-[var(--muted)]">Адрес ПВЗ *</label>
-                <input className={inp} placeholder="Введите адрес пункта выдачи" value={form.pvzAddress} onChange={e => set({ pvzAddress: e.target.value })} />
-              </div>
-            )}
-
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-[var(--muted)]">Комментарий</label>
-              <textarea className={inp + ' resize-none h-20'} placeholder="Пожелания..." value={form.comment} onChange={e => set({ comment: e.target.value })} />
-            </div>
-
-            <div className="bg-[var(--bg)] rounded-xl p-3 flex flex-col gap-1 text-sm">
-              {items.map((item, i) => (
-                <div key={i} className="flex justify-between">
-                  <span className="text-[var(--muted)]">{item.title} × {item.qty}</span>
-                  <span>{item.price > 0 ? fmt(item.price * item.qty) + ' ₽' : '—'}</span>
+                <div className="co-total-line">
+                  <span>К оплате</span>
+                  <span>{fmt(finalTotal)} ₽</span>
                 </div>
-              ))}
-              <div className="flex justify-between font-bold pt-2 border-t border-gray-800 mt-1">
-                <span>К оплате</span>
-                <span>{fmt(finalTotal)} ₽</span>
+                {cashback > 0 && (
+                  <div className="co-cashback-note">💳 +{fmt(cashback)} ₽ вернётся на карту PLATFORMA</div>
+                )}
               </div>
-              {cashback > 0 && (
-                <div className="text-xs text-green-400">💳 +{fmt(cashback)} ₽ вернётся на карту PLATFORMA</div>
-              )}
+
+              <p className="privacy-note">
+                Нажимая «Отправить заказ», вы соглашаетесь с{' '}
+                <a href="/privacy" target="_blank">политикой обработки персональных данных</a> (ФЗ-152)
+              </p>
+
+              <button onClick={submit} disabled={loading} className="co-submit">
+                {loading ? 'Отправка...' : 'Отправить заказ'}
+              </button>
             </div>
-
-            <p className="text-xs text-[var(--muted)]">
-              Нажимая «Отправить заказ», вы соглашаетесь с{' '}
-              <a href="/privacy" target="_blank" className="underline">политикой обработки персональных данных</a> (ФЗ-152)
-            </p>
-
-            <button onClick={submit} disabled={loading}
-              className="w-full bg-[var(--dark)] text-white font-semibold py-3 rounded-xl hover:opacity-80 transition-opacity disabled:opacity-40">
-              {loading ? 'Отправка...' : 'Отправить заказ'}
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </>

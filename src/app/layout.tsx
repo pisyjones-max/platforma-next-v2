@@ -5,6 +5,10 @@ import { CartPanel } from '@/components/cart/CartPanel'
 import { CheckoutModal } from '@/components/cart/CheckoutModal'
 import { Header } from '@/components/ui/Header'
 import { Footer } from '@/components/ui/Footer'
+import { LoyaltyModal } from '@/components/ui/LoyaltyModal'
+import { ConsultModal } from '@/components/ui/ConsultModal'
+import { ExitIntentModal } from '@/components/ui/ExitIntentModal'
+import { ExitIntentTrigger } from '@/components/ui/ExitIntentTrigger'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -15,14 +19,20 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ru">
-      <body>
+      <body style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <CartProvider>
           <UIProvider>
             <Header />
-            {children}
+            <main style={{ flex: 1 }}>
+              {children}
+            </main>
             <Footer />
             <CartPanel />
             <CheckoutModal />
+            <LoyaltyModal />
+            <ConsultModal />
+            <ExitIntentModal />
+            <ExitIntentTrigger />
           </UIProvider>
         </CartProvider>
       </body>
