@@ -1,0 +1,297 @@
+'use client'
+import { useState } from 'react'
+import Link from 'next/link'
+import { useCart } from '@/context/CartContext'
+import { useUI } from '@/context/UIContext'
+import { imgUrl } from '@/lib/image'
+import { fmt } from '@/lib/price'
+import { SALE_RATE } from '@/lib/constants'
+import { getCalcType, calcResult, type CalcInputs } from '@/lib/calculator'
+import type { Product, Category } from '@/types/catalog'
+
+interface Props {
+  product: Product
+  category: Category
+  groupSlug: string
+  groupName: string
+}
+
+export function ProductPage({ product, category, groupSlug, groupName }: Props) {
+  const { add } = useCart()
+  const { openCart } = useUI()
+  const [varIdx, setVarIdx] = useState(0)
+  const [imgIdx, setImgIdx] = useState(0)
+  const [qty, setQty] = useState(1)
+  const [calcOpen, setCalcOpen] = useState(false)
+  const [added, setAdded] = useState(false)
+  const [lightbox, setLightbox] = useState(false)
+  const [callOpen, setCallOpen] = useState(false)
+  const [callPhone, setCallPhone] = useState('')
+  const [callSent, setCallSent] = useState(false)
+
+  const v = product.variants[varIdx]
+  const fp = Math.round(v.price * SALE_RATE)
+  const imgs = v.images ?? []
+  const handleZoomMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    const x = ((e.clientX - r.left) / r.width * 100).toFixed(1)
+    const y = ((e.clientY - r.top) / r.height * 100).toFixed(1)
+    e.currentTarget.style.setProperty("--zoom-x", x + "%")
+    e.currentTarget.style.setProperty("--zoom-y", y + "%")
+  }
+  const type = getCalcType(category.slug, category.name, product.title)
+
+  const [inputs, setInputs] = useState<CalcInputs>({
+    len: 10, wid: 6, slopes: 2, margin: 10,
+    perim: 40, gutterLen: 3,
+    areaInp: 60, layers: 1, packSize: v.pack_quantity ?? 1,
+    perM2: 8, wallH: 3, openings: 15,
+  })
+  const setInp = (patch: Partial<CalcInputs>) => setInputs(i => ({ ...i, ...patch }))
+  const result = calcResult(type, inputs, v.sku_name ?? '', v.pack_quantity ?? 1)
+
+  const handleAdd = () => {
+    add({ sku: v.sku, title: product.title + (v.color ? ` (${v.color})` : ''), price: fp, img: imgUrl(imgs[0] ?? ''), qty })
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1800)
+    openCart()
+  }
+
+  const handleCall = async () => {
+    if (!callPhone) return
+    await fetch('/api/order/callback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: callPhone, product: product.title }),
+    })
+    setCallSent(true)
+  }
+
+  const inp = (label: string, key: keyof CalcInputs, step = 1) => (
+    <div key={key} className="calc-inp-wrap">
+      <label>{label}</label>
+      <input type="number" className="calc-inp" step={step} value={inputs[key] ?? ''}
+        onChange={e => setInp({ [key]: parseFloat(e.target.value) })} />
+    </div>
+  )
+
+  return (
+    <div id="main">
+      {/* Хлебные крошки */}
+      <nav className="breadcrumb">
+        <span className="bc-item bc-link"><Link href="/">Каталог</Link></span>
+        {groupSlug && <><span className="bc-sep">›</span>
+          <span className="bc-item bc-link"><Link href={`/catalog/group/${groupSlug}`}>{groupName}</Link></span></>}
+        <span className="bc-sep">›</span>
+        <span className="bc-item bc-link"><Link href={`/catalog/${category.slug}`}>{category.name}</Link></span>
+        <span className="bc-sep">›</span>
+        <span className="bc-item bc-cur">{product.title}</span>
+      </nav>
+
+      {/* Основной блок */}
+      <div className="prod-layout">
+
+        {/* Галерея */}
+        <div className="prod-gal">
+          <div className="prod-main-img" onMouseMove={handleZoomMove} onClick={() => setLightbox(true)}>
+            {imgs.length > 0
+              ? <img src={imgUrl(imgs[imgIdx])} alt={product.title} loading="eager" />
+              : <div className="ph-big">📦</div>
+            }
+          </div>
+          {imgs.length > 1 && (
+            <div className="prod-thumbs">
+              {imgs.map((src, i) => (
+                <div key={i} className={`prod-thumb ${i === imgIdx ? 'active' : ''}`}
+                  onClick={() => setImgIdx(i)}>
+                  <img src={imgUrl(src)} alt="" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {/* Lightbox */}
+        {lightbox && imgs[imgIdx] && (
+          <div className="img-lightbox" onClick={() => setLightbox(false)}>
+            <button className="img-lightbox-close" onClick={() => setLightbox(false)}>✕</button>
+            <img src={imgUrl(imgs[imgIdx])} alt={product.title} onClick={e => e.stopPropagation()} />
+          </div>
+        )}
+
+        {/* Инфо */}
+        <div className="prod-info">
+          <h1 className="prod-title">{product.title}</h1>
+          <div className="prod-sku">Арт. {v.sku}</div>
+
+          {/* Цена */}
+          <div className="prod-price-block">
+            {v.price > 0 ? (
+              <>
+                <span className="prod-price">{fmt(fp)} ₽</span>
+                <span className="prod-oldprice">{fmt(v.price)} ₽</span>
+                <span className="prod-disc">−7%</span>
+              </>
+            ) : (
+              <span className="prod-price-req">Цена по запросу</span>
+            )}
+          </div>
+
+          {v.pack_quantity && v.pack_quantity > 1 && (
+            <div className="prod-pack-note">
+              Упаковка: {v.pack_quantity} шт · {fmt(Math.round(v.price * SALE_RATE * v.pack_quantity))} ₽/уп
+            </div>
+          )}
+
+          {/* Варианты */}
+          {product.variants.length > 1 && (
+            <div className="prod-section">
+              <div className="vlabel">Вариант</div>
+              <div className="vlist">
+                {product.variants.map((vv, i) => (
+                  <button key={i} className={`vbtn ${i === varIdx ? 'active' : ''}`}
+                    onClick={() => { setVarIdx(i); setImgIdx(0) }}>
+                    {vv.sku_name ?? vv.color ?? vv.sku}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Количество */}
+          <div className="prod-section">
+            <div className="vlabel">Количество</div>
+            <div className="qrow" style={{ marginTop: 8 }}>
+              <button className="qbtn" onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
+              <span className="qval">{qty}</span>
+              <button className="qbtn" onClick={() => setQty(q => q + 1)}>+</button>
+              {v.price > 0 && (
+                <span style={{ marginLeft: 12, fontSize: 15, fontWeight: 700, color: 'var(--accent)' }}>
+                  = {fmt(fp * qty)} ₽
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* CTA кнопки */}
+          <div className="prod-cta">
+            <button className="prod-add-btn" onClick={handleAdd}>
+              {added ? '✓ Добавлено в корзину!' : '+ В корзину'}
+            </button>
+            <button className="prod-call-btn" onClick={() => setCallOpen(o => !o)}>
+              📞 Обратный звонок
+            </button>
+          </div>
+
+          {/* Форма обратного звонка */}
+          {callOpen && (
+            <div className="prod-callback">
+              {callSent ? (
+                <div className="prod-callback-ok">✅ Перезвоним в течение 15 минут!</div>
+              ) : (
+                <>
+                  <input className="finp" placeholder="+7 (___) ___-__-__" value={callPhone}
+                    onChange={e => setCallPhone(e.target.value)} style={{ marginBottom: 8 }} />
+                  <button className="prod-add-btn" onClick={handleCall}>Перезвоните мне</button>
+                  <p style={{ fontSize: 10, color: 'var(--muted)', marginTop: 6 }}>
+                    Нажимая кнопку, вы соглашаетесь с{' '}
+                    <Link href="/privacy" style={{ textDecoration: 'underline' }}>политикой обработки данных</Link> (ФЗ-152)
+                  </p>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Телефон */}
+        </div>
+      </div>
+
+      {/* Калькулятор */}
+      <div className="calc-panel" style={{ marginTop: 24 }}>
+        <button className="calc-toggle" onClick={() => setCalcOpen(o => !o)}>
+          🧮 Калькулятор количества
+          <span style={{ marginLeft: 'auto', color: 'var(--muted)' }}>{calcOpen ? '▲' : '▼'}</span>
+        </button>
+        {calcOpen && (
+          <div className="calc-body">
+            <div className="calc-grid">
+              {type === 'roofing'    && <>{inp('Длина ската, м', 'len', 0.1)}{inp('Ширина ската, м', 'wid', 0.1)}{inp('Кол-во скатов', 'slopes')}{inp('Запас, %', 'margin')}</>}
+              {type === 'gutter'     && <>{inp('Периметр кровли, м', 'perim', 0.5)}{inp('Длина элемента, м', 'gutterLen', 0.5)}{inp('Запас, %', 'margin')}</>}
+              {type === 'insulation' && <>{inp('Площадь, м²', 'areaInp')}{inp('Слоёв', 'layers')}{inp('Плит в упаковке', 'packSize')}{inp('Запас, %', 'margin')}</>}
+              {type === 'screws'     && <>{inp('Площадь, м²', 'areaInp')}{inp('Расход, шт/м²', 'perM2')}{inp('Штук в упаковке', 'packSize')}</>}
+              {type === 'siding'     && <>{inp('Высота стены, м', 'wallH', 0.1)}{inp('Периметр, м', 'perim', 0.5)}{inp('Проёмы, м²', 'openings', 0.5)}{inp('Запас, %', 'margin')}</>}
+            </div>
+            <div className="calc-result">
+              <div className="cres-text">
+                Площадь: <strong>{result.area.toFixed(1)} {result.unit}</strong>
+                &nbsp;·&nbsp; Нужно: <strong>{result.qty} {result.qtyLabel}</strong>
+                {v.price > 0 && <>&nbsp;·&nbsp; Сумма: <strong style={{ color: 'var(--accent)' }}>{fmt(fp * result.qty)} ₽</strong></>}
+              </div>
+              <button className="calc-addbtn" onClick={() => {
+                add({ sku: v.sku, title: `${product.title} × ${result.qty} ${result.qtyLabel}`, price: fp, img: imgUrl(imgs[0] ?? ''), qty: result.qty })
+                openCart()
+              }}>
+                + {result.qty} {result.qtyLabel} в корзину
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Характеристики */}
+      {Object.keys(product.features ?? {}).length > 0 && (
+        <div className="prod-features">
+          <h2 className="prod-section-title">Характеристики</h2>
+          <div className="fgrid">
+            {Object.entries(product.features!).map(([k, val]) => (
+              <div key={k} className="frow">
+                <div className="fkey">{k}</div>
+                <div className="fval">{val}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Описание */}
+      {product.description && (
+        <div className="prod-desc">
+          <h2 className="prod-section-title">Описание</h2>
+          <p className="mdesc">{product.description}</p>
+        </div>
+      )}
+
+      {/* Похожие товары */}
+      <div className="prod-related">
+        <h2 className="prod-section-title">Другие товары в категории</h2>
+        <div className="pgrid">
+          {category.products.filter(p => p.id !== product.id).slice(0, 8).map(p => {
+            const pv = p.variants[0]
+            const pid = p.id.split('--').pop() ?? p.id
+            return (
+              <Link key={p.id} href={`/catalog/${category.slug}/${pid}`} className="pcard">
+                {pv.price > 0 && <div className="pcard-discount-tag">−7%</div>}
+                <div className="pthumb">
+                  {pv.images?.[0]
+                    ? <img src={imgUrl(pv.images[0])} alt={p.title} loading="lazy" />
+                    : <div className="ph">📦</div>
+                  }
+                </div>
+                <div className="pinfo">
+                  <div className="ptitle">{p.title}</div>
+                  {pv.price > 0 ? (
+                    <div className="pprow">
+                      <span className="pp">{fmt(Math.round(pv.price * SALE_RATE))} ₽</span>
+                      <span className="pop">{fmt(pv.price)} ₽</span>
+                    </div>
+                  ) : (
+                    <div className="pprow"><span className="psku">Цена по запросу</span></div>
+                  )}
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
