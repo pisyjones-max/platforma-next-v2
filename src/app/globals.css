@@ -865,7 +865,7 @@ input, select, textarea { font-family: var(--fb); }
 .lc-hdr::after { content:''; position:absolute; right:-20px; top:-20px; width:120px; height:120px; border-radius:50%; background:rgba(126,204,154,.08); }
 .lc-hdr-title  { font-family: var(--fh); font-size: 18px; font-weight: 700; margin-bottom: 4px; }
 .lc-hdr-sub    { font-size: 12px; opacity: .55; }
-.lc-hdr-close  { position:absolute; top:14px; right:16px; background:rgba(255,255,255,.1); border:none; color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; }
+.lc-hdr-close  { position:absolute; top:14px; right:16px; background:rgba(255,255,255,.1); border:none; color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; z-index:10; }
 .lc-hdr-close:hover { background: rgba(255,255,255,.2); }
 
 /* Карта */

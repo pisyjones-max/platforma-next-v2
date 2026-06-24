@@ -9,6 +9,7 @@ import { LoyaltyModal } from '@/components/ui/LoyaltyModal'
 import { ConsultModal } from '@/components/ui/ConsultModal'
 import { ExitIntentModal } from '@/components/ui/ExitIntentModal'
 import { ExitIntentTrigger } from '@/components/ui/ExitIntentTrigger'
+import { PromoBanner } from '@/components/ui/PromoBanner'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ConsultModal />
             <ExitIntentModal />
             <ExitIntentTrigger />
+            <PromoBanner />
           </UIProvider>
         </CartProvider>
       </body>
