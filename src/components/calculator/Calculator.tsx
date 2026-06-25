@@ -16,20 +16,29 @@ const TITLES: Record<CalcType, string> = {
   siding: '🏠 Калькулятор фасада',
 }
 
+// Храним как строки чтобы можно было стереть поле и ввести любое число вручную
+type RawInputs = Record<keyof CalcInputs, string>
+
+function toCalcInputs(raw: RawInputs): CalcInputs {
+  const parse = (v: string) => { const n = parseFloat(v.replace(',', '.')); return isNaN(n) ? 0 : n }
+  return Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, parse(v)])) as CalcInputs
+}
+
 export function Calculator({ catSlug, catName, product }: Props) {
   const { add } = useCart()
   const type = getCalcType(catSlug, catName, product?.title)
   const variant = product?.variants[0]
   const [open, setOpen] = useState(false)
   const [added, setAdded] = useState(false)
-  const [inputs, setInputs] = useState<CalcInputs>({
-    len: 10, wid: 6, slopes: 2, margin: 10,
-    perim: 40, gutterLen: 3,
-    areaInp: 60, layers: 1, packSize: variant?.pack_quantity ?? 1,
-    perM2: 8, wallH: 3, openings: 15,
+  const [raw, setRaw] = useState<RawInputs>({
+    len: '10', wid: '6', slopes: '2', margin: '10',
+    perim: '40', gutterLen: '3',
+    areaInp: '60', layers: '1', packSize: String(variant?.pack_quantity ?? 1),
+    perM2: '8', wallH: '3', openings: '15',
   })
 
-  const set = (patch: Partial<CalcInputs>) => setInputs(i => ({ ...i, ...patch }))
+  const inputs = toCalcInputs(raw)
+  const set = (key: keyof CalcInputs, val: string) => setRaw(r => ({ ...r, [key]: val }))
   const result = calcResult(type, inputs, variant?.sku_name ?? '', variant?.pack_quantity ?? 1)
 
   const handleAdd = () => {
@@ -40,12 +49,17 @@ export function Calculator({ catSlug, catName, product }: Props) {
     setTimeout(() => setAdded(false), 1800)
   }
 
-  const inp = (label: string, key: keyof CalcInputs, step = 1) => (
+  const inp = (label: string, key: keyof CalcInputs) => (
     <div key={key} className="flex flex-col gap-1">
       <label className="text-xs text-[var(--muted)]">{label}</label>
-      <input type="number" step={step} value={inputs[key] ?? ''}
-        onChange={e => set({ [key]: parseFloat(e.target.value) })}
-        className="px-3 py-2 rounded-xl border border-gray-700 bg-[var(--bg)] text-sm outline-none focus:border-gray-500" />
+      <input
+        type="text"
+        inputMode="decimal"
+        value={raw[key]}
+        onChange={e => set(key, e.target.value)}
+        onFocus={e => e.target.select()}
+        className="px-3 py-2 rounded-xl border border-gray-700 bg-[var(--bg)] text-sm outline-none focus:border-gray-500"
+      />
     </div>
   )
 
