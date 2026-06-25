@@ -1,7 +1,18 @@
 'use client'
 import Link from 'next/link'
 import { PHONE_NUMBER } from '@/lib/constants'
+import { HomeCalculator } from '@/components/ui/HomeCalculator'
+import { HomeFAQ } from '@/components/ui/HomeFAQ'
 import type { Catalog } from '@/types/catalog'
+
+const GROUP_ICONS: Record<string, string> = {
+  krovlya:       '🏠',
+  izolyatsiya:   '🧱',
+  fasad:         '🏗️',
+  vodostoki:     '🌧️',
+  krepezhnyye:   '🔩',
+  aksessuary:    '🛠️',
+}
 
 export function GroupsPage({ catalog }: { catalog: Catalog }) {
   return (
@@ -49,12 +60,18 @@ export function GroupsPage({ catalog }: { catalog: Catalog }) {
         ))}
       </div>
 
+      {/* Калькулятор */}
+      <HomeCalculator />
+
       {/* Категории */}
-      <div style={{ marginTop: 32 }}>
+      <div style={{ marginTop: 40 }}>
         <h2 className="prod-section-title">Категории товаров</h2>
         <div className="ggrid">
           {Object.entries(catalog.groups).map(([slug, g]) => (
             <Link key={slug} href={`/catalog/group/${slug}`} className="gcard">
+              <div style={{ fontSize: 24, marginRight: 4, flexShrink: 0 }}>
+                {GROUP_ICONS[slug] ?? '📦'}
+              </div>
               <div className="gcard-info">
                 <div className="gcard-title">{g.name}</div>
                 <div className="gcard-sub">{g.categories.length} категорий</div>
@@ -62,6 +79,71 @@ export function GroupsPage({ catalog }: { catalog: Catalog }) {
               <div className="gcard-arrow">›</div>
             </Link>
           ))}
+        </div>
+      </div>
+
+      {/* Социальное доказательство */}
+      <div style={{
+        marginTop: 40,
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+        gap: 12,
+      }}>
+        {[
+          { icon: '⭐', val: '4.9', label: 'Средняя оценка' },
+          { icon: '📦', val: '2 000+', label: 'Заказов выполнено' },
+          { icon: '🏢', val: '120+', label: 'Брендов в каталоге' },
+          { icon: '🗓️', val: '5 лет', label: 'На рынке МО' },
+        ].map((s, i) => (
+          <div key={i} style={{
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 14,
+            padding: '18px 16px',
+            textAlign: 'center',
+          }}>
+            <div style={{ fontSize: 24, marginBottom: 6 }}>{s.icon}</div>
+            <div style={{ fontFamily: 'var(--fh)', fontSize: 22, fontWeight: 800, color: 'var(--accent)', marginBottom: 3 }}>{s.val}</div>
+            <div style={{ fontSize: 12, color: 'var(--muted)' }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* FAQ */}
+      <HomeFAQ />
+
+      {/* Нижний CTA */}
+      <div style={{
+        marginTop: 48, marginBottom: 16,
+        background: 'linear-gradient(135deg, #1a3828 0%, #253d2b 100%)',
+        borderRadius: 20, padding: '32px 28px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: 20, flexWrap: 'wrap', color: '#fff',
+      }}>
+        <div>
+          <div style={{ fontFamily: 'var(--fh)', fontSize: 20, fontWeight: 800, marginBottom: 6 }}>
+            Нужна помощь с выбором материала?
+          </div>
+          <div style={{ fontSize: 13.5, opacity: 0.75 }}>
+            Специалист подберёт оптимальное решение под ваш проект и бюджет
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <a href={`tel:${PHONE_NUMBER}`} style={{
+            padding: '12px 22px', borderRadius: 12,
+            background: '#7ecc9a', color: '#0d1f14',
+            fontWeight: 800, fontSize: 14, textDecoration: 'none',
+          }}>
+            📞 Позвонить
+          </a>
+          <a href="https://t.me/platforma_mo" target="_blank" rel="noopener noreferrer" style={{
+            padding: '12px 22px', borderRadius: 12,
+            background: 'rgba(255,255,255,.12)', color: '#fff',
+            fontWeight: 700, fontSize: 14, textDecoration: 'none',
+            border: '1px solid rgba(255,255,255,.2)',
+          }}>
+            ✈️ Написать в Telegram
+          </a>
         </div>
       </div>
     </div>
