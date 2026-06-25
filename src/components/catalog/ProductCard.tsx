@@ -11,12 +11,28 @@ interface Props {
   img?: string
   sku?: string
   href?: string
+  description?: string
+  features?: Record<string, string>
   onClick?: () => void
 }
 
-export function ProductCard({ id, title, price, img, sku, href, onClick }: Props) {
+function buildDesc(description?: string, features?: Record<string, string>): string {
+  if (description && description.trim()) return description.trim()
+  if (!features) return ''
+  // Собираем ключевые характеристики для краткого описания
+  const keys = ['Производитель', 'Серия', 'Гарантия, лет', 'Страна производства', 'Толщина, мм', 'В упаковке, м2']
+  const parts: string[] = []
+  for (const k of keys) {
+    if (features[k]) parts.push(`${k}: ${features[k]}`)
+    if (parts.length >= 3) break
+  }
+  return parts.join(' · ')
+}
+
+export function ProductCard({ id, title, price, img, sku, href, description, features, onClick }: Props) {
   const { add } = useCart()
   const salePrice = Math.round(price * 0.93)
+  const desc = buildDesc(description, features)
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -36,6 +52,19 @@ export function ProductCard({ id, title, price, img, sku, href, onClick }: Props
       <div className="pinfo">
         <div className="ptitle">{title}</div>
         {sku && <div className="psku">Арт. {sku}</div>}
+        {desc && (
+          <div style={{
+            fontSize: 11.5,
+            color: 'var(--muted)',
+            lineHeight: 1.5,
+            marginTop: 4,
+            marginBottom: 2,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}>{desc}</div>
+        )}
         {price > 0 ? (
           <div className="pprow">
             <span className="pp">{fmt(salePrice)} ₽</span>

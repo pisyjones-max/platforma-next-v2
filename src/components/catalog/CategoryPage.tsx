@@ -62,6 +62,8 @@ export function CategoryPage({ category, parentGroup, catalog }: Props) {
               img={p.variants?.[0]?.images?.[0]}
               sku={p.variants?.[0]?.sku}
               href={`/catalog/${category.slug}/${pid}`}
+              description={p.description}
+              features={p.features}
             />
           )
         })}
