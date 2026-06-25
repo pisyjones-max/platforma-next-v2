@@ -11,6 +11,8 @@ import { ConsultModal } from '@/components/ui/ConsultModal'
 import { ExitIntentModal } from '@/components/ui/ExitIntentModal'
 import { ExitIntentTrigger } from '@/components/ui/ExitIntentTrigger'
 import { PromoBanner } from '@/components/ui/PromoBanner'
+import { PromosBanner } from '@/components/ui/PromosBanner'
+import { TelegramChat } from '@/components/ui/TelegramChat'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -90,6 +92,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ExitIntentModal />
             <ExitIntentTrigger />
             <PromoBanner />
+            <PromosBanner />
+            <TelegramChat />
           </UIProvider>
         </CartProvider>
       </body>
