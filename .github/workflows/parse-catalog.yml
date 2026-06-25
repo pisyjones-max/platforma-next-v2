@@ -1,0 +1,61 @@
+name: Parse mk4s.ru catalog
+
+on:
+  # Каждую ночь в 3:00 по МСК (00:00 UTC)
+  schedule:
+    - cron: '0 0 * * *'
+  # Ручной запуск из вкладки Actions
+  workflow_dispatch:
+
+jobs:
+  parse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120   # парсинг ~2000 товаров занимает около часа
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Берём LFS если есть (на случай больших файлов)
+          lfs: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 pandas openpyxl lxml
+
+      - name: Run parser
+        env:
+          REPO_ROOT: ${{ github.workspace }}
+        run: python scripts/parser.py
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git add public/catalog/catalog.json public/images/
+          if git diff --cached --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            ADDED=$(git diff --cached --stat | tail -1)
+            echo "stats=$ADDED" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "🤖 parser: обновление каталога $(date +'%d.%m.%Y %H:%M') | ${{ steps.changes.outputs.stats }}"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: No changes
+        if: steps.changes.outputs.changed == 'false'
+        run: echo "✅ Каталог актуален, изменений нет"
