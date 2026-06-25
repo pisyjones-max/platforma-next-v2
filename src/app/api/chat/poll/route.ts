@@ -33,13 +33,13 @@ export async function GET(req: NextRequest) {
       if (!msg?.text) continue
 
       // Manager replies in format: SESSION_ID: reply text
-      const match = msg.text.match(/^([a-z0-9]+):\s*(.+)/si)
+      const match = msg.text.match(/^([a-z0-9]+):\s*([\s\S]+)/i)
       if (match && match[1] === sessionId) {
         messages.push({ text: match[2].trim(), ts: msg.date * 1000 })
       }
 
       // Or /reply SESSIONID text
-      const cmdMatch = msg.text.match(/^\/reply\s+([a-z0-9]+)\s+(.+)/si)
+      const cmdMatch = msg.text.match(/^\/reply\s+([a-z0-9]+)\s+([\s\S]+)/i)
       if (cmdMatch && cmdMatch[1] === sessionId) {
         messages.push({ text: cmdMatch[2].trim(), ts: msg.date * 1000 })
       }
