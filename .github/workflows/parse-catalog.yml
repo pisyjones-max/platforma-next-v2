@@ -1,23 +1,20 @@
 name: Parse mk4s.ru catalog
 
 on:
-  # Каждую ночь в 3:00 по МСК (00:00 UTC)
   schedule:
     - cron: '0 0 * * *'
-  # Ручной запуск из вкладки Actions
   workflow_dispatch:
 
 jobs:
   parse:
     runs-on: ubuntu-latest
-    timeout-minutes: 120   # парсинг ~2000 товаров занимает около часа
+    timeout-minutes: 120
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # Берём LFS если есть (на случай больших файлов)
           lfs: false
 
       - name: Set up Python
@@ -25,9 +22,10 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
+          cache-dependency-path: scripts/requirements.txt
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4 pandas openpyxl lxml
+        run: pip install -r scripts/requirements.txt
 
       - name: Run parser
         env:
