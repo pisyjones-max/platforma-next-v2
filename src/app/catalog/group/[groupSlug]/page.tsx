@@ -15,11 +15,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const catCount = group.categories.length
   return {
     title: `${group.name} — купить в Московской области`,
-    description: `${group.name} — ${catCount} категорий в наличии. Доставка по Московской области. Скидка −7% на всё. Самовывоз из Ногинска. Звоните: +7 (933) 203-30-05.`,
+    description: `${group.name} — ${catCount} категорий в наличии. Доставка по Московской области. Скидка −17% на всё. Самовывоз из Ногинска. Звоните: +7 (933) 203-30-05.`,
     alternates: { canonical: `/catalog/group/${groupSlug}` },
     openGraph: {
       title: `${group.name} — PLATFORMA`,
-      description: `Купить ${group.name.toLowerCase()} в МО. Скидка −7%. Доставка и самовывоз.`,
+      description: `Купить ${group.name.toLowerCase()} в МО. Скидка −17%. Доставка и самовывоз.`,
     },
   }
 }

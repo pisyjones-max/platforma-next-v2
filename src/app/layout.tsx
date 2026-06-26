@@ -1,3 +1,4 @@
+import { SITE_URL } from '@/lib/site'
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import { CartProvider } from '@/context/CartContext'
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     template: '%s | PLATFORMA',
   },
   description:
-    'Кровельные и строительные материалы оптом и в розницу. Доставка по Московской области. Скидка −7% при заказе. Звоните: +7 (933) 203-30-05. Самовывоз из Ногинска.',
+    'Кровельные и строительные материалы оптом и в розницу. Доставка по Московской области. Скидка −17% при заказе. Звоните: +7 (933) 203-30-05. Самовывоз из Ногинска.',
   keywords: [
     'кровельные материалы',
     'строительные материалы Московская область',
@@ -33,14 +34,14 @@ export const metadata: Metadata = {
     'доставка кровли МО',
     'PLATFORMA',
   ],
-  metadataBase: new URL('https://platforma-next-v2.vercel.app'),
+  metadataBase: new URL(SITE_URL),
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     locale: 'ru_RU',
     siteName: 'PLATFORMA',
     title: 'PLATFORMA — кровельные материалы с доставкой по МО',
-    description: 'Кровельные и строительные материалы. Скидка −7%. Доставка по Московской области. Ногинск.',
+    description: 'Кровельные и строительные материалы. Скидка −17%. Доставка по Московской области. Ногинск.',
   },
   robots: {
     index: true,

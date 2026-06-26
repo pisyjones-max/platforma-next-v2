@@ -107,7 +107,7 @@ export function ExitIntentModal() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
                   {[
                     { icon: '💳', text: '5 000 ₽ бонусными рублями — сразу на счёт' },
-                    { icon: '🏷️', text: 'Скидка −7% на весь ассортимент навсегда' },
+                    { icon: '🏷️', text: 'Скидка −17% на весь ассортимент навсегда' },
                     { icon: '📦', text: 'Кэшбэк 0.5% с каждой покупки' },
                     { icon: '🔧', text: 'Бесплатный выезд замерщика' },
                   ].map((item, i) => (

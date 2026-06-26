@@ -32,7 +32,7 @@ export function CategoryPage({ category, parentGroup, catalog }: Props) {
       <div className="hero">
         <div>
           <h1>{category.name}</h1>
-          <p>Доставка по Московской области · Скидка −7% на всё</p>
+          <p>Доставка по Московской области · Скидка −17% на всё</p>
         </div>
         <div className="hero-right">
           <div className="hero-stat"><span>{category.products.length}</span><small>товаров</small></div>
