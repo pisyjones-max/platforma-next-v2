@@ -14,7 +14,7 @@ const MODES: { id: Mode; icon: string; label: string }[] = [
 const SEARCH_LINKS: Record<Mode, string> = {
   roofing:    '/catalog/group/krovlya',
   insulation: '/catalog/group/izolyatsiya',
-  siding:     '/catalog/group/fasad',
+  siding:     '/catalog/group/sayding',
   gutter:     '/catalog/group/vodostoki',
 }
 

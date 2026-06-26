@@ -12,7 +12,7 @@ export function productSlug(id: string): string {
 /**
  * Ищет товар в категории по productId из URL
  */
-export function findProductBySlug(products: { id: string }[], productId: string) {
+export function findProductBySlug<T extends { id: string }>(products: T[], productId: string): T | undefined {
   return products.find(p =>
     productSlug(p.id) === productId ||
     p.id.split('--').pop() === productId ||  // обратная совместимость со старыми URL
