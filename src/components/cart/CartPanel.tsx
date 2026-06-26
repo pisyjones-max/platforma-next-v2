@@ -2,7 +2,7 @@
 import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
 import { fmt } from '@/lib/price'
-import { CASHBACK_RATE } from '@/lib/constants'
+import { CASHBACK_RATE, VOLUME_DISCOUNTS } from '@/lib/constants'
 
 export function CartPanel() {
   const { items, remove, setQty, total, loyalty } = useCart()
@@ -12,7 +12,11 @@ export function CartPanel() {
 
   const cashback = Math.round(total * CASHBACK_RATE)
   const lcBal = loyalty ? Math.min(loyalty.balance, total) : 0
-  const finalTotal = Math.max(0, total - lcBal)
+  const volDisc = [...VOLUME_DISCOUNTS].reverse().find(d => total >= d.from)
+  const discAmt = volDisc ? Math.round(total * volDisc.rate) : 0
+  const finalTotal = Math.max(0, total - lcBal - discAmt)
+  // Следующий порог скидки
+  const nextTier = VOLUME_DISCOUNTS.find(d => total < d.from)
 
   return (
     <>
@@ -47,6 +51,16 @@ export function CartPanel() {
             <span className="ctlbl">Итого</span>
             <span className="ctval">{fmt(finalTotal)} ₽</span>
           </div>
+          {volDisc && (
+            <div className="ccashback" style={{ color: '#4ade80' }}>
+              🎁 Скидка от объёма ({volDisc.label}): −{fmt(discAmt)} ₽
+            </div>
+          )}
+          {nextTier && (
+            <div className="ccashback" style={{ color: '#facc15', fontSize: 12 }}>
+              ➕ Ещё {fmt(nextTier.from - total)} ₽ — и скидка {nextTier.rate * 100}%
+            </div>
+          )}
           {cashback > 0 && (
             <div className="ccashback">💳 +{fmt(cashback)} ₽ кэшбэк на карту PLATFORMA</div>
           )}

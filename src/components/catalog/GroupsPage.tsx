@@ -26,7 +26,7 @@ export function GroupsPage({ catalog }: { catalog: Catalog }) {
             <span style={{ color: '#7ECC9A' }}>с доставкой по МО</span>
           </h1>
           <p className="home-hero-sub">
-            {catalog.meta?.total_products ?? 0} товаров в наличии · Скидка −7% на всё · Доставка от 1 дня
+            {catalog.meta?.total_products ?? 0} товаров в наличии · Скидка −17% на всё · Доставка от 1 дня
           </p>
           <div className="home-hero-actions">
             <a href={`tel:${PHONE_NUMBER}`} className="home-hero-phone">
@@ -39,7 +39,7 @@ export function GroupsPage({ catalog }: { catalog: Catalog }) {
         </div>
         <div className="home-hero-right">
           <div className="hero-stat"><span>{catalog.meta?.total_products ?? 0}</span><small>товаров</small></div>
-          <div className="hero-badge"><div className="hero-badge-val">−7%</div><div className="hero-badge-lbl">скидка</div></div>
+          <div className="hero-badge"><div className="hero-badge-val">−17%</div><div className="hero-badge-lbl">скидка</div></div>
           <div className="hero-stat"><span>1</span><small>день доставка</small></div>
         </div>
       </div>
@@ -48,7 +48,7 @@ export function GroupsPage({ catalog }: { catalog: Catalog }) {
       <div className="home-features">
         {[
           { icon: '🚚', title: 'Быстрая доставка', sub: 'По Московской области от 1 дня' },
-          { icon: '💰', title: 'Скидка −7%', sub: 'На весь ассортимент сайта' },
+          { icon: '💰', title: 'Скидка −17%', sub: 'На весь ассортимент сайта' },
           { icon: '📞', title: 'Консультация', sub: 'Бесплатно по телефону' },
           { icon: '✅', title: 'Гарантия', sub: 'Официальная от производителей' },
         ].map(f => (

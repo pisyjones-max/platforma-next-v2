@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
 import { fmt } from '@/lib/price'
-import { CASHBACK_RATE } from '@/lib/constants'
+import { CASHBACK_RATE, VOLUME_DISCOUNTS } from '@/lib/constants'
 import type { CheckoutForm, DeliveryMethod } from '@/types/cart'
 
 const EMPTY: CheckoutForm = {
@@ -34,7 +34,9 @@ export function CheckoutModal() {
   if (!checkoutOpen) return null
 
   const lcBal = loyalty ? Math.min(loyalty.balance, total) : 0
-  const finalTotal = Math.max(0, total - lcBal)
+  const volDisc = [...VOLUME_DISCOUNTS].reverse().find(d => total >= d.from)
+  const discAmt = volDisc ? Math.round(total * volDisc.rate) : 0
+  const finalTotal = Math.max(0, total - lcBal - discAmt)
   const cashback = Math.round(total * CASHBACK_RATE)
   const set = (patch: Partial<CheckoutForm>) => setForm(f => ({ ...f, ...patch }))
 
@@ -129,6 +131,11 @@ export function CheckoutModal() {
                   <span>К оплате</span>
                   <span>{fmt(finalTotal)} ₽</span>
                 </div>
+                {volDisc && (
+                  <div className="co-cashback-note" style={{ color: '#4ade80' }}>
+                    🎁 Скидка от объёма {volDisc.label}: −{fmt(discAmt)} ₽ ({volDisc.rate * 100}%)
+                  </div>
+                )}
                 {cashback > 0 && (
                   <div className="co-cashback-note">💳 +{fmt(cashback)} ₽ вернётся на карту PLATFORMA</div>
                 )}

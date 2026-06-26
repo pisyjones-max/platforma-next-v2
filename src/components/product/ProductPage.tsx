@@ -5,7 +5,7 @@ import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
 import { imgUrl } from '@/lib/image'
 import { fmt } from '@/lib/price'
-import { SALE_RATE } from '@/lib/constants'
+import { SALE_RATE, DISC_LABEL } from '@/lib/constants'
 import { getCalcType, calcResult, type CalcInputs } from '@/lib/calculator'
 import { AddedToCartToast } from '@/components/ui/AddedToCartToast'
 import type { Product, Category } from '@/types/catalog'
@@ -211,7 +211,7 @@ export function ProductPage({ product, category, groupSlug, groupName }: Props) 
               <>
                 <span className="prod-price">{fmt(fp)} ₽</span>
                 <span className="prod-oldprice">{fmt(v.price)} ₽</span>
-                <span className="prod-disc">−7%</span>
+                <span className="prod-disc">{DISC_LABEL}</span>
               </>
             ) : (
               <span className="prod-price-req">Цена по запросу</span>
@@ -372,7 +372,7 @@ export function ProductPage({ product, category, groupSlug, groupName }: Props) 
             const pid = p.id.split('--').pop() ?? p.id
             return (
               <Link key={p.id} href={`/catalog/${category.slug}/${pid}`} className="pcard">
-                {pv.price > 0 && <div className="pcard-discount-tag">−7%</div>}
+                {pv.price > 0 && <div className="pcard-discount-tag">{DISC_LABEL}</div>}
                 <div className="pthumb">
                   {pv.images?.[0]
                     ? <img src={imgUrl(pv.images[0])} alt={p.title} loading="lazy" />
