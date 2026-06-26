@@ -129,9 +129,6 @@ export function CheckoutModal() {
                   <span>К оплате</span>
                   <span>{fmt(finalTotal)} ₽</span>
                 </div>
-                  <div className="co-cashback-note" style={{ color: '#4ade80' }}>
-                  </div>
-                )}
                 {cashback > 0 && (
                   <div className="co-cashback-note">💳 +{fmt(cashback)} ₽ вернётся на карту PLATFORMA</div>
                 )}
