@@ -8,7 +8,7 @@ import type { Product } from '@/types/catalog'
 
 interface Props { catSlug: string; catName: string; product?: Product }
 
-const TITLES: Record<CalcType, string> = {
+const TITLES: Record<Exclude<CalcType, null>, string> = {
   roofing: '🏗️ Калькулятор кровли',
   gutter: '🌧️ Калькулятор водостока',
   insulation: '🧱 Калькулятор утеплителя',
@@ -36,6 +36,8 @@ export function Calculator({ catSlug, catName, product }: Props) {
     areaInp: '60', layers: '1', packSize: String(variant?.pack_quantity ?? 1),
     perM2: '8', wallH: '3', openings: '15',
   })
+
+  if (!type) return null
 
   const inputs = toCalcInputs(raw)
   const set = (key: keyof CalcInputs, val: string) => setRaw(r => ({ ...r, [key]: val }))
