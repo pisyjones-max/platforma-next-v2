@@ -1,26 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendTG, sendTG2, tgEsc } from '@/lib/telegram'
 import { fmt } from '@/lib/price'
-import { VOLUME_DISCOUNTS } from '@/lib/constants'
 import type { CartItem, CheckoutForm } from '@/types/cart'
 
 export async function POST(req: NextRequest) {
   const { form, items, total }: { form: CheckoutForm; items: CartItem[]; total: number } = await req.json()
-
-  // Объёмная скидка
-  const volDisc = [...VOLUME_DISCOUNTS].reverse().find(d => total >= d.from)
-  const discAmt  = volDisc ? Math.round(total * volDisc.rate) : 0
-  const finalAmt = total - discAmt
 
   const lines = items.map(i => `— ${tgEsc(i.title)} × ${i.qty} = ${fmt(i.price * i.qty)} ₽`).join('\n')
 
   const delivery = form.deliveryMethod === 'pvz'
     ? `ПВЗ: ${tgEsc(form.pvzAddress || 'не выбран')}`
     : `Курьер: ${tgEsc(form.address)}`
-
-  const discLine = volDisc
-    ? `\n🎁 *Скидка от объёма (${volDisc.label}):* −${fmt(discAmt)} ₽ (${volDisc.rate * 100}%)`
-    : ''
 
   // --- Наш чат: полная информация с контактами ---
   const textFull =
@@ -30,12 +20,11 @@ export async function POST(req: NextRequest) {
     `📧 *Email:* ${tgEsc(form.email || '—')}\n` +
     `🚚 *Доставка:* ${delivery}\n\n` +
     `📦 *Состав:*\n${lines}\n\n` +
-    `💰 *Сумма:* ${fmt(total)} ₽${discLine}\n` +
-    `✅ *К оплате:* ${fmt(finalAmt)} ₽\n` +
+    `💰 *Сумма:* ${fmt(total)} ₽\n` +
     `💬 ${tgEsc(form.comment || '—')}\n` +
     `🕐 ${new Date().toLocaleString('ru-RU')}`
 
-  // --- Фирма-поставщик: только состав, без контактов ---
+  // --- Фирма-поставщик: только состав, без контактов клиента ---
   const textSupplier =
     `📋 *Заявка на поставку — PLATFORMA*\n\n` +
     `📦 *Состав:*\n${lines}\n\n` +
@@ -48,5 +37,5 @@ export async function POST(req: NextRequest) {
     sendTG2(textSupplier),
   ])
 
-  return NextResponse.json({ ok, discount: discAmt, finalTotal: finalAmt })
+  return NextResponse.json({ ok, finalTotal: total })
 }

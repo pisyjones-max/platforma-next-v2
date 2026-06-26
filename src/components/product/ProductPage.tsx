@@ -306,7 +306,8 @@ export function ProductPage({ product, category, groupSlug, groupName }: Props) 
         </div>
       </div>
 
-      {/* Калькулятор */}
+      {/* Калькулятор — только для категорий где он имеет смысл */}
+      {type !== null && (
       <div className="calc-panel" style={{ marginTop: 24 }}>
         <button className="calc-toggle" onClick={() => setCalcOpen(o => !o)}>
           🧮 Калькулятор количества
@@ -339,6 +340,7 @@ export function ProductPage({ product, category, groupSlug, groupName }: Props) 
           </div>
         )}
       </div>
+      )}
 
       {/* Характеристики */}
       {Object.keys(product.features ?? {}).length > 0 && (
