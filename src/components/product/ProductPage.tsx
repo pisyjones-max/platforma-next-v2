@@ -43,7 +43,7 @@ export function ProductPage({ product, category, groupSlug, groupName }: Props) 
     e.currentTarget.style.setProperty("--zoom-x", x + "%")
     e.currentTarget.style.setProperty("--zoom-y", y + "%")
   }
-  const type = getCalcType(category.slug, category.name, product.title)
+  const type = getCalcType(groupSlug, category.slug, category.name, product.title)
 
   const [inputs, setInputs] = useState<CalcInputs>({
     len: 10, wid: 6, slopes: 2, margin: 10,

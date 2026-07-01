@@ -33,10 +33,10 @@ const NO_CALC_SLUGS = new Set([
   'krepezh',          // крепёж — лучше перестраховаться, там упаковки с фиксированным кол-вом
 ])
 
-export function getCalcType(slug: string, name: string, productTitle = ''): CalcType {
-  // Проверяем slug категории — некоторые категории без калькулятора
+export function getCalcType(groupSlug: string, slug: string, name: string, productTitle = ''): CalcType {
+  // Проверяем slug ГРУППЫ (не категории!) — именно группы перечислены в NO_CALC_SLUGS
   for (const noSlug of NO_CALC_SLUGS) {
-    if (slug.includes(noSlug)) return null
+    if (groupSlug.includes(noSlug)) return null
   }
 
   const c = `${slug} ${name.toLowerCase()} ${productTitle.toLowerCase()}`

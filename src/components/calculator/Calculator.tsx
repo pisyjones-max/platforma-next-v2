@@ -6,7 +6,7 @@ import { imgUrl } from '@/lib/image'
 import { SALE_RATE } from '@/lib/constants'
 import type { Product } from '@/types/catalog'
 
-interface Props { catSlug: string; catName: string; product?: Product }
+interface Props { groupSlug?: string; catSlug: string; catName: string; product?: Product }
 
 const TITLES: Record<Exclude<CalcType, null>, string> = {
   roofing: '🏗️ Калькулятор кровли',
@@ -24,9 +24,9 @@ function toCalcInputs(raw: RawInputs): CalcInputs {
   return Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, parse(v)])) as CalcInputs
 }
 
-export function Calculator({ catSlug, catName, product }: Props) {
+export function Calculator({ groupSlug = '', catSlug, catName, product }: Props) {
   const { add } = useCart()
-  const type = getCalcType(catSlug, catName, product?.title)
+  const type = getCalcType(groupSlug, catSlug, catName, product?.title ?? '')
   const variant = product?.variants[0]
   const [open, setOpen] = useState(false)
   const [added, setAdded] = useState(false)
