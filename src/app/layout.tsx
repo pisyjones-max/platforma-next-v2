@@ -1,4 +1,5 @@
 import { SITE_URL } from '@/lib/site'
+import { organizationSchema, websiteSchema, jsonLdScriptProps } from '@/lib/schema'
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import { CartProvider } from '@/context/CartContext'
@@ -54,6 +55,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ru">
       <head>
+        {/* Schema.org: Organization + WebSite */}
+        <script {...jsonLdScriptProps(organizationSchema())} />
+        <script {...jsonLdScriptProps(websiteSchema())} />
+
         {/* Яндекс.Метрика */}
         <Script id="ym-init" strategy="afterInteractive">{`
           (function(m,e,t,r,i,k,a){

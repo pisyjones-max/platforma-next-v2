@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getCatalog, findCategory, getParentGroup } from '@/lib/catalog'
+import { breadcrumbSchema, jsonLdScriptProps } from '@/lib/schema'
 import { CategoryPage } from '@/components/catalog/CategoryPage'
 import type { Metadata } from 'next'
 
@@ -34,5 +35,17 @@ export default async function CatalogCategoryPage({ params }: Props) {
   const cat = findCategory(catalog, catSlug)
   if (!cat) notFound()
   const parent = getParentGroup(catalog, catSlug)
-  return <CategoryPage category={cat} parentGroup={parent} catalog={catalog} />
+
+  const breadcrumbs = breadcrumbSchema([
+    { name: 'Главная', url: '/' },
+    ...(parent ? [{ name: parent.group.name, url: `/catalog/group/${parent.slug}` }] : []),
+    { name: cat.name, url: `/catalog/${catSlug}` },
+  ])
+
+  return (
+    <>
+      <script {...jsonLdScriptProps(breadcrumbs)} />
+      <CategoryPage category={cat} parentGroup={parent} catalog={catalog} />
+    </>
+  )
 }

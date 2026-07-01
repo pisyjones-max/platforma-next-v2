@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import { getCatalog, findCategory } from '@/lib/catalog'
 import { findProductBySlug } from '@/lib/slug'
+import { imgUrl } from '@/lib/image'
+import { productSchema, breadcrumbSchema, jsonLdScriptProps } from '@/lib/schema'
 import { ProductPage } from '@/components/product/ProductPage'
 import type { Metadata } from 'next'
 
@@ -35,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: `${product.title} — PLATFORMA`,
       description: `Цена ${priceStr}. Скидка −17%. Доставка по Московской области.`,
-      images: v.images?.[0] ? [{ url: `/${v.images[0]}`, alt: product.title }] : [],
+      images: v.images?.[0] ? [{ url: imgUrl(v.images[0]), alt: product.title }] : [],
     },
   }
 }
@@ -50,12 +52,23 @@ export default async function ProductRoute({ params }: Props) {
   const parent = Object.entries(catalog.groups)
     .find(([, g]) => g.categories.includes(catSlug))
 
+  const breadcrumbs = breadcrumbSchema([
+    { name: 'Главная', url: '/' },
+    ...(parent ? [{ name: parent[1].name, url: `/catalog/group/${parent[0]}` }] : []),
+    { name: cat.name, url: `/catalog/${catSlug}` },
+    { name: product.title, url: `/catalog/${catSlug}/${productId}` },
+  ])
+
   return (
-    <ProductPage
-      product={product}
-      category={cat}
-      groupSlug={parent?.[0] ?? ''}
-      groupName={parent?.[1]?.name ?? ''}
-    />
+    <>
+      <script {...jsonLdScriptProps(productSchema(product, cat, catSlug, productId))} />
+      <script {...jsonLdScriptProps(breadcrumbs)} />
+      <ProductPage
+        product={product}
+        category={cat}
+        groupSlug={parent?.[0] ?? ''}
+        groupName={parent?.[1]?.name ?? ''}
+      />
+    </>
   )
 }
