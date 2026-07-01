@@ -51,7 +51,7 @@ export function Calculator({ catSlug, catName, product }: Props) {
     setTimeout(() => setAdded(false), 1800)
   }
 
-  const inp = (label: string, key: keyof CalcInputs) => (
+  const inp = (label: string, key: keyof CalcInputs, _step?: number) => (
     <div key={key} className="flex flex-col gap-1">
       <label className="text-xs text-[var(--muted)]">{label}</label>
       <input

@@ -23,19 +23,19 @@ export function CartPanel() {
         <div className="citems">
           {items.length === 0
             ? <div className="cempty">Корзина пуста</div>
-            : items.map(item => (
+            : items.map((item, index) => (
               <div key={item.sku} className="citem">
                 {item.img && <img src={item.img} alt={item.title} className="cimg" />}
                 <div className="cinfo">
                   <div className="ctit">{item.title}</div>
                   <div className="cprice">{fmt(item.price)} ₽</div>
                   <div className="cqty">
-                    <button onClick={() => setQty(item.sku, item.qty - 1)}>−</button>
+                    <button onClick={() => setQty(index, item.qty - 1)}>−</button>
                     <span>{item.qty}</span>
-                    <button onClick={() => setQty(item.sku, item.qty + 1)}>+</button>
+                    <button onClick={() => setQty(index, item.qty + 1)}>+</button>
                   </div>
                 </div>
-                <button className="cremove" onClick={() => remove(item.sku)}>✕</button>
+                <button className="cremove" onClick={() => remove(index)}>✕</button>
               </div>
             ))
           }
