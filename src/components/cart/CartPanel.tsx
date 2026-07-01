@@ -6,11 +6,13 @@ import { CASHBACK_RATE } from '@/lib/constants'
 
 export function CartPanel() {
   const { items, remove, setQty, total, loyalty } = useCart()
-  const { openCheckout, closeCart } = useUI()
+  const { cartOpen, openCheckout, closeCart } = useUI()
 
   const cashback = Math.round(total * CASHBACK_RATE)
   const lcBal = loyalty ? Math.min(loyalty.balance, total) : 0
   const finalTotal = Math.max(0, total - lcBal)
+
+  if (!cartOpen) return null
 
   return (
     <>
