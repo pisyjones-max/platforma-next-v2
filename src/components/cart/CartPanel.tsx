@@ -24,7 +24,7 @@ export function CartPanel() {
           {items.length === 0
             ? <div className="cempty">Корзина пуста</div>
             : items.map((item, index) => (
-              <div key={item.sku} className="citem">
+              <div key={item.sku} className="crow">
                 {item.img && <img src={item.img} alt={item.title} className="cimg" />}
                 <div className="cinfo">
                   <div className="ctit">{item.title}</div>
