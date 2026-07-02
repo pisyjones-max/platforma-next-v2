@@ -1,23 +1,13 @@
 'use client'
 import { useState } from 'react'
 import { useUI } from '@/context/UIContext'
+import { useCard } from '@/context/CardContext'
 import { PHONE_NUMBER } from '@/lib/constants'
-
-function formatPhone(raw: string): string {
-  let v = raw.replace(/\D/g, '')
-  if (v.startsWith('8')) v = '7' + v.slice(1)
-  if (v.length > 0 && !v.startsWith('7')) v = '7' + v
-  v = v.slice(0, 11)
-  let out = v.length > 0 ? '+7' : ''
-  if (v.length > 1) out += ' (' + v.slice(1, 4)
-  if (v.length >= 4) out += ') ' + v.slice(4, 7)
-  if (v.length >= 7) out += '-' + v.slice(7, 9)
-  if (v.length >= 9) out += '-' + v.slice(9, 11)
-  return out
-}
+import { formatPhone } from '@/lib/phone'
 
 export function LoyaltyModal() {
   const { loyaltyOpen, closeLoyalty } = useUI()
+  const { markVerified } = useCard()
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [sent, setSent] = useState(false)
@@ -28,11 +18,19 @@ export function LoyaltyModal() {
   const handleSubmit = async () => {
     if (!name || !phone) { alert('Заполните имя и телефон'); return }
     setLoading(true)
-    await fetch('/api/order/callback', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, product: `Карта лояльности PLATFORMA — ${name}`, type: 'loyalty' }),
-    })
+    await Promise.all([
+      fetch('/api/order/callback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, product: `Карта лояльности PLATFORMA — ${name}`, type: 'loyalty' }),
+      }),
+      fetch('/api/card/issue', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone }),
+      }),
+    ])
+    markVerified(phone)
     setLoading(false)
     setSent(true)
   }

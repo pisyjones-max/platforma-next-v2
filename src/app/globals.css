@@ -1458,6 +1458,26 @@ body { overflow-x: hidden; }
   color: var(--gold); text-decoration: underline; text-underline-offset: 2px;
 }
 .prod-get-card-btn:hover { color: var(--accent); }
+.prod-cardprice-locked { background: var(--muted); opacity: 0.85; }
+.prod-cardprice-changelink {
+  background: none; border: none; padding: 0; margin-left: 4px; cursor: pointer;
+  font-size: inherit; font-weight: 600; color: var(--muted); text-decoration: underline;
+}
+.prod-cardverify-form { display: flex; gap: 8px; flex-wrap: wrap; }
+.prod-cardverify-input {
+  flex: 1 1 200px; min-width: 160px;
+  border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px;
+  font-family: var(--fb); font-size: 13px; background: var(--surface);
+}
+.prod-cardverify-input:focus { outline: none; border-color: var(--gold); }
+.prod-cardverify-btn {
+  background: var(--gold); color: #fff; border: none; border-radius: 8px;
+  padding: 9px 16px; font-family: var(--fb); font-size: 13px; font-weight: 600; cursor: pointer;
+  white-space: nowrap;
+}
+.prod-cardverify-btn:disabled { opacity: 0.5; cursor: default; }
+.prod-cardverify-btn:not(:disabled):hover { background: var(--accent); }
+.prod-cardverify-error { font-size: 12px; color: var(--accent); }
 .prod-price-req { font-size: 18px; color: var(--muted); }
 .prod-pack-note { font-size: 12px; color: var(--muted); background: var(--surface2); padding: 8px 12px; border-radius: 8px; }
 .prod-section { display: flex; flex-direction: column; gap: 4px; }

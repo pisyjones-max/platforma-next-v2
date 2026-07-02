@@ -11,3 +11,12 @@ export function formatPhone(raw: string): string {
   if (v.length >= 9) out += '-' + v.slice(9, 11)
   return out
 }
+
+/** Приводит ввод телефона к каноничному виду "7XXXXXXXXXX" для хранения/сверки в БД. Возвращает null, если номер некорректный. */
+export function normalizePhone(raw: string): string | null {
+  let v = String(raw ?? '').replace(/\D/g, '')
+  if (v.startsWith('8')) v = '7' + v.slice(1)
+  if (v.length === 10) v = '7' + v
+  if (v.length !== 11 || !v.startsWith('7')) return null
+  return v
+}

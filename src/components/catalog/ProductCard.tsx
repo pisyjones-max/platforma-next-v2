@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { imgUrl } from '@/lib/image'
 import { useCart } from '@/context/CartContext'
+import { useCard } from '@/context/CardContext'
 import { fmt } from '@/lib/price'
 import { SALE_RATE, DISC_LABEL, CARD_DISCOUNT } from '@/lib/constants'
 
@@ -32,6 +33,7 @@ function buildDesc(description?: string, features?: Record<string, string>): str
 
 export function ProductCard({ id, title, price, img, sku, href, description, features, onClick }: Props) {
   const { add } = useCart()
+  const { verified } = useCard()
   const salePrice = Math.round(price * SALE_RATE)
   const cardPrice = Math.round(salePrice * (1 - CARD_DISCOUNT))
   const desc = buildDesc(description, features)
@@ -73,7 +75,9 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
               <span className="pp">{fmt(salePrice)} ₽</span>
               <span className="pop">{fmt(price)} ₽</span>
             </div>
-            <div className="pcard-cardprice">💳 {fmt(cardPrice)} ₽ с картой PLATFORMA</div>
+            <div className="pcard-cardprice">
+              {verified ? `💳 ${fmt(cardPrice)} ₽ с картой PLATFORMA` : '💳 Есть цена с картой PLATFORMA'}
+            </div>
           </>
         ) : (
           <div className="pprow"><span className="psku">Цена по запросу</span></div>

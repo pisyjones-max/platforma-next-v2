@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import { CartProvider } from '@/context/CartContext'
 import { UIProvider } from '@/context/UIContext'
+import { CardProvider } from '@/context/CardContext'
 import { CartPanel } from '@/components/cart/CartPanel'
 import { CheckoutModal } from '@/components/cart/CheckoutModal'
 import { Header } from '@/components/ui/Header'
@@ -86,6 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <CartProvider>
           <UIProvider>
+            <CardProvider>
             <Header />
             <main style={{ flex: 1 }}>
               {children}
@@ -100,6 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <PromoBanner />
             <PromosBanner />
             <TelegramChat />
+            </CardProvider>
           </UIProvider>
         </CartProvider>
       </body>

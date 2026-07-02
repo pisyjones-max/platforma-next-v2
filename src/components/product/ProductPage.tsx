@@ -8,6 +8,7 @@ import { fmt } from '@/lib/price'
 import { SALE_RATE, DISC_LABEL, CARD_DISCOUNT } from '@/lib/constants'
 import { getCalcType, calcResult, type CalcInputs } from '@/lib/calculator'
 import { AddedToCartToast } from '@/components/ui/AddedToCartToast'
+import { CardPriceBlock } from '@/components/product/CardPriceBlock'
 import type { Product, Category } from '@/types/catalog'
 
 interface Props {
@@ -19,7 +20,7 @@ interface Props {
 
 export function ProductPage({ product, category, groupSlug, groupName }: Props) {
   const { add } = useCart()
-  const { openCart, openLoyalty } = useUI()
+  const { openCart } = useUI()
   const [varIdx, setVarIdx] = useState(0)
   const [imgIdx, setImgIdx] = useState(0)
   const [qty, setQty] = useState(1)
@@ -207,29 +208,13 @@ export function ProductPage({ product, category, groupSlug, groupName }: Props) 
           <div className="prod-sku">Арт. {v.sku}</div>
 
           {/* Цена */}
-          <div className="prod-price-block">
-            {v.price > 0 ? (
-              <>
-                <div className="prod-cardprice-row">
-                  <div className="prod-cardprice-pill">
-                    <span className="prod-cardprice-icon">💳</span>
-                    <span className="prod-cardprice-val">{fmt(cardPrice)} ₽</span>
-                  </div>
-                  <span className="prod-cardprice-label">с картой PLATFORMA</span>
-                </div>
-                <div className="prod-price-sub-row">
-                  <span className="prod-price">{fmt(fp)} ₽</span>
-                  <span className="prod-oldprice">{fmt(v.price)} ₽</span>
-                  <span className="prod-disc">{DISC_LABEL}</span>
-                </div>
-                <button type="button" className="prod-get-card-btn" onClick={openLoyalty}>
-                  Нет карты? Оформите бесплатно — ещё −{Math.round(CARD_DISCOUNT * 100)}% к цене →
-                </button>
-              </>
-            ) : (
+          {v.price > 0 ? (
+            <CardPriceBlock fullPrice={v.price} regularPrice={fp} cardPrice={cardPrice} />
+          ) : (
+            <div className="prod-price-block">
               <span className="prod-price-req">Цена по запросу</span>
-            )}
-          </div>
+            </div>
+          )}
 
           {v.pack_quantity && v.pack_quantity > 1 && (
             <div className="prod-pack-note">
