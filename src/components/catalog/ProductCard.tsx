@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { imgUrl } from '@/lib/image'
 import { useCart } from '@/context/CartContext'
 import { fmt } from '@/lib/price'
-import { SALE_RATE, DISC_LABEL } from '@/lib/constants'
+import { SALE_RATE, DISC_LABEL, CARD_DISCOUNT } from '@/lib/constants'
 
 interface Props {
   id: string
@@ -33,6 +33,7 @@ function buildDesc(description?: string, features?: Record<string, string>): str
 export function ProductCard({ id, title, price, img, sku, href, description, features, onClick }: Props) {
   const { add } = useCart()
   const salePrice = Math.round(price * SALE_RATE)
+  const cardPrice = Math.round(salePrice * (1 - CARD_DISCOUNT))
   const desc = buildDesc(description, features)
 
   const handleAdd = (e: React.MouseEvent) => {
@@ -67,10 +68,13 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
           }}>{desc}</div>
         )}
         {price > 0 ? (
-          <div className="pprow">
-            <span className="pp">{fmt(salePrice)} ₽</span>
-            <span className="pop">{fmt(price)} ₽</span>
-          </div>
+          <>
+            <div className="pprow">
+              <span className="pp">{fmt(salePrice)} ₽</span>
+              <span className="pop">{fmt(price)} ₽</span>
+            </div>
+            <div className="pcard-cardprice">💳 {fmt(cardPrice)} ₽ с картой PLATFORMA</div>
+          </>
         ) : (
           <div className="pprow"><span className="psku">Цена по запросу</span></div>
         )}
