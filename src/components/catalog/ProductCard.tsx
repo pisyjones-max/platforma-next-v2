@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { imgUrl } from '@/lib/image'
 import { useCart } from '@/context/CartContext'
 import { fmt } from '@/lib/price'
+import { SALE_RATE, DISC_LABEL } from '@/lib/constants'
 
 interface Props {
   id: string
@@ -31,18 +32,18 @@ function buildDesc(description?: string, features?: Record<string, string>): str
 
 export function ProductCard({ id, title, price, img, sku, href, description, features, onClick }: Props) {
   const { add } = useCart()
-  const salePrice = Math.round(price * 0.93)
+  const salePrice = Math.round(price * SALE_RATE)
   const desc = buildDesc(description, features)
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    add({ sku: sku ?? id, title, price, img: imgUrl(img ?? ''), qty: 1 })
+    add({ sku: sku ?? id, title, price: salePrice, img: imgUrl(img ?? ''), qty: 1 })
   }
 
   const inner = (
     <>
-      {price > 0 && <div className="pcard-discount-tag">−7%</div>}
+      {price > 0 && <div className="pcard-discount-tag">{DISC_LABEL}</div>}
       <div className="pthumb">
         {img
           ? <img src={imgUrl(img)} alt={title} loading="lazy" />

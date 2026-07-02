@@ -4,7 +4,7 @@ import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
 import { imgUrl } from '@/lib/image'
 import { fmt } from '@/lib/price'
-import { SALE_RATE } from '@/lib/constants'
+import { SALE_RATE, DISC_LABEL } from '@/lib/constants'
 import type { Product } from '@/types/catalog'
 
 interface Props { product: Product | null; onClose: () => void }
@@ -83,7 +83,7 @@ export function ProductModal({ product, onClose }: Props) {
               <>
                 <span className="mprice">{fmt(fp)} ₽</span>
                 <span className="mop">{fmt(v.price)} ₽</span>
-                <span className="m-disc-tag">−7%</span>
+                <span className="m-disc-tag">{DISC_LABEL}</span>
               </>
             ) : (
               <span className="mprice" style={{ fontSize: 16, color: 'var(--muted)' }}>Цена по запросу</span>

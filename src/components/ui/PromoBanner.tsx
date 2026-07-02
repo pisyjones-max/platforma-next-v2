@@ -16,10 +16,10 @@ const BANNERS = [
     id: 'discount',
     icon: '🚛',
     title: 'Самовывоз из Ногинска',
-    text: 'Экономьте 7% — заберите заказ сами. Работаем без выходных.',
+    text: 'Заберите заказ сами — работаем без выходных.',
     cta: 'Узнать адрес →',
     action: 'delivery' as const,
-    badge: '−7%',
+    badge: '',
   },
   {
     id: 'consult',

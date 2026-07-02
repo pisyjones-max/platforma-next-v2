@@ -3,6 +3,7 @@ import { getCatalog, findCategory } from '@/lib/catalog'
 import { findProductBySlug } from '@/lib/slug'
 import { imgUrl } from '@/lib/image'
 import { productSchema, breadcrumbSchema, jsonLdScriptProps } from '@/lib/schema'
+import { SALE_RATE } from '@/lib/constants'
 import { ProductPage } from '@/components/product/ProductPage'
 import type { Metadata } from 'next'
 
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = cat ? findProductBySlug(cat.products, productId) : undefined
   if (!product || !cat) return {}
   const v = product.variants[0]
-  const price = Math.round(v.price * 0.93)
+  const price = Math.round(v.price * SALE_RATE)
   const priceStr = price > 0 ? `${price.toLocaleString('ru-RU')} ₽` : 'по запросу'
 
   // Собираем ключевые характеристики для description

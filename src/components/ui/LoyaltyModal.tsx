@@ -76,7 +76,7 @@ export function LoyaltyModal() {
                     <div className="lc-stat-lbl">Кэшбэк</div>
                   </div>
                   <div className="lc-stat-item">
-                    <div className="lc-stat-val">−7%</div>
+                    <div className="lc-stat-val">−17%</div>
                     <div className="lc-stat-lbl">Скидка</div>
                   </div>
                 </div>

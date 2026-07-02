@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ProductCard } from './ProductCard'
 import { useFilters } from '@/hooks/useFilters'
 import { findProduct } from '@/lib/catalog'
+import { DISC_LABEL } from '@/lib/constants'
 import type { Category, Catalog } from '@/types/catalog'
 
 interface Props {
@@ -36,7 +37,7 @@ export function CategoryPage({ category, parentGroup, catalog }: Props) {
         </div>
         <div className="hero-right">
           <div className="hero-stat"><span>{category.products.length}</span><small>товаров</small></div>
-          <div className="hero-badge"><div className="hero-badge-val">−7%</div><div className="hero-badge-lbl">скидка</div></div>
+          <div className="hero-badge"><div className="hero-badge-val">{DISC_LABEL}</div><div className="hero-badge-lbl">скидка</div></div>
         </div>
       </div>
 

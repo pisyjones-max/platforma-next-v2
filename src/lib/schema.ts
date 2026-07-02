@@ -1,5 +1,6 @@
 import { SITE_URL } from '@/lib/site'
 import { imgUrl } from '@/lib/image'
+import { SALE_RATE } from '@/lib/constants'
 import type { Product, Category } from '@/types/catalog'
 
 /**
@@ -62,7 +63,7 @@ export function breadcrumbSchema(items: { name: string; url: string }[]) {
 /** Product schema с ценой и наличием — база для расширенных сниппетов и Google Merchant. */
 export function productSchema(product: Product, category: Category, catSlug: string, productSlug: string) {
   const v = product.variants[0]
-  const price = Math.round((v?.price ?? 0) * 0.93)
+  const price = Math.round((v?.price ?? 0) * SALE_RATE)
   const images = (v?.images ?? []).slice(0, 4).map(img => imgUrl(img)).filter(Boolean)
 
   return {

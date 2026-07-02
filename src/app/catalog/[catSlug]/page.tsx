@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getCatalog, findCategory, getParentGroup } from '@/lib/catalog'
 import { breadcrumbSchema, jsonLdScriptProps } from '@/lib/schema'
+import { SALE_RATE } from '@/lib/constants'
 import { CategoryPage } from '@/components/catalog/CategoryPage'
 import type { Metadata } from 'next'
 
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!cat) return {}
   const count = cat.products.length
   const minPrice = cat.products.reduce((min, p) => {
-    const price = Math.round((p.variants[0]?.price ?? 0) * 0.93)
+    const price = Math.round((p.variants[0]?.price ?? 0) * SALE_RATE)
     return price > 0 && price < min ? price : min
   }, 999999)
   const priceStr = minPrice < 999999 ? ` от ${minPrice.toLocaleString('ru-RU')} ₽` : ''

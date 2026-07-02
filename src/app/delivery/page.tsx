@@ -31,7 +31,6 @@ export default function DeliveryPage() {
             title: 'Самовывоз',
             lines: [
               'Склад: Ногинск, Московская обл.',
-              'Скидка −17% при самовывозе',
               'Пн–Пт 9:00–18:00, Сб 9:00–15:00',
             ],
           },
@@ -76,10 +75,10 @@ export default function DeliveryPage() {
 
       <div style={{ background: 'linear-gradient(135deg, #192C1E, #253d2b)', borderRadius: 16, padding: '28px 32px', color: '#fff' }}>
         <div style={{ fontFamily: 'var(--fh)', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>
-          🏷️ Скидка −17% при самовывозе
+          🚛 Самовывоз со склада
         </div>
         <div style={{ fontSize: 14, opacity: 0.75, lineHeight: 1.6 }}>
-          Заберите заказ самостоятельно со склада в Ногинске и получите скидку 7% на весь ассортимент.
+          Заберите заказ самостоятельно со склада в Ногинске.
           Оформите заказ онлайн или по телефону — мы подготовим товар к вашему приезду.
         </div>
       </div>
