@@ -29,6 +29,23 @@ export async function kvGet<T>(key: string): Promise<T | null> {
   }
 }
 
+export async function kvDel(key: string): Promise<void> {
+  await kvFetch(`/del/${encodeURIComponent(key)}`)
+}
+
+// Возвращает все ключи по префиксу (например "card:") через SCAN — постранично, курсором.
+export async function kvScanKeys(matchPattern: string): Promise<string[]> {
+  const keys: string[] = []
+  let cursor = '0'
+  do {
+    const data = await kvFetch(`/scan/${cursor}/match/${encodeURIComponent(matchPattern)}/count/100`)
+    const [nextCursor, batch] = data?.result ?? ['0', []]
+    cursor = nextCursor
+    if (Array.isArray(batch)) keys.push(...batch)
+  } while (cursor !== '0')
+  return keys
+}
+
 export function isKvConfigured(): boolean {
   return Boolean(KV_URL && KV_TOKEN)
 }

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await kvSet(`card:${p}`, { name: String(name ?? '').slice(0, 200), issuedAt: Date.now() })
+    await kvSet(`card:${p}`, { name: String(name ?? '').slice(0, 200), issuedAt: Date.now(), source: 'site' })
     return NextResponse.json({ ok: true, persisted: true })
   } catch (e) {
     console.error('[CARD] issue error:', e)
