@@ -2,8 +2,9 @@
 import Link from 'next/link'
 import { useUI } from '@/context/UIContext'
 import { PHONE_NUMBER } from '@/lib/constants'
+import { CITIES } from '@/lib/cities'
 
-const YANDEX_MAPS_URL = 'https://yandex.ru/maps/?text=Ногинск+кровельные+материалы+PLATFORMA'
+const YANDEX_MAPS_URL = 'https://yandex.ru/maps/?text=Новохаритоново+кровельные+материалы+PLATFORMA'
 
 export function Footer() {
   const { openLoyalty, openConsult } = useUI()
@@ -60,6 +61,16 @@ export function Footer() {
             ))}
           </div>
 
+          {/* Города */}
+          <div>
+            <div style={{ color: '#fff', fontWeight: 600, fontSize: 12, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '1px' }}>Доставка по городам</div>
+            {CITIES.map(c => (
+              <Link key={c.slug} href={`/dostavka/${c.slug}`} style={{ display: 'block', fontSize: 12, marginBottom: 6, color: 'rgba(255,255,255,.6)', textDecoration: 'none' }}>
+                {c.name}
+              </Link>
+            ))}
+          </div>
+
           {/* Сервис */}
           <div>
             <div style={{ color: '#fff', fontWeight: 600, fontSize: 12, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '1px' }}>Сервис</div>
@@ -87,7 +98,7 @@ export function Footer() {
           flexWrap: 'wrap', gap: 10, fontSize: 11,
         }}>
           <span>© {new Date().getFullYear()} PLATFORMA. Все права защищены.</span>
-          <span style={{ opacity: 0.4 }}>Московская область, Ногинский район</span>
+          <span style={{ opacity: 0.4 }}>Московская область, Раменский округ</span>
         </div>
       </div>
     </footer>
