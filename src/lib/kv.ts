@@ -1,8 +1,8 @@
-// Тонкая обёртка над Vercel KV (Upstash Redis REST API).
-// В Vercel: Storage → Create Database → KV — переменные окружения
-// KV_REST_API_URL и KV_REST_API_TOKEN подставятся автоматически после подключения.
-const KV_URL   = process.env.KV_REST_API_URL   ?? ''
-const KV_TOKEN = process.env.KV_REST_API_TOKEN ?? ''
+// Тонкая обёртка над Upstash Redis REST API (подключается через Vercel Marketplace → Upstash for Redis).
+// В зависимости от версии интеграции Vercel/Upstash подставляет либо KV_REST_API_URL/KV_REST_API_TOKEN,
+// либо UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN — поддерживаем оба варианта.
+const KV_URL   = process.env.KV_REST_API_URL   ?? process.env.UPSTASH_REDIS_REST_URL   ?? ''
+const KV_TOKEN = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN ?? ''
 
 async function kvFetch(path: string): Promise<any> {
   if (!KV_URL || !KV_TOKEN) throw new Error('KV is not configured (KV_REST_API_URL / KV_REST_API_TOKEN missing)')
