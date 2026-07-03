@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Доставка и оплата — PLATFORMA',
-  description: 'Доставка кровельных материалов по Москве и Московской области. Самовывоз со склада в Ногинске.',
+  description: 'Доставка кровельных материалов по Москве и Московской области. Самовывоз со склада в Новохаритонове.',
 }
 
 export default function DeliveryPage() {
@@ -30,7 +30,7 @@ export default function DeliveryPage() {
             icon: '🏭',
             title: 'Самовывоз',
             lines: [
-              'Склад: Ногинск, Московская обл.',
+              'Склад: с. Новохаритоново, Раменский округ',
               'Пн–Пт 9:00–18:00, Сб 9:00–15:00',
             ],
           },
@@ -61,7 +61,7 @@ export default function DeliveryPage() {
       <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 16, padding: '28px 32px', marginBottom: 32 }}>
         <h2 style={{ fontFamily: 'var(--fh)', fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Зоны доставки</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 8 }}>
-          {['Ногинск', 'Электросталь', 'Балашиха', 'Железнодорожный', 'Реутов', 'Люберцы', 'Раменское', 'Жуковский', 'Домодедово', 'Бронницы', 'Коломна', 'Воскресенск', 'Орехово-Зуево', 'Щёлково', 'Лосино-Петровский'].map((city, i) => (
+          {['Новохаритоново', 'Гжель', 'Электросталь', 'Балашиха', 'Железнодорожный', 'Реутов', 'Люберцы', 'Раменское', 'Жуковский', 'Домодедово', 'Бронницы', 'Коломна', 'Воскресенск', 'Орехово-Зуево', 'Щёлково', 'Лосино-Петровский'].map((city, i) => (
             <div key={i} style={{ fontSize: 13, color: 'var(--muted)', padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
               📍 {city}
             </div>
@@ -78,7 +78,7 @@ export default function DeliveryPage() {
           🚛 Самовывоз со склада
         </div>
         <div style={{ fontSize: 14, opacity: 0.75, lineHeight: 1.6 }}>
-          Заберите заказ самостоятельно со склада в Ногинске.
+          Заберите заказ самостоятельно со склада в Новохаритонове.
           Оформите заказ онлайн или по телефону — мы подготовим товар к вашему приезду.
         </div>
       </div>

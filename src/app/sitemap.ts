@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import { getCatalog } from '@/lib/catalog'
 import { SITE_URL } from '@/lib/site'
 import { productSlug } from '@/lib/slug'
+import { CITIES } from '@/lib/cities'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const catalog = getCatalog()
@@ -13,6 +14,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/about`,         lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${SITE_URL}/loyalty-card`,  lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
   ]
+
+  for (const city of CITIES) {
+    urls.push({ url: `${SITE_URL}/dostavka/${city.slug}`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 })
+  }
 
   for (const groupSlug of Object.keys(catalog.groups)) {
     urls.push({ url: `${SITE_URL}/catalog/group/${groupSlug}`, changeFrequency: 'weekly', priority: 0.8 })
