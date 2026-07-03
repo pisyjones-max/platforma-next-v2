@@ -20,14 +20,19 @@ export function organizationSchema() {
     priceRange: '₽₽',
     address: {
       '@type': 'PostalAddress',
-      addressLocality: 'Ногинск',
+      addressLocality: 'Новохаритоново',
       addressRegion: 'Московская область',
       addressCountry: 'RU',
     },
-    areaServed: {
-      '@type': 'State',
-      name: 'Московская область',
-    },
+    areaServed: [
+      { '@type': 'City', name: 'Раменское' },
+      { '@type': 'City', name: 'Новохаритоново' },
+      { '@type': 'City', name: 'Гжель' },
+      { '@type': 'City', name: 'Воскресенск' },
+      { '@type': 'City', name: 'Бронницы' },
+      { '@type': 'City', name: 'Жуковский' },
+      { '@type': 'State', name: 'Московская область' },
+    ],
     sameAs: [
       'https://t.me/platforma_roof',
     ],
