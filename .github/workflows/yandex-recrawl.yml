@@ -1,0 +1,36 @@
+name: Yandex recrawl ping
+
+# Запускается автоматически при пуше в main (после деплоя на Vercel),
+# и вручную из вкладки Actions (Run workflow), если нужно дёрнуть переобход отдельно.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  ping-yandex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request recrawl for robots.txt and sitemap.xml
+        env:
+          YANDEX_OAUTH_TOKEN: ${{ secrets.YANDEX_OAUTH_TOKEN }}
+          YANDEX_USER_ID: ${{ secrets.YANDEX_USER_ID }}
+          YANDEX_HOST_ID: ${{ secrets.YANDEX_HOST_ID }}
+          SITE_URL: https://platforma-msk.ru
+        run: |
+          set -e
+
+          if [ -z "$YANDEX_OAUTH_TOKEN" ] || [ -z "$YANDEX_USER_ID" ] || [ -z "$YANDEX_HOST_ID" ]; then
+            echo "::error::Не заданы секреты YANDEX_OAUTH_TOKEN / YANDEX_USER_ID / YANDEX_HOST_ID"
+            exit 1
+          fi
+
+          for path in "/robots.txt" "/sitemap.xml"; do
+            echo "Запрашиваю переобход: ${SITE_URL}${path}"
+            curl -sS -X PUT \
+              "https://api.webmaster.yandex.net/v4/user/${YANDEX_USER_ID}/hosts/${YANDEX_HOST_ID}/recrawl/queue" \
+              -H "Authorization: OAuth ${YANDEX_OAUTH_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "{\"url\": \"${SITE_URL}${path}\"}"
+            echo ""
+          done
