@@ -15,6 +15,27 @@ export function Footer() {
       padding: '40px 24px 24px', marginTop: 'auto',
     }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        {/* Кросс-промо: Сталь Крафт */}
+        <a href="https://sk-craft.platforma-msk.ru" target="_blank" rel="noopener noreferrer"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+            flexWrap: 'wrap', textDecoration: 'none',
+            background: 'linear-gradient(90deg, rgba(191,62,34,.12), rgba(191,62,34,.04))',
+            border: '1px solid rgba(191,62,34,.3)', borderRadius: 12,
+            padding: '14px 20px', marginBottom: 32,
+          }}>
+          <span style={{ fontSize: 13, color: 'rgba(255,255,255,.85)', lineHeight: 1.5 }}>
+            <span style={{ fontSize: 16, marginRight: 8 }}>🏗️</span>
+            Нужен <strong style={{ color: '#fff' }}>навес, гараж или ворота</strong>? Наш партнёр «Сталь Крафт» построит под ключ в Раменском округе
+          </span>
+          <span style={{
+            flexShrink: 0, fontSize: 12, fontWeight: 700, color: '#fff',
+            background: '#BF3E22', padding: '8px 16px', borderRadius: 8, whiteSpace: 'nowrap',
+          }}>
+            Перейти на sk-craft →
+          </span>
+        </a>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 32, marginBottom: 32 }}>
           {/* Бренд */}
           <div>
