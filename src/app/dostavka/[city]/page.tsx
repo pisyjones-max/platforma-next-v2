@@ -11,8 +11,9 @@ export function generateStaticParams() {
   return CITIES.map(c => ({ city: c.slug }))
 }
 
-export function generateMetadata({ params }: { params: { city: string } }): Metadata {
-  const city = getCity(params.city)
+export async function generateMetadata({ params }: { params: Promise<{ city: string }> }): Promise<Metadata> {
+  const { city: citySlug } = await params
+  const city = getCity(citySlug)
   if (!city) return {}
   return {
     title: `Доставка кровельных и фасадных материалов в ${city.nameGenitive} — PLATFORMA`,
@@ -28,8 +29,9 @@ const CARD_STYLE: React.CSSProperties = {
   padding: '24px',
 }
 
-export default function CityDeliveryPage({ params }: { params: { city: string } }) {
-  const city = getCity(params.city)
+export default async function CityDeliveryPage({ params }: { params: Promise<{ city: string }> }) {
+  const { city: citySlug } = await params
+  const city = getCity(citySlug)
   if (!city) return notFound()
 
   const catalog = getCatalog()
