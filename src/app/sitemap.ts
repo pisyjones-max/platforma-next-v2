@@ -3,6 +3,7 @@ import { getCatalog } from '@/lib/catalog'
 import { SITE_URL } from '@/lib/site'
 import { productSlug } from '@/lib/slug'
 import { CITIES } from '@/lib/cities'
+import { getAllArticles } from '@/lib/blog'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const catalog = getCatalog()
@@ -17,6 +18,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   for (const city of CITIES) {
     urls.push({ url: `${SITE_URL}/dostavka/${city.slug}`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 })
+  }
+
+  urls.push({ url: `${SITE_URL}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 })
+  for (const article of getAllArticles()) {
+    urls.push({
+      url: `${SITE_URL}/blog/${article.slug}`,
+      lastModified: new Date(article.publishedAt),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    })
   }
 
   for (const groupSlug of Object.keys(catalog.groups)) {
