@@ -1,0 +1,51 @@
+name: Сгенерировать статью блога (черновик в PR)
+
+# Запускается вручную из вкладки Actions: указываешь тему — получаешь PR с готовой
+# статьёй (JSON + сборка проверена). Мержишь PR в main — это и есть публикация,
+# main push дальше сам запускает yandex-recrawl.yml.
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 'Тема статьи (например: Как выбрать утеплитель для кровли)'
+        required: true
+        type: string
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Генерация черновика статьи
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/generate-article.mjs "${{ inputs.topic }}"
+
+      - name: Проверка типов и сборка
+        run: |
+          npx tsc --noEmit
+          npm run build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://platforma-msk.ru
+
+      - name: Открыть Pull Request с черновиком
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "blog: черновик статьи — ${{ inputs.topic }}"
+          branch: "blog-draft/${{ github.run_id }}"
+          title: "Черновик статьи: ${{ inputs.topic }}"
+          body: |
+            Автоматически сгенерированный черновик по теме «${{ inputs.topic }}».
+            Проверь текст перед мержем — цифры, формулировки и факты в статье нужно
+            перечитать, модель могла что-то додумать.
+          add-paths: content/blog/*.json
