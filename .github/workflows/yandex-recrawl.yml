@@ -43,28 +43,28 @@ jobs:
           set -e
 
           echo "Получаю список URL из sitemap.xml..."
-          URLS_JSON=$(curl -sS "${SITE_URL}/sitemap.xml" \
+          curl -sS "${SITE_URL}/sitemap.xml" \
             | grep -oE '<loc>[^<]+</loc>' \
             | sed -E 's/<\/?loc>//g' \
-            | jq -R . | jq -s .)
+            | jq -R . | jq -s . > /tmp/urls.json
 
-          COUNT=$(echo "$URLS_JSON" | jq 'length')
+          COUNT=$(jq 'length' /tmp/urls.json)
           echo "Найдено URL в sitemap: ${COUNT}"
 
           if [ "$COUNT" -eq 0 ]; then
             echo "::warning::sitemap.xml пуст или недоступен, пингую только главную страницу"
-            URLS_JSON=$(jq -n --arg u "${SITE_URL}/" '[$u]')
+            jq -n --arg u "${SITE_URL}/" '[$u]' > /tmp/urls.json
           fi
 
-          PAYLOAD=$(jq -n \
+          jq -n \
             --arg host "platforma-msk.ru" \
             --arg key "${INDEXNOW_KEY}" \
             --arg keyLocation "${SITE_URL}/${INDEXNOW_KEY}.txt" \
-            --argjson urlList "${URLS_JSON}" \
-            '{host: $host, key: $key, keyLocation: $keyLocation, urlList: $urlList}')
+            --slurpfile urlList /tmp/urls.json \
+            '{host: $host, key: $key, keyLocation: $keyLocation, urlList: $urlList[0]}' > /tmp/payload.json
 
-          echo "Отправляю IndexNow-пинг..."
+          echo "Отправляю IndexNow-пинг ($(jq '.urlList | length' /tmp/payload.json) URL)..."
           curl -sS -X POST "https://api.indexnow.org/indexnow" \
             -H "Content-Type: application/json; charset=utf-8" \
-            -d "${PAYLOAD}"
+            --data-binary @/tmp/payload.json
           echo ""
