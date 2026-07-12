@@ -1,4 +1,4 @@
-name: Yandex recrawl ping
+name: Search engine recrawl ping (Yandex + IndexNow)
 
 # Запускается автоматически при пуше в main (после деплоя на Vercel),
 # и вручную из вкладки Actions (Run workflow), если нужно дёрнуть переобход отдельно.
@@ -34,3 +34,37 @@ jobs:
               -d "{\"url\": \"${SITE_URL}${path}\"}"
             echo ""
           done
+
+      - name: IndexNow ping (Bing, Yandex, Seznam, Naver)
+        env:
+          SITE_URL: https://platforma-msk.ru
+          INDEXNOW_KEY: b5db20f76d0035b1bf4a3289c9b0c9d7
+        run: |
+          set -e
+
+          echo "Получаю список URL из sitemap.xml..."
+          URLS_JSON=$(curl -sS "${SITE_URL}/sitemap.xml" \
+            | grep -oE '<loc>[^<]+</loc>' \
+            | sed -E 's/<\/?loc>//g' \
+            | jq -R . | jq -s .)
+
+          COUNT=$(echo "$URLS_JSON" | jq 'length')
+          echo "Найдено URL в sitemap: ${COUNT}"
+
+          if [ "$COUNT" -eq 0 ]; then
+            echo "::warning::sitemap.xml пуст или недоступен, пингую только главную страницу"
+            URLS_JSON=$(jq -n --arg u "${SITE_URL}/" '[$u]')
+          fi
+
+          PAYLOAD=$(jq -n \
+            --arg host "platforma-msk.ru" \
+            --arg key "${INDEXNOW_KEY}" \
+            --arg keyLocation "${SITE_URL}/${INDEXNOW_KEY}.txt" \
+            --argjson urlList "${URLS_JSON}" \
+            '{host: $host, key: $key, keyLocation: $keyLocation, urlList: $urlList}')
+
+          echo "Отправляю IndexNow-пинг..."
+          curl -sS -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d "${PAYLOAD}"
+          echo ""
