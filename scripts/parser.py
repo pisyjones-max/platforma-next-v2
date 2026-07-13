@@ -277,24 +277,54 @@ def parse_product_details(product_url):
 # Обработка категории
 # ─────────────────────────────────────────────
 
-def process_category(url):
-    cat_slug = url.strip("/").split("/")[-1]
-
+def fetch_category_listing(url):
+    """
+    Один запрос к странице категории. Возвращает (cat_name, soup, product_urls, price_map).
+    price_map: {product_url: 'текст цены с листинга или None'} — используется для
+    быстрой сигнатуры изменений, без похода на каждую карточку товара.
+    """
     try:
         r = session.get(url, timeout=10)
         s = BeautifulSoup(r.text, "html.parser")
         cat_name_tag = s.select_one("h1, .category-title, .breadcrumb-item.active")
+        cat_name = cat_name_tag.get_text(strip=True) if cat_name_tag else url.strip("/").split("/")[-1]
+    except Exception:
+        return url.strip("/").split("/")[-1], None, [], {}
+
+    product_urls = []
+    price_map = {}
+    for a in s.select("a.product-thumb__name"):
+        p_url = urljoin(BASE_URL, a["href"])
+        product_urls.append(p_url)
+
+        price_text = None
+        thumb = a.find_parent(class_=lambda c: c and "product-thumb" in c)
+        container = thumb or a.parent
+        if container:
+            price_tag = container.select_one(
+                ".product-thumb__price, .price, .product-price, [class*='price']"
+            )
+            if price_tag:
+                price_text = price_tag.get_text(" ", strip=True)
+
+        price_map[p_url] = price_text
+
+    return cat_name, s, product_urls, price_map
+
+
+def process_category(url, soup=None, product_urls=None):
+    cat_slug = url.strip("/").split("/")[-1]
+
+    if soup is None or product_urls is None:
+        cat_name, s, product_urls, _ = fetch_category_listing(url)
+    else:
+        s = soup
+        cat_name_tag = s.select_one("h1, .category-title, .breadcrumb-item.active") if s else None
         cat_name = cat_name_tag.get_text(strip=True) if cat_name_tag else cat_slug
-    except:
-        cat_name = cat_slug
-        s = None
 
     print(f"\n{'=' * 50}")
     print(f"📂 {cat_slug} / {cat_name}")
 
-    r = session.get(url)
-    s = BeautifulSoup(r.text, "html.parser")
-    product_urls = [urljoin(BASE_URL, a["href"]) for a in s.select("a.product-thumb__name")]
     total = len(product_urls)
     print(f"🛒 Товаров: {total}")
 
@@ -557,10 +587,61 @@ if __name__ == "__main__":
 
     print(f"Групп: {len(groups)}, категорий: {len(all_categories)}")
 
+    # ─────────────────────────────────────────────
+    # ШАГ 1: быстрая разведка — обходим только листинги категорий
+    # (без похода на карточки товаров), собираем сигнатуру
+    # "assortment + цены" и сравниваем с прошлым запуском.
+    # ─────────────────────────────────────────────
+    SIGNATURE_PATH = os.path.join(REPO_ROOT, "scripts", ".catalog_signature.json")
+
+    print("\n🔍 Быстрая проверка изменений (листинги категорий, без карточек товаров)...")
+    listing_cache = {}  # url -> (cat_name, soup, product_urls)
+    signature_parts = []
+    prices_found = 0
+
+    for url, _parent in all_categories:
+        cat_name, s, product_urls, price_map = fetch_category_listing(url)
+        listing_cache[url] = (cat_name, s, product_urls)
+        for p_url in sorted(product_urls):
+            price_text = price_map.get(p_url)
+            if price_text:
+                prices_found += 1
+            signature_parts.append(f"{p_url}::{price_text or ''}")
+
+    new_signature = hashlib.sha256("\n".join(sorted(signature_parts)).encode("utf-8")).hexdigest()
+
+    old_signature = None
+    if os.path.exists(SIGNATURE_PATH):
+        try:
+            with open(SIGNATURE_PATH, "r", encoding="utf-8") as f:
+                old_signature = json.load(f).get("signature")
+        except Exception:
+            old_signature = None
+
+    if prices_found == 0:
+        print("⚠️  Цены в листинге категорий не найдены (не совпал CSS-селектор) — "
+              "сигнатура ловит только изменения ассортимента, но не цен. "
+              "Продолжаю полный обход, чтобы не потерять данные о ценах.")
+    elif old_signature == new_signature:
+        print(f"✅ Изменений нет (ни в ассортименте, ни в ценах {prices_found} товаров с ценой в листинге) "
+              f"— полный обход {sum(len(v[2]) for v in listing_cache.values())} карточек товаров и картинок пропущен.")
+        PRODUCT_EXECUTOR.shutdown()
+        IMAGE_EXECUTOR.shutdown()
+        exit(0)
+    else:
+        print(f"🔄 Обнаружены изменения (цены и/или ассортимент) — запускаю полный обход товаров.")
+
+    with open(SIGNATURE_PATH, "w", encoding="utf-8") as f:
+        json.dump({"signature": new_signature, "generated_at": datetime.now().isoformat()}, f)
+
+    # ─────────────────────────────────────────────
+    # ШАГ 2: полный обход товаров (используем уже загруженные листинги)
+    # ─────────────────────────────────────────────
     catalog_categories = []
     for url, parent in all_categories:
         try:
-            cat_data = process_category(url)
+            cat_name, s, product_urls = listing_cache[url]
+            cat_data = process_category(url, soup=s, product_urls=product_urls)
             cat_data["parent"] = parent
             catalog_categories.append(cat_data)
         except Exception as e:
