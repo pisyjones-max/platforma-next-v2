@@ -5,6 +5,8 @@ from requests.adapters import HTTPAdapter
 import hashlib
 import pandas as pd
 import concurrent.futures
+import time
+import random
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from datetime import datetime
@@ -40,6 +42,52 @@ session.headers.update(HEADERS)
 
 PRODUCT_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS_PRODUCTS)
 IMAGE_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS_IMAGES)
+
+# --- НАДЁЖНОСТЬ: retry + backoff + пауза между запросами ---
+MAX_RETRIES = 4
+BACKOFF_BASE_SECONDS = 1.5
+REQUEST_DELAY_RANGE = (0.5, 1.5)  # секунды, случайная пауза между запросами
+
+# Промежуточное сохранение прогресса — на случай обрыва скрипта
+CHECKPOINT_EVERY_N_CATEGORIES = 5
+PROGRESS_LOG_PATH = os.path.join(REPO_ROOT, "scripts", "parser_progress.log")
+
+
+def log_progress(message):
+    """Пишет прогресс и в консоль, и в отдельный лог-файл."""
+    print(message)
+    try:
+        with open(PROGRESS_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(f"[{datetime.now().isoformat(timespec='seconds')}] {message}\n")
+    except Exception:
+        pass
+
+
+def request_with_retry(url, timeout=15):
+    """
+    GET-запрос с retry и экспоненциальной задержкой (до MAX_RETRIES попыток),
+    плюс случайная пауза между УСПЕШНЫМИ запросами, чтобы не получить бан по IP.
+    Возвращает Response или None, если все попытки исчерпаны.
+    """
+    last_error = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            r = session.get(url, timeout=timeout)
+            if r.status_code == 200:
+                time.sleep(random.uniform(*REQUEST_DELAY_RANGE))
+                return r
+            last_error = f"HTTP {r.status_code}"
+        except requests.exceptions.RequestException as e:
+            last_error = str(e)
+
+        if attempt < MAX_RETRIES:
+            delay = (BACKOFF_BASE_SECONDS ** attempt) + random.uniform(0, 0.5)
+            log_progress(f"  ⚠️  Попытка {attempt}/{MAX_RETRIES} для {url} не удалась "
+                         f"({last_error}), повтор через {delay:.1f}с")
+            time.sleep(delay)
+
+    log_progress(f"  ❌ Не удалось получить {url} после {MAX_RETRIES} попыток ({last_error})")
+    return None
 
 
 # ─────────────────────────────────────────────
@@ -110,17 +158,14 @@ def download_product_images_threaded(image_urls, sku):
 
 
 def download_single_file(url, path):
-    try:
-        # Уже скачан — пропускаем
-        if os.path.exists(path) and os.path.getsize(path) > 0:
-            return True
-        r = session.get(url, timeout=10)
-        if r.status_code == 200:
-            with open(path, "wb") as f:
-                f.write(r.content)
-            return True
-    except:
-        pass
+    # Уже скачан — пропускаем
+    if os.path.exists(path) and os.path.getsize(path) > 0:
+        return True
+    r = request_with_retry(url, timeout=10)
+    if r is not None and r.status_code == 200:
+        with open(path, "wb") as f:
+            f.write(r.content)
+        return True
     return False
 
 
@@ -129,10 +174,12 @@ def download_single_file(url, path):
 # ─────────────────────────────────────────────
 
 def parse_product_details(product_url):
+    r = request_with_retry(product_url, timeout=15)
+    if r is None:
+        return []
     try:
-        r = session.get(product_url, timeout=15)
         soup = BeautifulSoup(r.text, "html.parser")
-    except:
+    except Exception:
         return []
 
     description = ""
@@ -277,20 +324,8 @@ def parse_product_details(product_url):
 # Обработка категории
 # ─────────────────────────────────────────────
 
-def fetch_category_listing(url):
-    """
-    Один запрос к странице категории. Возвращает (cat_name, soup, product_urls, price_map).
-    price_map: {product_url: 'текст цены с листинга или None'} — используется для
-    быстрой сигнатуры изменений, без похода на каждую карточку товара.
-    """
-    try:
-        r = session.get(url, timeout=10)
-        s = BeautifulSoup(r.text, "html.parser")
-        cat_name_tag = s.select_one("h1, .category-title, .breadcrumb-item.active")
-        cat_name = cat_name_tag.get_text(strip=True) if cat_name_tag else url.strip("/").split("/")[-1]
-    except Exception:
-        return url.strip("/").split("/")[-1], None, [], {}
-
+def _extract_products_from_soup(s):
+    """Достаёт (product_urls, price_map) из уже распарсенного листинга категории."""
     product_urls = []
     price_map = {}
     for a in s.select("a.product-thumb__name"):
@@ -309,14 +344,118 @@ def fetch_category_listing(url):
 
         price_map[p_url] = price_text
 
-    return cat_name, s, product_urls, price_map
+    return product_urls, price_map
+
+
+def fetch_category_page(url, page):
+    """
+    Запрашивает ОДНУ страницу пагинации категории.
+    page=1 -> сам url, page>1 -> url?page=N (пагинация Webasyst Shop-Script,
+    подтверждена на живом сайте: .../vodostoki/plastikovye/docke/?page=2 и т.д.)
+    Возвращает (soup, product_urls, price_map); soup=None при ошибке.
+    """
+    page_url = url if page == 1 else f"{url.rstrip('/')}/?page={page}"
+    r = request_with_retry(page_url, timeout=10)
+    if r is None:
+        return None, [], {}
+    try:
+        s = BeautifulSoup(r.text, "html.parser")
+    except Exception:
+        return None, [], {}
+    product_urls, price_map = _extract_products_from_soup(s)
+    return s, product_urls, price_map
+
+
+def fetch_category_listing(url):
+    """
+    Обходит ВСЕ страницы пагинации категории (?page=2, ?page=3, ...), а не
+    только первую (это и была причина обрезания на ~24 товарах). Останавливается,
+    когда очередная страница не приносит новых товаров, а не на фиксированном
+    количестве. Возвращает (cat_name, soup_первой_страницы, все_product_urls, price_map)
+    — сигнатура не изменилась, чтобы process_category() и остальной код работали как раньше.
+    """
+    first_soup, first_urls, first_prices = fetch_category_page(url, 1)
+    if first_soup is None:
+        return url.strip("/").split("/")[-1], None, [], {}
+
+    cat_name_tag = first_soup.select_one("h1, .category-title, .breadcrumb-item.active")
+    cat_name = cat_name_tag.get_text(strip=True) if cat_name_tag else url.strip("/").split("/")[-1]
+
+    all_urls = list(first_urls)
+    all_prices = dict(first_prices)
+    seen = set(first_urls)
+
+    page = 2
+    empty_streak = 0
+    pages_fetched = 1
+    while True:
+        _, page_urls, page_prices = fetch_category_page(url, page)
+        new_urls = [u for u in page_urls if u not in seen]
+
+        if not page_urls or not new_urls:
+            # Пустая страница или сайт вернул уже виденные товары (вышли за
+            # пределы пагинации) — считаем это концом категории. Проверяем
+            # два раза подряд на случай единичного сбойного ответа.
+            empty_streak += 1
+            if empty_streak >= 2 or not page_urls:
+                break
+        else:
+            empty_streak = 0
+            for u in new_urls:
+                seen.add(u)
+                all_urls.append(u)
+                all_prices[u] = page_prices.get(u)
+            pages_fetched += 1
+
+        page += 1
+        if page > 200:
+            log_progress(f"  ⚠️  Защитный лимит в 200 страниц пагинации достигнут для {url}")
+            break
+
+    if pages_fetched > 1:
+        log_progress(f"  📄 {url} — обойдено страниц: {pages_fetched}, товаров: {len(all_urls)}")
+
+    return cat_name, first_soup, all_urls, all_prices
+
+
+def fetch_category_listing_full(url):
+    """
+    Как fetch_category_listing(), но дополнительно обходит (с полной пагинацией
+    каждой) все дочерние страницы бренда/серии/комплектующих из SUBCATEGORY_MAP,
+    найденные в основной навигации сайта, и объединяет товары в один список.
+
+    Именно так находятся товары вроде "Жёлоб Premium" / "Воронка Premium"
+    (лежат на /vodostoki/plastikovye/docke/, а не на /vodostoki/plastikovye/)
+    или комплектующие винилового сайдинга (лежат на /sayding/vinilovyy/docke/,
+    /sayding/vinilovyy/grand-line/ и т.д.) — раньше эти страницы вообще не
+    входили в обход, независимо от пагинации.
+
+    Схема (slug/url) итоговой категории НЕ меняется — просто становится полнее.
+    """
+    cat_name, first_soup, all_urls, all_prices = fetch_category_listing(url)
+    if first_soup is None:
+        return cat_name, first_soup, all_urls, all_prices
+
+    seen = set(all_urls)
+    children = SUBCATEGORY_MAP.get(url, [])
+    for child_url in children:
+        _child_name, _child_soup, child_urls, child_prices = fetch_category_listing(child_url)
+        new_from_child = [u for u in child_urls if u not in seen]
+        if new_from_child:
+            log_progress(f"  ➕ {child_url} (подкатегория {url}) — новых товаров: {len(new_from_child)}")
+        for u in new_from_child:
+            seen.add(u)
+            all_urls.append(u)
+            all_prices[u] = child_prices.get(u)
+
+    return cat_name, first_soup, all_urls, all_prices
 
 
 def process_category(url, soup=None, product_urls=None):
     cat_slug = url.strip("/").split("/")[-1]
 
     if soup is None or product_urls is None:
-        cat_name, s, product_urls, _ = fetch_category_listing(url)
+        cat_name, s, product_urls, _ = fetch_category_listing_full(url)
     else:
         s = soup
         cat_name_tag = s.select_one("h1, .category-title, .breadcrumb-item.active") if s else None
@@ -378,6 +517,312 @@ def process_category(url, soup=None, product_urls=None):
         "url": url,
         "products": list(products_by_base.values()),
     }
+
+
+# Автоматически извлечено из основной навигации сайта mk4s.ru
+# (обход подкатегорий/брендов внутри уже существующих категорий CATEGORY_TREE).
+# Для каждой категории верхнего уровня указаны её дочерние страницы
+# (бренды, серии, комплектующие), которые раньше не обходились парсером
+# и поэтому их товары (например, Docke Premium в vodostoki/plastikovye,
+# или Docke/Grand Line/Технониколь/Текос в sayding/vinilovyy) отсутствовали.
+SUBCATEGORY_MAP = {
+    "https://mk4s.ru/krovlya/myagkaya-krovlya/": [
+        "https://mk4s.ru/krovlya/myagkaya-krovlya/katepal/",  # Катепал
+        "https://mk4s.ru/krovlya/myagkaya-krovlya/docke/",  # Деке
+        "https://mk4s.ru/krovlya/myagkaya-krovlya/tehnonikol/",  # Технониколь Shinglas
+        "https://mk4s.ru/krovlya/myagkaya-krovlya/quiet-tile/",  # Quiet-Tile
+        "https://mk4s.ru/krovlya/myagkaya-krovlya/tegola/",  # Тегола
+        "https://mk4s.ru/krovlya/myagkaya-krovlya/ruflex/",  # Ruflex
+        "https://mk4s.ru/krovlya/myagkaya-krovlya/certainteed/",  # Certainteed
+        "https://mk4s.ru/krovlya/myagkaya-krovlya/podkladochnyy-kover/",  # Подкладочный ковер
+    ],
+    "https://mk4s.ru/krovlya/metallocherepitsa/": [
+        "https://mk4s.ru/krovlya/metallocherepitsa/stynergy/",  # Стинержи
+        "https://mk4s.ru/krovlya/metallocherepitsa/grand-line/",  # Grand Line
+        "https://mk4s.ru/krovlya/metallocherepitsa/metallprofil/",  # Металлпрофиль
+        "https://mk4s.ru/krovlya/metallocherepitsa/aquasystem/",  # Аквасистем
+        "https://mk4s.ru/krovlya/metallocherepitsa/interprofil/",  # Интерпрофиль
+        "https://mk4s.ru/krovlya/metallocherepitsa/steelx/",  # Steelx
+        "https://mk4s.ru/krovlya/metallocherepitsa/monterrey/",  # Монтеррей
+        "https://mk4s.ru/krovlya/metallocherepitsa/tolshchina-05-mm/",  # Толщина 0.5 мм
+    ],
+    "https://mk4s.ru/krovlya/profnastil/": [
+        "https://mk4s.ru/krovlya/profnastil/stynergy/",  # Stynergy
+        "https://mk4s.ru/krovlya/profnastil/profnastil-steelx/",  # Steelx
+        "https://mk4s.ru/krovlya/profnastil/grand-line/",  # Гранд лайн
+        "https://mk4s.ru/krovlya/profnastil/mp-20/",  # Профнастил МП-20
+        "https://mk4s.ru/krovlya/profnastil/otsinkovannyy/",  # Оцинкованный
+        "https://mk4s.ru/krovlya/profnastil/s8/",  # Профиль С8
+        "https://mk4s.ru/krovlya/profnastil/s20/",  # Профиль С20
+        "https://mk4s.ru/krovlya/profnastil/s21/",  # Профиль С21
+        "https://mk4s.ru/krovlya/profnastil/n75/",  # Профиль Н75
+        "https://mk4s.ru/krovlya/profnastil/ns35/",  # Профиль НС35
+        "https://mk4s.ru/krovlya/profnastil/n60/",  # Профиль Н60
+        "https://mk4s.ru/krovlya/profnastil/profnastil-dlya-sten/",  # Для стен
+    ],
+    "https://mk4s.ru/krovlya/kompozitnaya-cherepitsa/": [
+        "https://mk4s.ru/krovlya/kompozitnaya-cherepitsa/metrotile/",  # Metrotile
+        "https://mk4s.ru/krovlya/kompozitnaya-cherepitsa/aerodek/",  # Aerodek
+        "https://mk4s.ru/krovlya/kompozitnaya-cherepitsa/luxard-tehnonikol/",  # Luxard Технониколь
+        "https://mk4s.ru/krovlya/kompozitnaya-cherepitsa/gerard/",  # Gerard
+    ],
+    "https://mk4s.ru/krovlya/tsementno-peschanaya-cherepitsa/": [
+        "https://mk4s.ru/krovlya/tsementno-peschanaya-cherepitsa/kriastak/",  # Kriastak
+        "https://mk4s.ru/krovlya/tsementno-peschanaya-cherepitsa/zabudova/",  # Забудова
+        "https://mk4s.ru/krovlya/tsementno-peschanaya-cherepitsa/braas/",  # Braas
+    ],
+    "https://mk4s.ru/krovlya/falcevaya-krovlya/": [
+        "https://mk4s.ru/krovlya/falcevaya-krovlya/stinerzhi/",  # Стинержи
+        "https://mk4s.ru/krovlya/falcevaya-krovlya/grand-line/",  # Grand Line
+        "https://mk4s.ru/krovlya/falcevaya-krovlya/armo/",  # Armo
+        "https://mk4s.ru/krovlya/falcevaya-krovlya/akvasistem/",  # Аквасистем
+    ],
+    "https://mk4s.ru/krovlya/keramicheskaya-cherepitsa/": [
+        "https://mk4s.ru/krovlya/keramicheskaya-cherepitsa/nelskamp/",  # Nelskamp
+        "https://mk4s.ru/krovlya/keramicheskaya-cherepitsa/koramic/",  # Koramic
+        "https://mk4s.ru/krovlya/keramicheskaya-cherepitsa/maruso/",  # Maruso
+        "https://mk4s.ru/krovlya/keramicheskaya-cherepitsa/tejas-borja/",  # Tejas Borja
+        "https://mk4s.ru/krovlya/keramicheskaya-cherepitsa/tondach/",  # Tondach
+        "https://mk4s.ru/krovlya/keramicheskaya-cherepitsa/creaton/",  # Creaton
+        "https://mk4s.ru/krovlya/keramicheskaya-cherepitsa/erlus/",  # Erlus
+        "https://mk4s.ru/krovlya/keramicheskaya-cherepitsa/braas/",  # Braas
+        "https://mk4s.ru/krovlya/keramicheskaya-cherepitsa/rongguan/",  # Rongguan
+        "https://mk4s.ru/krovlya/keramicheskaya-cherepitsa/mladost/",  # Mladost
+        "https://mk4s.ru/krovlya/keramicheskaya-cherepitsa/abc/",  # ABC
+    ],
+    "https://mk4s.ru/krovlya/ekspluatiruemaya-krovlya/": [
+        "https://mk4s.ru/krovlya/ekspluatiruemaya-krovlya/rulonnaya/",  # Рулонный кровельный материал
+        "https://mk4s.ru/krovlya/ekspluatiruemaya-krovlya/reguliruemye-opory/",  # Регулируемые опоры
+    ],
+    "https://mk4s.ru/sayding/cokolnyy/": [
+        "https://mk4s.ru/sayding/cokolnyy/docke/",  # Docke
+        "https://mk4s.ru/sayding/cokolnyy/canada-ridge/",  # Канада Ридж
+    ],
+    "https://mk4s.ru/sayding/vinilovyy/": [
+        "https://mk4s.ru/sayding/vinilovyy/docke/",  # Docke
+        "https://mk4s.ru/sayding/vinilovyy/grand-line/",  # Гранд Лайн
+        "https://mk4s.ru/sayding/vinilovyy/tekhnonikol/",  # Технониколь
+        "https://mk4s.ru/sayding/vinilovyy/tecos/",  # Текос
+    ],
+    "https://mk4s.ru/sayding/metallicheskiy/": [
+        "https://mk4s.ru/sayding/metallicheskiy/grand-line/",  # Гранд Лайн
+        "https://mk4s.ru/sayding/metallicheskiy/stynergy/",  # Стинержи
+        "https://mk4s.ru/sayding/metallicheskiy/aquasystem/",  # Аквасистем
+    ],
+    "https://mk4s.ru/sayding/fibrotsementnyy/": [
+        "https://mk4s.ru/sayding/fibrotsementnyy/roofas/",  # Roofas
+        "https://mk4s.ru/sayding/fibrotsementnyy/cedral/",  # Cedral
+        "https://mk4s.ru/sayding/fibrotsementnyy/decover/",  # Decover
+        "https://mk4s.ru/sayding/fibrotsementnyy/beteko/",  # Бетэко
+        "https://mk4s.ru/sayding/fibrotsementnyy/fibrostar/",  # Фибростар
+        "https://mk4s.ru/sayding/fibrotsementnyy/fibratek/",  # Фибратек
+    ],
+    "https://mk4s.ru/sayding/pod-brevno/": [
+        "https://mk4s.ru/sayding/pod-brevno/docke/",  # Docke
+        "https://mk4s.ru/sayding/pod-brevno/tekos/",  # Текос
+    ],
+    "https://mk4s.ru/sayding/sofity/": [
+        "https://mk4s.ru/sayding/sofity/docke/",  # Docke
+        "https://mk4s.ru/sayding/sofity/aquasystem/",  # Аквасистем
+        "https://mk4s.ru/sayding/sofity/grand-line/",  # Гранд Лайн
+        "https://mk4s.ru/sayding/sofity/tekhnonikol/",  # Технониколь
+        "https://mk4s.ru/sayding/sofity/tecos/",  # Tecos
+        "https://mk4s.ru/sayding/sofity/pod-derevo/",  # Под дерево
+        "https://mk4s.ru/sayding/sofity/metallicheskie/",  # Металлические
+        "https://mk4s.ru/sayding/sofity/perforirovannye/",  # Перфорированные
+    ],
+    "https://mk4s.ru/fasadnye-materialy/fasadnye-paneli/": [
+        "https://mk4s.ru/fasadnye-materialy/fasadnye-paneli/docke/",  # Docke
+        "https://mk4s.ru/fasadnye-materialy/fasadnye-paneli/tekhnonikol/",  # Технониколь
+        "https://mk4s.ru/fasadnye-materialy/fasadnye-paneli/ya-fasad/",  # Я-Фасад
+        "https://mk4s.ru/fasadnye-materialy/fasadnye-paneli/grand-line/",  # Grand Line
+        "https://mk4s.ru/fasadnye-materialy/fasadnye-paneli/tecos/",  # Tecos
+        "https://mk4s.ru/fasadnye-materialy/fasadnye-paneli/canada-ridge/",  # Canada Ridge
+        "https://mk4s.ru/fasadnye-materialy/fasadnye-paneli/pod-kirpich/",  # Под кирпич
+        "https://mk4s.ru/fasadnye-materialy/fasadnye-paneli/pod-kamen/",  # Под камень
+        "https://mk4s.ru/fasadnye-materialy/fasadnye-paneli/pod-derevo/",  # Под дерево
+    ],
+    "https://mk4s.ru/fasadnye-materialy/termopaneli-fasadnye/": [
+        "https://mk4s.ru/fasadnye-materialy/termopaneli-fasadnye/alyaska/",  # Аляска
+    ],
+    "https://mk4s.ru/fasadnye-materialy/fasadnaya-plitka/": [
+        "https://mk4s.ru/fasadnye-materialy/fasadnaya-plitka/tekhnonikol-hauberk/",  # Технониколь Hauberk
+        "https://mk4s.ru/fasadnye-materialy/fasadnaya-plitka/docke/",  # Docke
+        "https://mk4s.ru/fasadnye-materialy/fasadnaya-plitka/pod-kamen/",  # Под камень
+        "https://mk4s.ru/fasadnye-materialy/fasadnaya-plitka/pod-kirpich/",  # Под кирпич
+    ],
+    "https://mk4s.ru/vodostoki/metallicheskie/": [
+        "https://mk4s.ru/vodostoki/metallicheskie/ranilla/",  # Ranilla
+        "https://mk4s.ru/vodostoki/metallicheskie/interprofil/",  # Интерпрофиль
+        "https://mk4s.ru/vodostoki/metallicheskie/aquasystem/",  # Аквасистем
+        "https://mk4s.ru/vodostoki/metallicheskie/stynergy/",  # Стинержи
+        "https://mk4s.ru/vodostoki/metallicheskie/grand-line/",  # Гранд лайн
+        "https://mk4s.ru/vodostoki/metallicheskie/glc/",  # Водосток GLC
+    ],
+    "https://mk4s.ru/vodostoki/plastikovye/": [
+        "https://mk4s.ru/vodostoki/plastikovye/docke/",  # Деке
+    ],
+    "https://mk4s.ru/vodostoki/mednye/": [
+        "https://mk4s.ru/vodostoki/mednye/aquasystem/",  # Аквасистем
+    ],
+    "https://mk4s.ru/drenazh/drenazh-bez-shchebnya/": [
+        "https://mk4s.ru/drenazh/drenazh-bez-shchebnya/lightdrain/",  # Лайтдрэин
+    ],
+    "https://mk4s.ru/drenazh/steelot/": [
+        "https://mk4s.ru/drenazh/steelot/lotki/",  # Лотки линейного водоотвода
+        "https://mk4s.ru/drenazh/steelot/tochechnyy-vodootvod/",  # Точечный водоотвод
+        "https://mk4s.ru/drenazh/steelot/livnevye-reshetki/",  # Ливневые решетки
+    ],
+    "https://mk4s.ru/drenazh/drenline/": [
+        "https://mk4s.ru/drenazh/drenline/lineynyy-vodootvod/",  # Линейный водоотвод
+        "https://mk4s.ru/drenazh/drenline/tochechnyj-vodootvod/",  # Точечный водоотвод
+        "https://mk4s.ru/drenazh/drenline/reshetchatyj-nastil/",  # Решетчатый настил
+    ],
+    "https://mk4s.ru/drenazh/gazonnaya-reshetka/": [
+        "https://mk4s.ru/drenazh/gazonnaya-reshetka/ekoparkovka/",  # Экопарковка
+    ],
+    "https://mk4s.ru/izolyatsiya/uteplitel/": [
+        "https://mk4s.ru/izolyatsiya/uteplitel/paroc/",  # Paroc
+        "https://mk4s.ru/izolyatsiya/uteplitel/umatex/",  # Umatex
+        "https://mk4s.ru/izolyatsiya/uteplitel/rockwool/",  # Роквул
+        "https://mk4s.ru/izolyatsiya/uteplitel/knauf/",  # Knauf
+        "https://mk4s.ru/izolyatsiya/uteplitel/tehnonikol/",  # Технониколь Роклайт
+        "https://mk4s.ru/izolyatsiya/uteplitel/izolife/",  # Изолайф
+        "https://mk4s.ru/izolyatsiya/uteplitel/dirock/",  # Dirock
+        "https://mk4s.ru/izolyatsiya/uteplitel/ursa/",  # Ursa
+        "https://mk4s.ru/izolyatsiya/uteplitel/isover/",  # Isover
+        "https://mk4s.ru/izolyatsiya/uteplitel/isoroc/",  # Изорок
+        "https://mk4s.ru/izolyatsiya/uteplitel/penofol/",  # Пенофол
+        "https://mk4s.ru/izolyatsiya/uteplitel/bazaltovaya-vata/",  # Базальтовая вата
+        "https://mk4s.ru/izolyatsiya/uteplitel/mineralnaya-vata/",  # Минеральная вата
+        "https://mk4s.ru/izolyatsiya/uteplitel/kamennaya-vata/",  # Каменная вата
+        "https://mk4s.ru/izolyatsiya/uteplitel/penopolistirol/",  # Пенополистирол
+    ],
+    "https://mk4s.ru/izolyatsiya/paroizolyatsiya/": [
+        "https://mk4s.ru/izolyatsiya/paroizolyatsiya/tehnonikol/",  # Технониколь
+        "https://mk4s.ru/izolyatsiya/paroizolyatsiya/ondutis/",  # Ондутис
+        "https://mk4s.ru/izolyatsiya/paroizolyatsiya/delta/",  # Delta
+        "https://mk4s.ru/izolyatsiya/paroizolyatsiya/fakro/",  # Fakro
+        "https://mk4s.ru/izolyatsiya/paroizolyatsiya/finka/",  # Finka
+        "https://mk4s.ru/izolyatsiya/paroizolyatsiya/katepal/",  # Katepal
+        "https://mk4s.ru/izolyatsiya/paroizolyatsiya/tyvek/",  # Tyvek
+        "https://mk4s.ru/izolyatsiya/paroizolyatsiya/rothoblaas/",  # RothoBlaas
+        "https://mk4s.ru/izolyatsiya/paroizolyatsiya/yutafol/",  # Ютафол
+        "https://mk4s.ru/izolyatsiya/paroizolyatsiya/docke/",  # Docke
+        "https://mk4s.ru/izolyatsiya/paroizolyatsiya/tegola/",  # Tegola
+        "https://mk4s.ru/izolyatsiya/paroizolyatsiya/klober/",  # Клобер
+        "https://mk4s.ru/izolyatsiya/paroizolyatsiya/eurovent/",  # Eurovent
+    ],
+    "https://mk4s.ru/izolyatsiya/superdiffuzionnye-membrany/": [
+        "https://mk4s.ru/izolyatsiya/superdiffuzionnye-membrany/tekhnonikol/",  # Технониколь
+        "https://mk4s.ru/izolyatsiya/superdiffuzionnye-membrany/delta/",  # Delta
+        "https://mk4s.ru/izolyatsiya/superdiffuzionnye-membrany/ondutis/",  # Ондутис
+        "https://mk4s.ru/izolyatsiya/superdiffuzionnye-membrany/fakro/",  # Fakro
+        "https://mk4s.ru/izolyatsiya/superdiffuzionnye-membrany/rothoblaas/",  # RothoBlaas
+        "https://mk4s.ru/izolyatsiya/superdiffuzionnye-membrany/katepal/",  # Katepal
+        "https://mk4s.ru/izolyatsiya/superdiffuzionnye-membrany/docke/",  # Docke
+        "https://mk4s.ru/izolyatsiya/superdiffuzionnye-membrany/tyvek/",  # Tyvek
+        "https://mk4s.ru/izolyatsiya/superdiffuzionnye-membrany/tegola/",  # Tegola
+        "https://mk4s.ru/izolyatsiya/superdiffuzionnye-membrany/klober/",  # Klober
+        "https://mk4s.ru/izolyatsiya/superdiffuzionnye-membrany/finka/",  # Finka
+        "https://mk4s.ru/izolyatsiya/superdiffuzionnye-membrany/eurovent/",  # Eurovent
+    ],
+    "https://mk4s.ru/izolyatsiya/vetrozashchita/": [
+        "https://mk4s.ru/izolyatsiya/vetrozashchita/ondutis/",  # Ондутис
+        "https://mk4s.ru/izolyatsiya/vetrozashchita/docke/",  # Docke
+        "https://mk4s.ru/izolyatsiya/vetrozashchita/knauf/",  # Knauf
+        "https://mk4s.ru/izolyatsiya/vetrozashchita/beltermo/",  # Белтермо
+        "https://mk4s.ru/izolyatsiya/vetrozashchita/gyproc/",  # Gyproc
+    ],
+    "https://mk4s.ru/izolyatsiya/gidroizolyatsiya/": [
+        "https://mk4s.ru/izolyatsiya/gidroizolyatsiya/ondutis/",  # Ондутис
+        "https://mk4s.ru/izolyatsiya/gidroizolyatsiya/docke/",  # Docke
+        "https://mk4s.ru/izolyatsiya/gidroizolyatsiya/delta/",  # Delta
+        "https://mk4s.ru/izolyatsiya/gidroizolyatsiya/yutafol/",  # Ютафол
+        "https://mk4s.ru/izolyatsiya/gidroizolyatsiya/klober/",  # Клобер
+    ],
+    "https://mk4s.ru/izolyatsiya/germetiziruyuschaya-lenta/": [
+        "https://mk4s.ru/izolyatsiya/germetiziruyuschaya-lenta/vesi-este/",  # Vesi Este
+        "https://mk4s.ru/izolyatsiya/germetiziruyuschaya-lenta/nicoband/",  # Nicoband Технониколь
+        "https://mk4s.ru/izolyatsiya/germetiziruyuschaya-lenta/wakaflex/",  # Вакафлекс
+        "https://mk4s.ru/izolyatsiya/germetiziruyuschaya-lenta/onduband/",  # Ондубанд
+        "https://mk4s.ru/izolyatsiya/germetiziruyuschaya-lenta/ranilla/",  # Ranilla
+        "https://mk4s.ru/izolyatsiya/germetiziruyuschaya-lenta/ekobit/",  # Экобит
+    ],
+    "https://mk4s.ru/ventilyatsiya-krovli/aeratory/": [
+        "https://mk4s.ru/ventilyatsiya-krovli/aeratory/aquasystem/",  # Аквасистем
+        "https://mk4s.ru/ventilyatsiya-krovli/aeratory/tehnonikol/",  # Технониколь
+        "https://mk4s.ru/ventilyatsiya-krovli/aeratory/polivent/",  # Поливент
+        "https://mk4s.ru/ventilyatsiya-krovli/aeratory/deke/",  # Деке
+    ],
+    "https://mk4s.ru/ventilyatsiya-krovli/konkovye-aeratory/": [
+        "https://mk4s.ru/ventilyatsiya-krovli/konkovye-aeratory/shingle-vent/",  # Shingle Vent
+        "https://mk4s.ru/ventilyatsiya-krovli/konkovye-aeratory/docke/",  # Docke
+        "https://mk4s.ru/ventilyatsiya-krovli/konkovye-aeratory/ridge-master/",  # Ridge Master
+    ],
+    "https://mk4s.ru/ventilyatsiya-krovli/ventilyatsionnye-vyhody/": [
+        "https://mk4s.ru/ventilyatsiya-krovli/ventilyatsionnye-vyhody/vilpe/",  # Vilpe
+        "https://mk4s.ru/ventilyatsiya-krovli/ventilyatsionnye-vyhody/krovent/",  # Krovent
+        "https://mk4s.ru/ventilyatsiya-krovli/ventilyatsionnye-vyhody/docke/",  # Docke
+        "https://mk4s.ru/ventilyatsiya-krovli/ventilyatsionnye-vyhody/wirplast/",  # Wirplast
+        "https://mk4s.ru/ventilyatsiya-krovli/ventilyatsionnye-vyhody/polivent/",  # Поливент
+    ],
+    "https://mk4s.ru/ventilyatsiya-krovli/prohodnye-elementy/": [
+        "https://mk4s.ru/ventilyatsiya-krovli/prohodnye-elementy/vilpe/",  # Vilpe
+        "https://mk4s.ru/ventilyatsiya-krovli/prohodnye-elementy/docke/",  # Docke
+    ],
+    "https://mk4s.ru/krovli/flyugery/": [
+        "https://mk4s.ru/krovli/flyugery/duck-dog/",  # Duck and Dog
+    ],
+    "https://mk4s.ru/krovli/greyushchiy-kabel/": [
+        "https://mk4s.ru/krovli/greyushchiy-kabel/devi/",  # Devi
+    ],
+    "https://mk4s.ru/krovli/germetiki/": [
+        "https://mk4s.ru/krovli/germetiki/kesto/",  # Kesto
+        "https://mk4s.ru/krovli/germetiki/tehnonikol/",  # Технониколь
+        "https://mk4s.ru/krovli/germetiki/sikaflex/",  # Sikaflex
+        "https://mk4s.ru/krovli/germetiki/soudal/",  # Soudal
+    ],
+    "https://mk4s.ru/drevesno-plitnye-materialy/plita-osb-osp/": [
+        "https://mk4s.ru/drevesno-plitnye-materialy/plita-osb-osp/talion/",  # Ultralam
+        "https://mk4s.ru/drevesno-plitnye-materialy/plita-osb-osp/kronospan/",  # Kronospan
+        "https://mk4s.ru/drevesno-plitnye-materialy/plita-osb-osp/kalevala/",  # Калевала
+        "https://mk4s.ru/drevesno-plitnye-materialy/plita-osb-osp/vlagostoykaya/",  # Влагостойкие ОСБ
+        "https://mk4s.ru/drevesno-plitnye-materialy/plita-osb-osp/osb-9-mm/",  # OSB 9 мм
+        "https://mk4s.ru/drevesno-plitnye-materialy/plita-osb-osp/osb-12-mm/",  # OSB 12 мм
+        "https://mk4s.ru/drevesno-plitnye-materialy/plita-osb-osp/osb-1250-2500-mm/",  # 1250х2500 мм
+    ],
+    "https://mk4s.ru/zabory/profnastil-dlya-zabora/": [
+        "https://mk4s.ru/zabory/profnastil-dlya-zabora/pod-derevo/",  # Под дерево
+        "https://mk4s.ru/zabory/profnastil-dlya-zabora/calculator/",  # Калькулятор
+        "https://mk4s.ru/zabory/profnastil-dlya-zabora/stolby/",  # Столбы
+    ],
+    "https://mk4s.ru/zabory/evroshtaketnik/": [
+        "https://mk4s.ru/zabory/evroshtaketnik/lumieste/",  # LumiEste
+        "https://mk4s.ru/zabory/evroshtaketnik/stynergy/",  # Stynergy
+        "https://mk4s.ru/zabory/evroshtaketnik/grand-line/",  # Гранд лайн
+        "https://mk4s.ru/zabory/evroshtaketnik/steelx/",  # Steelx
+        "https://mk4s.ru/zabory/evroshtaketnik/pod-derevo/",  # Под дерево
+        "https://mk4s.ru/zabory/evroshtaketnik/dvuhstoronniy/",  # Двухсторонний
+        "https://mk4s.ru/zabory/evroshtaketnik/odnostoronniy/",  # Односторонний
+        "https://mk4s.ru/zabory/evroshtaketnik/m-obraznyy/",  # М-образный
+        "https://mk4s.ru/zabory/evroshtaketnik/p-obraznyy/",  # П-образный
+    ],
+    "https://mk4s.ru/blagoustroystvo/sad/": [
+        "https://mk4s.ru/blagoustroystvo/sad/gryadki-iz-dpk/",  # Грядки из ДПК
+        "https://mk4s.ru/blagoustroystvo/sad/kompostery-plastikovye/",  # Компостеры пластиковые
+        "https://mk4s.ru/blagoustroystvo/sad/saray-hozblok/",  # Сараи, хозблоки
+        "https://mk4s.ru/blagoustroystvo/sad/polennitsy/",  # Поленницы
+        "https://mk4s.ru/blagoustroystvo/sad/tsvetochnitsy/",  # Цветочницы горшки
+        "https://mk4s.ru/blagoustroystvo/sad/sistemy-hraneniya/",  # Системы хранения для улицы
+    ],
+    "https://mk4s.ru/blagoustroystvo/ulichnaya-mebel/": [
+        "https://mk4s.ru/blagoustroystvo/ulichnaya-mebel/mebel-iz-iskusstvennogo-rotanga/",  # Мебель под ротанг
+        "https://mk4s.ru/blagoustroystvo/ulichnaya-mebel/komplekty-sadovoy-mebeli/",  # Комплекты садовой мебели
+        "https://mk4s.ru/blagoustroystvo/ulichnaya-mebel/mebel-dlya-kafe-restoranov/",  # Мебель для кафе и ресторанов
+        "https://mk4s.ru/blagoustroystvo/ulichnaya-mebel/sadovye-kacheli/",  # Садовые качели
+    ],
+}
 
 
 # ─────────────────────────────────────────────
@@ -554,6 +999,7 @@ CATEGORY_TREE = {
         "https://mk4s.ru/blagoustroystvo/ulichnaya-mebel/",
         "https://mk4s.ru/blagoustroystvo/teplitsy/",
         "https://mk4s.ru/blagoustroystvo/detskie-igrovye-kompleksy/",
+        "https://mk4s.ru/blagoustroystvo/ulichnye-pokrytiya/",  # найдено в навигации сайта, отсутствовало в дереве
     ]),
     "suhie-smesi": ("Сухие смеси", [
         "https://mk4s.ru/suhie-smesi/kesto/",
@@ -599,9 +1045,11 @@ if __name__ == "__main__":
     signature_parts = []
     prices_found = 0
 
-    for url, _parent in all_categories:
-        cat_name, s, product_urls, price_map = fetch_category_listing(url)
+    for i, (url, _parent) in enumerate(all_categories, start=1):
+        cat_name, s, product_urls, price_map = fetch_category_listing_full(url)
         listing_cache[url] = (cat_name, s, product_urls)
+        if i % 20 == 0 or i == len(all_categories):
+            log_progress(f"  🔍 Разведка: {i}/{len(all_categories)} категорий")
         for p_url in sorted(product_urls):
             price_text = price_map.get(p_url)
             if price_text:
@@ -634,18 +1082,48 @@ if __name__ == "__main__":
     with open(SIGNATURE_PATH, "w", encoding="utf-8") as f:
         json.dump({"signature": new_signature, "generated_at": datetime.now().isoformat()}, f)
 
+    # Сохраняем "было" (старый catalog.json) для отчёта о разнице ДО перезаписи.
+    old_catalog_by_slug = {}
+    if os.path.exists(CATALOG_JSON_PATH):
+        try:
+            with open(CATALOG_JSON_PATH, "r", encoding="utf-8") as f:
+                old_catalog = json.load(f)
+            for c in old_catalog.get("categories", []):
+                old_catalog_by_slug[c.get("slug")] = len(c.get("products", []))
+        except Exception as e:
+            log_progress(f"⚠️  Не удалось прочитать старый catalog.json для сравнения: {e}")
+
     # ─────────────────────────────────────────────
-    # ШАГ 2: полный обход товаров (используем уже загруженные листинги)
+    # ШАГ 2: полный обход товаров (используем уже загруженные листинги).
+    # Промежуточный прогресс сохраняется каждые CHECKPOINT_EVERY_N_CATEGORIES
+    # категорий — при обрыве скрипта уже собранные данные не теряются.
     # ─────────────────────────────────────────────
+    CHECKPOINT_PATH = os.path.join(REPO_ROOT, "scripts", ".catalog_checkpoint.json")
+
     catalog_categories = []
-    for url, parent in all_categories:
+    total_cats = len(all_categories)
+    for i, (url, parent) in enumerate(all_categories, start=1):
         try:
             cat_name, s, product_urls = listing_cache[url]
             cat_data = process_category(url, soup=s, product_urls=product_urls)
             cat_data["parent"] = parent
             catalog_categories.append(cat_data)
+            log_progress(f"[{i}/{total_cats}] ✅ {cat_data['slug']} — товаров: {len(cat_data['products'])}")
         except Exception as e:
-            print(f"⚠️  Ошибка {url}: {e}")
+            log_progress(f"⚠️  Ошибка {url}: {e}")
+
+        if i % CHECKPOINT_EVERY_N_CATEGORIES == 0 or i == total_cats:
+            try:
+                with open(CHECKPOINT_PATH, "w", encoding="utf-8") as f:
+                    json.dump({
+                        "checkpoint_at": datetime.now().isoformat(),
+                        "categories_done": i,
+                        "categories_total": total_cats,
+                        "categories": catalog_categories,
+                    }, f, ensure_ascii=False)
+                log_progress(f"  💾 Промежуточное сохранение: {i}/{total_cats} категорий")
+            except Exception as e:
+                log_progress(f"  ⚠️  Не удалось сохранить чекпоинт: {e}")
 
     catalog = {
         "meta": {
@@ -661,8 +1139,59 @@ if __name__ == "__main__":
     with open(CATALOG_JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(catalog, f, ensure_ascii=False, indent=2)
 
+    # Успешно записали финальный catalog.json — чекпоинт больше не нужен.
+    if os.path.exists(CHECKPOINT_PATH):
+        try:
+            os.remove(CHECKPOINT_PATH)
+        except Exception:
+            pass
+
     PRODUCT_EXECUTOR.shutdown()
     IMAGE_EXECUTOR.shutdown()
 
     print(f"\n✅ catalog.json → {CATALOG_JSON_PATH}")
     print(f"   Товаров: {catalog['meta']['total_products']}")
+
+    # ─────────────────────────────────────────────
+    # ШАГ 3: отчёт о разнице по каждой категории (было -> стало)
+    # ─────────────────────────────────────────────
+    print("\n📊 Отчёт по категориям (было → стало):")
+    report_lines = ["slug\tбыло\tстало\tразница"]
+    grew, shrank, unchanged, new_cats = 0, 0, 0, 0
+    for c in catalog_categories:
+        slug = c["slug"]
+        new_count = len(c["products"])
+        old_count = old_catalog_by_slug.get(slug)
+        if old_count is None:
+            marker = "🆕"
+            new_cats += 1
+            diff_str = f"новая категория, {new_count}"
+        else:
+            diff = new_count - old_count
+            if diff > 0:
+                marker = "📈"
+                grew += 1
+            elif diff < 0:
+                marker = "📉"
+                shrank += 1
+            else:
+                marker = "  "
+                unchanged += 1
+            diff_str = f"{old_count} → {new_count} ({'+' if diff >= 0 else ''}{diff})"
+        report_lines.append(f"{slug}\t{old_count if old_count is not None else '-'}\t{new_count}\t{diff_str}")
+        if old_count is None or new_count != old_count:
+            print(f"  {marker} {slug}: {diff_str}")
+
+    for special_slug in ("plastikovye", "vinilovyy"):
+        matches = [c for c in catalog_categories if c["slug"] == special_slug]
+        for c in matches:
+            print(f"\n🔎 Контрольная проверка «{c['name']}» ({c['slug']}): "
+                  f"{len(c['products'])} товаров (было {old_catalog_by_slug.get(special_slug, '—')})")
+
+    print(f"\nИтого по категориям: выросло {grew}, уменьшилось {shrank}, "
+          f"без изменений {unchanged}, новых {new_cats}")
+
+    REPORT_PATH = os.path.join(REPO_ROOT, "scripts", "catalog_diff_report.tsv")
+    with open(REPORT_PATH, "w", encoding="utf-8") as f:
+        f.write("\n".join(report_lines))
+    print(f"📄 Полный отчёт сохранён в {REPORT_PATH}")
