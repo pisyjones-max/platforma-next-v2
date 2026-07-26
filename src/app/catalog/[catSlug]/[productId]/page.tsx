@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getCatalog, findCategory } from '@/lib/catalog'
 import { findProductBySlug } from '@/lib/slug'
+import { getCrossSellProducts } from '@/lib/crossSell'
 import { imgUrl } from '@/lib/image'
 import { productSchema, breadcrumbSchema, jsonLdScriptProps } from '@/lib/schema'
 import { SALE_RATE } from '@/lib/constants'
@@ -53,6 +54,10 @@ export default async function ProductRoute({ params }: Props) {
   const parent = Object.entries(catalog.groups)
     .find(([, g]) => g.categories.includes(catSlug))
 
+  const crossSellProducts = parent
+    ? getCrossSellProducts(catalog, parent[0], product.id)
+    : []
+
   const breadcrumbs = breadcrumbSchema([
     { name: 'Главная', url: '/' },
     ...(parent ? [{ name: parent[1].name, url: `/catalog/group/${parent[0]}` }] : []),
@@ -69,6 +74,7 @@ export default async function ProductRoute({ params }: Props) {
         category={cat}
         groupSlug={parent?.[0] ?? ''}
         groupName={parent?.[1]?.name ?? ''}
+        crossSellProducts={crossSellProducts}
       />
     </>
   )

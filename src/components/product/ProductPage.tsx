@@ -9,16 +9,19 @@ import { SALE_RATE, DISC_LABEL, CARD_DISCOUNT } from '@/lib/constants'
 import { getCalcType, calcResult, type CalcInputs } from '@/lib/calculator'
 import { AddedToCartToast } from '@/components/ui/AddedToCartToast'
 import { CardPriceBlock } from '@/components/product/CardPriceBlock'
+import { CrossSellSection } from '@/components/product/CrossSellSection'
 import type { Product, Category } from '@/types/catalog'
+import type { CrossSellProduct } from '@/lib/crossSell'
 
 interface Props {
   product: Product
   category: Category
   groupSlug: string
   groupName: string
+  crossSellProducts?: CrossSellProduct[]
 }
 
-export function ProductPage({ product, category, groupSlug, groupName }: Props) {
+export function ProductPage({ product, category, groupSlug, groupName, crossSellProducts = [] }: Props) {
   const { add } = useCart()
   const { openCart } = useUI()
   const [varIdx, setVarIdx] = useState(0)
@@ -362,6 +365,9 @@ export function ProductPage({ product, category, groupSlug, groupName }: Props) 
           <p className="mdesc">{product.description}</p>
         </div>
       )}
+
+      {/* С этим товаром покупают */}
+      <CrossSellSection products={crossSellProducts} />
 
       {/* Похожие товары */}
       <div className="prod-related">

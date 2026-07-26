@@ -1577,6 +1577,31 @@ body { overflow-x: hidden; }
   border-bottom: 2px solid var(--border);
 }
 
+/* ══ БЛОК "С этим товаром покупают" (кросс-продажи) ═══════════════════════ */
+.cross-sell-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+
+@media (max-width: 768px) {
+  /* Горизонтальный скролл карточек вместо сетки на мобильных.
+     Специфичность .pgrid.cross-sell-grid (2 класса) выше, чем у общих
+     правил .pgrid выше по файлу, поэтому переопределяет их надёжно. */
+  .pgrid.cross-sell-grid {
+    display: flex !important;
+    grid-template-columns: none !important;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 10px;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+  .cross-sell-grid .pcard {
+    flex: 0 0 140px;
+    width: 140px;
+    scroll-snap-align: start;
+  }
+}
+
 /* Калькулятор на странице товара */
 .calc-panel {
   background: var(--surface); border: 1px solid var(--border);
