@@ -28,6 +28,7 @@ export interface Filters {
   minPrice: number
   maxPrice: number
   color: string
-  brand: string
+  /** Список выбранных (канонических) брендов, мультивыбор — OR между ними */
+  brand: string[]
   sort: 'default' | 'price_asc' | 'price_desc' | 'name'
 }

@@ -3,9 +3,10 @@ import { useState, useMemo } from 'react'
 import type { Product } from '@/types/catalog'
 import type { Filters } from '@/types/cart'
 import { salePrice } from '@/lib/price'
+import { normalizeBrand } from '@/lib/brandAliases'
 
 const DEFAULT_FILTERS: Filters = {
-  minPrice: 0, maxPrice: 999999, color: '', brand: '', sort: 'default',
+  minPrice: 0, maxPrice: 999999, color: '', brand: [], sort: 'default',
 }
 
 export function useFilters(products: Product[]) {
@@ -29,12 +30,9 @@ export function useFilters(products: Product[]) {
       const q = filters.color.toLowerCase()
       list = list.filter(p => p.variants.some(v => (v.color ?? v.sku_name ?? '').toLowerCase().includes(q)))
     }
-    if (filters.brand) {
-      const q = filters.brand.toLowerCase()
-      list = list.filter(p =>
-        (p.features?.['Производитель'] ?? '').toLowerCase().includes(q) ||
-        p.title.toLowerCase().includes(q)
-      )
+    if (filters.brand.length > 0) {
+      const selected = new Set(filters.brand)
+      list = list.filter(p => selected.has(normalizeBrand(p.features?.['Производитель'])))
     }
     if (filters.sort === 'price_asc')  list.sort((a, b) => a.variants[0].price - b.variants[0].price)
     if (filters.sort === 'price_desc') list.sort((a, b) => b.variants[0].price - a.variants[0].price)

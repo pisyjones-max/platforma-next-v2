@@ -348,6 +348,68 @@ input, select, textarea { font-family: var(--fb); }
 .btn-sm.primary { background: var(--dark); color: #fff; border-color: var(--dark); }
 .btn-sm.primary:hover { background: var(--dark-h); }
 
+/* ══ ФИЛЬТР ПО БРЕНДУ ══════════════════════════════════════════════════════ */
+.cat-layout { display: flex; align-items: flex-start; gap: 24px; }
+.cat-main   { flex: 1; min-width: 0; }
+
+.brand-aside {
+  width: 216px; flex-shrink: 0;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl);
+  padding: 16px; position: sticky; top: 16px;
+}
+.brand-aside-title {
+  font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
+}
+.brand-aside-reset {
+  font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 500;
+  text-transform: none; letter-spacing: 0;
+}
+.brand-aside-reset:hover { text-decoration: underline; }
+
+.brand-list { display: flex; flex-direction: column; gap: 1px; max-height: 440px; overflow-y: auto; }
+.brand-item {
+  display: flex; align-items: center; gap: 8px; padding: 6px 4px; border-radius: 6px;
+  cursor: pointer; font-size: 12.5px; color: var(--text); transition: background .15s;
+}
+.brand-item:hover { background: var(--surface2); }
+.brand-item input[type=checkbox] { accent-color: var(--dark); width: 14px; height: 14px; flex-shrink: 0; cursor: pointer; }
+.brand-item-name  { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.brand-item-count { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+.brand-item.checked { color: var(--accent); font-weight: 500; }
+
+/* Мобильная кнопка "Бренд" в fbar — скрыта на десктопе */
+.brand-mobile-btn { display: none; }
+
+/* Мобильная модалка (нижняя шторка) */
+.bmodal-overlay { display: none; }
+.bmodal-overlay.open {
+  display: flex; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 60;
+  align-items: flex-end; justify-content: center;
+}
+.bmodal-sheet {
+  background: var(--surface); width: 100%; border-radius: 16px 16px 0 0;
+  max-height: 80vh; display: flex; flex-direction: column; animation: fadeIn .2s ease;
+}
+.bmodal-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.bmodal-hdr h3    { font-size: 14px; font-weight: 700; }
+.bmodal-close     { font-size: 18px; color: var(--muted); cursor: pointer; line-height: 1; padding: 4px; }
+.bmodal-body      { padding: 6px 18px; overflow-y: auto; flex: 1; }
+.bmodal-body .brand-list { max-height: none; }
+.bmodal-body .brand-item { padding: 10px 4px; font-size: 13.5px; }
+.bmodal-footer {
+  display: flex; gap: 8px; padding: 14px 18px; border-top: 1px solid var(--border); flex-shrink: 0;
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+}
+
+@media (max-width: 900px) {
+  .brand-aside      { display: none; }
+  .brand-mobile-btn { display: inline-flex; }
+}
+
 /* ══ СЕТКА ТОВАРОВ ════════════════════════════════════════════════════════ */
 .pgrid{
   display:grid;
