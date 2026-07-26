@@ -35,10 +35,26 @@ jobs:
           REPO_ROOT: ${{ github.workspace }}
         run: python scripts/parser.py
 
+      - name: Sync catalog into src (это файл, который реально попадает в сборку сайта)
+        run: cp public/catalog/catalog.json src/catalog.json
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Проверка, что сайт с новым каталогом реально собирается
+        run: |
+          npm ci
+          npx tsc --noEmit
+          npm run build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://platforma-msk.ru
+
       - name: Check for changes
         id: changes
         run: |
-          git add public/catalog/catalog.json public/images/ scripts/.catalog_signature.json
+          git add public/catalog/catalog.json src/catalog.json public/images/ scripts/.catalog_signature.json
           if git diff --cached --quiet; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
