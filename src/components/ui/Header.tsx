@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
 import { PHONE_NUMBER } from '@/lib/constants'
+import { SearchBox } from '@/components/ui/SearchBox'
 
 const NAV = [
   { href: '/catalog', label: 'Каталог' },
@@ -35,7 +36,9 @@ export function Header() {
         ))}
       </nav>
 
-      <div className="hbts" style={{ marginLeft: 'auto' }}>
+      <SearchBox />
+
+      <div className="hbts">
         {/* Карта лояльности */}
         <button onClick={openLoyalty} style={{
           display: 'flex', alignItems: 'center', gap: 6, padding: '0 11px', height: 34,
