@@ -10,18 +10,27 @@ import { getCalcType, calcResult, type CalcInputs } from '@/lib/calculator'
 import { AddedToCartToast } from '@/components/ui/AddedToCartToast'
 import { CardPriceBlock } from '@/components/product/CardPriceBlock'
 import { CrossSellSection } from '@/components/product/CrossSellSection'
-import type { Product, Category } from '@/types/catalog'
+import type { Product } from '@/types/catalog'
 import type { CrossSellProduct } from '@/lib/crossSell'
+
+export type RelatedProduct = {
+  id: string
+  title: string
+  price: number
+  image?: string
+}
 
 interface Props {
   product: Product
-  category: Category
+  categorySlug: string
+  categoryName: string
   groupSlug: string
   groupName: string
+  otherProducts?: RelatedProduct[]
   crossSellProducts?: CrossSellProduct[]
 }
 
-export function ProductPage({ product, category, groupSlug, groupName, crossSellProducts = [] }: Props) {
+export function ProductPage({ product, categorySlug, categoryName, groupSlug, groupName, otherProducts = [], crossSellProducts = [] }: Props) {
   const { add } = useCart()
   const { openCart } = useUI()
   const [varIdx, setVarIdx] = useState(0)
@@ -48,7 +57,7 @@ export function ProductPage({ product, category, groupSlug, groupName, crossSell
     e.currentTarget.style.setProperty("--zoom-x", x + "%")
     e.currentTarget.style.setProperty("--zoom-y", y + "%")
   }
-  const type = getCalcType(groupSlug, category.slug, category.name, product.title)
+  const type = getCalcType(groupSlug, categorySlug, categoryName, product.title)
 
   const [inputs, setInputs] = useState<CalcInputs>({
     len: 10, wid: 6, slopes: 2, margin: 10,
@@ -117,7 +126,7 @@ export function ProductPage({ product, category, groupSlug, groupName, crossSell
         {groupSlug && <><span className="bc-sep">›</span>
           <span className="bc-item bc-link"><Link href={`/catalog/group/${groupSlug}`}>{groupName}</Link></span></>}
         <span className="bc-sep">›</span>
-        <span className="bc-item bc-link"><Link href={`/catalog/${category.slug}`}>{category.name}</Link></span>
+        <span className="bc-item bc-link"><Link href={`/catalog/${categorySlug}`}>{categoryName}</Link></span>
         <span className="bc-sep">›</span>
         <span className="bc-item bc-cur">{product.title}</span>
       </nav>
@@ -373,24 +382,23 @@ export function ProductPage({ product, category, groupSlug, groupName, crossSell
       <div className="prod-related">
         <h2 className="prod-section-title">Другие товары в категории</h2>
         <div className="pgrid">
-          {category.products.filter(p => p.id !== product.id).slice(0, 8).map(p => {
-            const pv = p.variants[0]
+          {otherProducts.map(p => {
             const pid = p.id.split('--').pop() ?? p.id
             return (
-              <Link key={p.id} href={`/catalog/${category.slug}/${pid}`} className="pcard">
-                {pv.price > 0 && <div className="pcard-discount-tag">{DISC_LABEL}</div>}
+              <Link key={p.id} href={`/catalog/${categorySlug}/${pid}`} className="pcard">
+                {p.price > 0 && <div className="pcard-discount-tag">{DISC_LABEL}</div>}
                 <div className="pthumb">
-                  {pv.images?.[0]
-                    ? <img src={imgUrl(pv.images[0])} alt={p.title} loading="lazy" />
+                  {p.image
+                    ? <img src={imgUrl(p.image)} alt={p.title} loading="lazy" />
                     : <div className="ph">📦</div>
                   }
                 </div>
                 <div className="pinfo">
                   <div className="ptitle">{p.title}</div>
-                  {pv.price > 0 ? (
+                  {p.price > 0 ? (
                     <div className="pprow">
-                      <span className="pp">{fmt(Math.round(pv.price * SALE_RATE))} ₽</span>
-                      <span className="pop">{fmt(pv.price)} ₽</span>
+                      <span className="pp">{fmt(Math.round(p.price * SALE_RATE))} ₽</span>
+                      <span className="pop">{fmt(p.price)} ₽</span>
                     </div>
                   ) : (
                     <div className="pprow"><span className="psku">Цена по запросу</span></div>

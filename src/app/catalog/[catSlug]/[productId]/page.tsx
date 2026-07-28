@@ -58,6 +58,19 @@ export default async function ProductRoute({ params }: Props) {
     ? getCrossSellProducts(catalog, parent[0], product.id)
     : []
 
+  // Для блока "Другие товары в категории" считаем на сервере лёгкий список
+  // (id/название/цена/картинка максимум 8 штук) вместо передачи в клиентский
+  // компонент category целиком со всеми товарами категории.
+  const otherProducts = cat.products
+    .filter(p => p.id !== product.id)
+    .slice(0, 8)
+    .map(p => ({
+      id: p.id,
+      title: p.title,
+      price: p.variants[0]?.price ?? 0,
+      image: p.variants[0]?.images?.[0],
+    }))
+
   const breadcrumbs = breadcrumbSchema([
     { name: 'Главная', url: '/' },
     ...(parent ? [{ name: parent[1].name, url: `/catalog/group/${parent[0]}` }] : []),
@@ -71,9 +84,11 @@ export default async function ProductRoute({ params }: Props) {
       <script {...jsonLdScriptProps(breadcrumbs)} />
       <ProductPage
         product={product}
-        category={cat}
+        categorySlug={cat.slug}
+        categoryName={cat.name}
         groupSlug={parent?.[0] ?? ''}
         groupName={parent?.[1]?.name ?? ''}
+        otherProducts={otherProducts}
         crossSellProducts={crossSellProducts}
       />
     </>

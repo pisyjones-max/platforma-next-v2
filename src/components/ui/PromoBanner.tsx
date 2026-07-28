@@ -15,7 +15,7 @@ const BANNERS = [
   {
     id: 'discount',
     icon: '🚛',
-    title: 'Самовывоз из Ногинска',
+    title: 'Самовывоз из Новохаритонова',
     text: 'Заберите заказ сами — работаем без выходных.',
     cta: 'Узнать адрес →',
     action: 'delivery' as const,

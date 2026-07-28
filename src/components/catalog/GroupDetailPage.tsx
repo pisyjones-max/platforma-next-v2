@@ -1,14 +1,12 @@
 'use client'
 import Link from 'next/link'
-import type { Catalog, Group } from '@/types/catalog'
+import type { Group } from '@/types/catalog'
 
-interface Props { groupSlug: string; group: Group; catalog: Catalog }
+type CategorySummary = { slug: string; name: string; productsCount: number }
 
-export function GroupDetailPage({ groupSlug, group, catalog }: Props) {
-  const cats = group.categories
-    .map(s => catalog.categories.find(c => c.slug === s))
-    .filter(Boolean)
+interface Props { groupSlug: string; group: Group; categories: CategorySummary[] }
 
+export function GroupDetailPage({ group, categories: cats }: Props) {
   return (
     <div id="main">
       <nav className="breadcrumb">
@@ -25,11 +23,11 @@ export function GroupDetailPage({ groupSlug, group, catalog }: Props) {
       </div>
 
       <div className="ggrid">
-        {cats.map(cat => cat && (
+        {cats.map(cat => (
           <Link key={cat.slug} href={`/catalog/${cat.slug}`} className="gcard">
             <div className="gcard-info">
               <div className="gcard-title">{cat.name}</div>
-              <div className="gcard-sub">{cat.products.length} товаров</div>
+              <div className="gcard-sub">{cat.productsCount} товаров</div>
             </div>
             <div className="gcard-arrow">›</div>
           </Link>

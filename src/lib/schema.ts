@@ -20,6 +20,7 @@ export function organizationSchema() {
     priceRange: '₽₽',
     address: {
       '@type': 'PostalAddress',
+      streetAddress: 'д. 220, лит. 1Б',
       addressLocality: 'Новохаритоново',
       addressRegion: 'Московская область',
       addressCountry: 'RU',

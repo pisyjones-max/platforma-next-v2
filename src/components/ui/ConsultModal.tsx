@@ -109,7 +109,7 @@ export function ConsultModal() {
 
               <div className="finp-wrap">
                 <label>Адрес объекта</label>
-                <input className="finp" placeholder="г. Ногинск, ул. Примерная, д. 1" value={address} onChange={e => setAddress(e.target.value)} />
+                <input className="finp" placeholder="г. Раменское, ул. Мира, д. 1" value={address} onChange={e => setAddress(e.target.value)} />
               </div>
 
               <div className="finp-wrap">

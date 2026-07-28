@@ -11,7 +11,7 @@ const NAV = [
   { href: '/about', label: 'О компании' },
 ]
 
-const YANDEX_MAPS_URL = 'https://yandex.ru/maps/?text=Ногинск+кровельные+материалы+PLATFORMA'
+const YANDEX_MAPS_URL = 'https://yandex.ru/maps/?text=Новохаритоново+кровельные+материалы+PLATFORMA'
 
 export function Header() {
   const { count } = useCart()

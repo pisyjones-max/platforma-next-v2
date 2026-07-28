@@ -7,15 +7,14 @@ import { useFilters } from '@/hooks/useFilters'
 import { findProduct } from '@/lib/catalog'
 import { DISC_LABEL } from '@/lib/constants'
 import { getBrandFacets } from '@/lib/brandAliases'
-import type { Category, Catalog } from '@/types/catalog'
+import type { Category } from '@/types/catalog'
 
 interface Props {
   category: Category
   parentGroup: { slug: string; group: { name: string } } | null
-  catalog: Catalog
 }
 
-export function CategoryPage({ category, parentGroup, catalog }: Props) {
+export function CategoryPage({ category, parentGroup }: Props) {
   const { filters, setFilters, search, setSearch, filtered, reset } = useFilters(category.products)
   const [brandModalOpen, setBrandModalOpen] = useState(false)
 

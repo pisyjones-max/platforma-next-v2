@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const priceStr = minPrice < 999999 ? ` от ${minPrice.toLocaleString('ru-RU')} ₽` : ''
   return {
     title: `${cat.name} — купить в Московской области${priceStr}`,
-    description: `${cat.name} — ${count} товаров в наличии. Цены${priceStr}. Доставка по МО. Скидка −17%. Самовывоз из Ногинска. Звоните: +7 (933) 203-30-05.`,
+    description: `${cat.name} — ${count} товаров в наличии. Цены${priceStr}. Доставка по МО. Скидка −17%. Самовывоз из Новохаритонова. Звоните: +7 (933) 203-30-05.`,
     alternates: { canonical: `/catalog/${catSlug}` },
     openGraph: {
       title: `${cat.name} — PLATFORMA`,
@@ -46,7 +46,7 @@ export default async function CatalogCategoryPage({ params }: Props) {
   return (
     <>
       <script {...jsonLdScriptProps(breadcrumbs)} />
-      <CategoryPage category={cat} parentGroup={parent} catalog={catalog} />
+      <CategoryPage category={cat} parentGroup={parent} />
     </>
   )
 }
