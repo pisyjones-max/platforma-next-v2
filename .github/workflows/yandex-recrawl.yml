@@ -1,14 +1,30 @@
-name: Search engine recrawl ping (Yandex + IndexNow)
+name: Deploy + Search engine recrawl ping (Yandex + IndexNow)
 
-# Запускается автоматически при пуше в main (после деплоя на Vercel),
-# и вручную из вкладки Actions (Run workflow), если нужно дёрнуть переобход отдельно.
+# Деплоит на собственный VDS по SSH, затем пингует Yandex Webmaster и IndexNow.
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to VDS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 185.197.75.101
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd /var/www/platforma-next-v2
+            git pull origin main
+            npm ci
+            NODE_OPTIONS="--max-old-space-size=1536" npm run build
+            pm2 restart platforma
+
   ping-yandex:
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
       - name: Request recrawl for robots.txt and sitemap.xml
