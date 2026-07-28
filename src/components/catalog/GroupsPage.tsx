@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { PHONE_NUMBER } from '@/lib/constants'
 import { HomeCalculator } from '@/components/ui/HomeCalculator'
 import { HomeFAQ } from '@/components/ui/HomeFAQ'
-import type { Catalog } from '@/types/catalog'
 
 const GROUP_ICONS: Record<string, string> = {
   krovlya:       '🏠',
@@ -14,7 +13,15 @@ const GROUP_ICONS: Record<string, string> = {
   aksessuary:    '🛠️',
 }
 
-export function GroupsPage({ catalog }: { catalog: Catalog }) {
+type GroupSummary = { name: string; categoriesCount: number }
+
+export function GroupsPage({
+  groups,
+  totalProducts,
+}: {
+  groups: Record<string, GroupSummary>
+  totalProducts: number
+}) {
   return (
     <div id="main">
       {/* Hero */}
@@ -26,7 +33,7 @@ export function GroupsPage({ catalog }: { catalog: Catalog }) {
             <span style={{ color: '#7ECC9A' }}>с доставкой по МО</span>
           </h1>
           <p className="home-hero-sub">
-            {catalog.meta?.total_products ?? 0} товаров в наличии · Скидка −17% на всё · Доставка от 1 дня
+            {totalProducts} товаров в наличии · Скидка −17% на всё · Доставка от 1 дня
           </p>
           <div className="home-hero-actions">
             <a href={`tel:${PHONE_NUMBER}`} className="home-hero-phone">
@@ -38,7 +45,7 @@ export function GroupsPage({ catalog }: { catalog: Catalog }) {
           </div>
         </div>
         <div className="home-hero-right">
-          <div className="hero-stat"><span>{catalog.meta?.total_products ?? 0}</span><small>товаров</small></div>
+          <div className="hero-stat"><span>{totalProducts}</span><small>товаров</small></div>
           <div className="hero-badge"><div className="hero-badge-val">−17%</div><div className="hero-badge-lbl">скидка</div></div>
           <div className="hero-stat"><span>1</span><small>день доставка</small></div>
         </div>
@@ -67,14 +74,14 @@ export function GroupsPage({ catalog }: { catalog: Catalog }) {
       <div style={{ marginTop: 40 }}>
         <h2 className="prod-section-title">Категории товаров</h2>
         <div className="ggrid">
-          {Object.entries(catalog.groups).map(([slug, g]) => (
+          {Object.entries(groups).map(([slug, g]) => (
             <Link key={slug} href={`/catalog/group/${slug}`} className="gcard">
               <div style={{ fontSize: 24, marginRight: 4, flexShrink: 0 }}>
                 {GROUP_ICONS[slug] ?? '📦'}
               </div>
               <div className="gcard-info">
                 <div className="gcard-title">{g.name}</div>
-                <div className="gcard-sub">{g.categories.length} категорий</div>
+                <div className="gcard-sub">{g.categoriesCount} категорий</div>
               </div>
               <div className="gcard-arrow">›</div>
             </Link>
