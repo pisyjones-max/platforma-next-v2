@@ -202,6 +202,38 @@ export function calcGutterDetailed(inputs: GutterInputs, variantSkuName = '', _p
   return { area: lenWithMargin, unit: 'м', qty: gutterQty, qtyLabel: 'шт.', bom }
 }
 
+// ─── Утеплитель: отдельные зоны конструкций со своим числом слоёв ───
+// У стен, кровли и пола обычно разная толщина утепления (разное число слоёв
+// плит), поэтому считаем каждую зону отдельно, а не одной общей площадью.
+export interface InsulationZoneItem { id: string; label: string; area: number; layers: number }
+
+export interface InsulationInputs {
+  zones: InsulationZoneItem[]
+  packSize: number
+  margin: number
+}
+
+export function calcInsulationDetailed(inputs: InsulationInputs, variantSkuName = '', packQty = 1) {
+  const margin = (inputs.margin ?? 10) / 100
+  const plateM2 = parseFloat((variantSkuName.match(/(\d+[.,]\d+)\s*м²/)?.[1] ?? '').replace(',', '.')) || 0.48
+  const packSize = inputs.packSize || packQty || 1
+
+  let totalArea = 0
+  const bom: BomItem[] = []
+  for (const z of inputs.zones) {
+    const zoneArea = Math.max(0, z.area) * Math.max(1, z.layers) * (1 + margin)
+    totalArea += zoneArea
+    if (zoneArea > 0) {
+      const zonePacks = Math.ceil(Math.ceil(zoneArea / plateM2) / packSize)
+      bom.push({ label: `${z.label} (${Math.max(1, z.layers)} сл.)`, qty: zonePacks, unit: 'уп.' })
+    }
+  }
+
+  const totalPacks = Math.ceil(Math.ceil(totalArea / plateM2) / packSize)
+
+  return { area: totalArea, unit: 'м²', qty: totalPacks, qtyLabel: 'уп.', bom }
+}
+
 export function calcResult(type: CalcType, inputs: CalcInputs, variantSkuName = '', packQty = 1) {
   const margin = (inputs.margin ?? 10) / 100
 

@@ -8,6 +8,7 @@ import type { Product } from '@/types/catalog'
 import { SidingCalculator } from './SidingCalculator'
 import { RoofCalculator } from './RoofCalculator'
 import { GutterCalculator } from './GutterCalculator'
+import { InsulationCalculator } from './InsulationCalculator'
 
 interface Props { groupSlug?: string; catSlug: string; catName: string; product?: Product }
 
@@ -94,11 +95,16 @@ export function Calculator({ groupSlug = '', catSlug, catName, product }: Props)
         </div>
       )}
 
-      {open && type !== 'siding' && type !== 'roofing' && type !== 'gutter' && (
+      {open && type === 'insulation' && (
+        <div className="px-4 pb-4">
+          <InsulationCalculator product={product} />
+        </div>
+      )}
+
+      {open && type !== 'siding' && type !== 'roofing' && type !== 'gutter' && type !== 'insulation' && (
         <div className="px-4 pb-4 flex flex-col gap-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {type === 'insulation' && <>{inp('Площадь, м²', 'areaInp')}{inp('Слоёв', 'layers')}{inp('Плит в упаковке', 'packSize')}{inp('Запас, %', 'margin')}</>}
-            {type === 'screws'     && <>{inp('Площадь, м²', 'areaInp')}{inp('Расход, шт/м²', 'perM2')}{inp('Штук в упаковке', 'packSize')}</>}
+            {type === 'screws' && <>{inp('Площадь, м²', 'areaInp')}{inp('Расход, шт/м²', 'perM2')}{inp('Штук в упаковке', 'packSize')}</>}
           </div>
           <div className="flex items-center justify-between bg-[var(--bg)] rounded-xl px-4 py-3">
             <div className="text-sm">
