@@ -62,6 +62,56 @@ export interface CalcInputs {
   margin?: number
 }
 
+// ─── Сайдинг: пообъектная модель дома (стены/проёмы/углы отдельно) ───
+// Мировая практика (Döcke, James Hardie): считать не «периметр × высота»,
+// а сумму реальных стен минус проёмы, плюс отдельные расходники по углам.
+export interface WallItem { id: string; w: number; h: number }
+export interface OpeningItem { id: string; w: number; h: number }
+export interface CornerItem { id: string; h: number }
+
+export interface SidingInputs {
+  walls: WallItem[]
+  openings: OpeningItem[]
+  outerCorners: CornerItem[]
+  innerCorners: CornerItem[]
+  margin: number
+}
+
+export interface BomItem { label: string; qty: number; unit: string }
+
+// Стандартная длина углового элемента и стартовой планки, м
+export const SIDING_CORNER_LEN_M = 3
+export const SIDING_STRIP_LEN_M = 3
+
+export function calcSiding(inputs: SidingInputs, variantSkuName = '', _packQty = 1) {
+  const margin = (inputs.margin ?? 10) / 100
+
+  const grossWalls = inputs.walls.reduce((s, w) => s + Math.max(0, w.w) * Math.max(0, w.h), 0)
+  const openingsArea = inputs.openings.reduce((s, o) => s + Math.max(0, o.w) * Math.max(0, o.h), 0)
+  const netArea = Math.max(0, grossWalls - openingsArea) * (1 + margin)
+
+  const panelM2 = parseFloat((variantSkuName.match(/(\d+[.,]\d+)\s*м²/)?.[1] ?? '').replace(',', '.')) || 0.72
+  const panelsQty = Math.ceil(netArea / panelM2)
+
+  const outerLen = inputs.outerCorners.reduce((s, c) => s + Math.max(0, c.h), 0)
+  const innerLen = inputs.innerCorners.reduce((s, c) => s + Math.max(0, c.h), 0)
+  const outerQty = outerLen > 0 ? Math.ceil(outerLen / SIDING_CORNER_LEN_M) : 0
+  const innerQty = innerLen > 0 ? Math.ceil(innerLen / SIDING_CORNER_LEN_M) : 0
+
+  // Стартовая планка идёт по низу каждой стены — берём сумму ширин стен
+  const startPerim = inputs.walls.reduce((s, w) => s + Math.max(0, w.w), 0)
+  const stripQty = startPerim > 0 ? Math.ceil(startPerim / SIDING_STRIP_LEN_M) : 0
+
+  const bom: BomItem[] = [
+    { label: 'Панели сайдинга', qty: panelsQty, unit: 'уп.' },
+  ]
+  if (outerQty > 0) bom.push({ label: 'Наружный угол', qty: outerQty, unit: 'шт.' })
+  if (innerQty > 0) bom.push({ label: 'Внутренний угол', qty: innerQty, unit: 'шт.' })
+  if (stripQty > 0) bom.push({ label: 'Стартовая планка', qty: stripQty, unit: 'шт.' })
+
+  return { area: netArea, unit: 'м²', qty: panelsQty, qtyLabel: 'уп.', bom }
+}
+
 export function calcResult(type: CalcType, inputs: CalcInputs, variantSkuName = '', packQty = 1) {
   const margin = (inputs.margin ?? 10) / 100
 

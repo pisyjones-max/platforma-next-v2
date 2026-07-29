@@ -5,6 +5,7 @@ import { useCart } from '@/context/CartContext'
 import { imgUrl } from '@/lib/image'
 import { SALE_RATE } from '@/lib/constants'
 import type { Product } from '@/types/catalog'
+import { SidingCalculator } from './SidingCalculator'
 
 interface Props { groupSlug?: string; catSlug: string; catName: string; product?: Product }
 
@@ -73,14 +74,19 @@ export function Calculator({ groupSlug = '', catSlug, catName, product }: Props)
         <span className="text-[var(--muted)]">{open ? '▲' : '▼'}</span>
       </button>
 
-      {open && (
+      {open && type === 'siding' && (
+        <div className="px-4 pb-4">
+          <SidingCalculator product={product} />
+        </div>
+      )}
+
+      {open && type !== 'siding' && (
         <div className="px-4 pb-4 flex flex-col gap-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {type === 'roofing'    && <>{inp('Длина ската, м', 'len', 0.1)}{inp('Ширина ската, м', 'wid', 0.1)}{inp('Кол-во скатов', 'slopes')}{inp('Запас, %', 'margin')}</>}
             {type === 'gutter'     && <>{inp('Периметр кровли, м', 'perim', 0.5)}{inp('Длина элемента, м', 'gutterLen', 0.5)}{inp('Запас, %', 'margin')}</>}
             {type === 'insulation' && <>{inp('Площадь, м²', 'areaInp')}{inp('Слоёв', 'layers')}{inp('Плит в упаковке', 'packSize')}{inp('Запас, %', 'margin')}</>}
             {type === 'screws'     && <>{inp('Площадь, м²', 'areaInp')}{inp('Расход, шт/м²', 'perM2')}{inp('Штук в упаковке', 'packSize')}</>}
-            {type === 'siding'     && <>{inp('Высота стены, м', 'wallH', 0.1)}{inp('Периметр, м', 'perim', 0.5)}{inp('Проёмы, м²', 'openings', 0.5)}{inp('Запас, %', 'margin')}</>}
           </div>
           <div className="flex items-center justify-between bg-[var(--bg)] rounded-xl px-4 py-3">
             <div className="text-sm">
