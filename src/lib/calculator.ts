@@ -53,15 +53,6 @@ export function getCalcType(groupSlug: string, slug: string, name: string, produ
   return 'roofing'
 }
 
-export interface CalcInputs {
-  len?: number; wid?: number; slopes?: number
-  perim?: number; gutterLen?: number
-  areaInp?: number; layers?: number; packSize?: number
-  perM2?: number
-  wallH?: number; openings?: number
-  margin?: number
-}
-
 // ─── Сайдинг: пообъектная модель дома (стены/проёмы/углы отдельно) ───
 // Мировая практика (Döcke, James Hardie): считать не «периметр × высота»,
 // а сумму реальных стен минус проёмы, плюс отдельные расходники по углам.
@@ -234,32 +225,41 @@ export function calcInsulationDetailed(inputs: InsulationInputs, variantSkuName 
   return { area: totalArea, unit: 'м²', qty: totalPacks, qtyLabel: 'уп.', bom }
 }
 
-export function calcResult(type: CalcType, inputs: CalcInputs, variantSkuName = '', packQty = 1) {
-  const margin = (inputs.margin ?? 10) / 100
+// ─── Саморезы: расход привязан к типу материала, а не вводится вслепую ───
+// Раньше пользователь должен был сам знать норму «шт/м²» — большинство
+// не знает и ставит наугад. Теперь выбирается материал, и норма подставляется
+// автоматически (с возможностью переопределить вручную через «Свой расход»).
+export interface ScrewPreset { id: string; label: string; perM2: number }
 
-  if (type === 'gutter') {
-    const area = (inputs.perim ?? 40) * (1 + margin)
-    const qty = Math.ceil(area / (inputs.gutterLen ?? 3))
-    return { area, qty, unit: 'м', qtyLabel: 'шт.' }
+export const SCREW_PRESETS: ScrewPreset[] = [
+  { id: 'profnastil',       label: 'Профнастил (кровля/забор)',   perM2: 7 },
+  { id: 'metallocherepica', label: 'Металлочерепица',              perM2: 8 },
+  { id: 'sandwich',         label: 'Сэндвич-панели',                perM2: 6 },
+  { id: 'siding',           label: 'Сайдинг / фасадные панели',    perM2: 8 },
+  { id: 'osb',              label: 'OSB / половая плита',           perM2: 15 },
+  { id: 'custom',           label: 'Свой расход (указать вручную)', perM2: 8 },
+]
+
+export interface ScrewsInputs {
+  area: number
+  materialId: string
+  customPerM2: number
+  packSize: number
+}
+
+export function calcScrewsDetailed(inputs: ScrewsInputs, packQty = 1) {
+  const preset = SCREW_PRESETS.find(p => p.id === inputs.materialId)
+  const perM2 = inputs.materialId === 'custom' ? Math.max(0, inputs.customPerM2) : (preset?.perM2 ?? Math.max(0, inputs.customPerM2))
+  const total = Math.max(0, inputs.area) * perM2
+  const packSize = inputs.packSize || packQty || 250
+  const qty = Math.ceil(total / packSize)
+
+  return {
+    area: total,
+    unit: 'шт.',
+    qty,
+    qtyLabel: 'уп.',
+    perM2,
+    bom: [{ label: preset?.label ?? 'Саморезы', qty, unit: 'уп.' }] as BomItem[],
   }
-  if (type === 'insulation') {
-    const area = (inputs.areaInp ?? 60) * (inputs.layers ?? 1) * (1 + margin)
-    const plateM2 = parseFloat((variantSkuName.match(/(\d+[.,]\d+)\s*м²/)?.[1] ?? '').replace(',', '.')) || 0.48
-    const packs = Math.ceil(Math.ceil(area / plateM2) / (inputs.packSize ?? packQty))
-    return { area, qty: packs, unit: 'м²', qtyLabel: 'уп.' }
-  }
-  if (type === 'screws') {
-    const total = (inputs.areaInp ?? 80) * (inputs.perM2 ?? 8)
-    const qty = Math.ceil(total / (inputs.packSize ?? 250))
-    return { area: total, qty, unit: 'шт.', qtyLabel: 'уп.' }
-  }
-  if (type === 'siding') {
-    const area = ((inputs.wallH ?? 3) * (inputs.perim ?? 40) - (inputs.openings ?? 15)) * (1 + margin)
-    const panelM2 = parseFloat((variantSkuName.match(/(\d+[.,]\d+)\s*м²/)?.[1] ?? '').replace(',', '.')) || 0.72
-    return { area, qty: Math.ceil(area / panelM2), unit: 'м²', qtyLabel: 'шт.' }
-  }
-  // roofing (default)
-  const area = (inputs.len ?? 10) * (inputs.wid ?? 6) * (inputs.slopes ?? 2) * (1 + margin)
-  const unitM2 = parseFloat((variantSkuName.match(/(\d+[.,]\d+)\s*м²/)?.[1] ?? '').replace(',', '.')) || 0.9
-  return { area, qty: Math.ceil(area / unitM2), unit: 'м²', qtyLabel: 'шт.' }
 }

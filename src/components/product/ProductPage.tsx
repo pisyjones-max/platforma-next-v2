@@ -6,7 +6,8 @@ import { useUI } from '@/context/UIContext'
 import { imgUrl } from '@/lib/image'
 import { fmt } from '@/lib/price'
 import { SALE_RATE, DISC_LABEL, CARD_DISCOUNT } from '@/lib/constants'
-import { getCalcType, calcResult, type CalcInputs } from '@/lib/calculator'
+import { getCalcType } from '@/lib/calculator'
+import { Calculator } from '@/components/calculator/Calculator'
 import { AddedToCartToast } from '@/components/ui/AddedToCartToast'
 import { CardPriceBlock } from '@/components/product/CardPriceBlock'
 import { CrossSellSection } from '@/components/product/CrossSellSection'
@@ -36,7 +37,6 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
   const [varIdx, setVarIdx] = useState(0)
   const [imgIdx, setImgIdx] = useState(0)
   const [qty, setQty] = useState(1)
-  const [calcOpen, setCalcOpen] = useState(false)
   const [toastShow, setToastShow] = useState(false)
   const [toastTitle, setToastTitle] = useState('')
   const [lightbox, setLightbox] = useState(false)
@@ -58,15 +58,6 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
     e.currentTarget.style.setProperty("--zoom-y", y + "%")
   }
   const type = getCalcType(groupSlug, categorySlug, categoryName, product.title)
-
-  const [inputs, setInputs] = useState<CalcInputs>({
-    len: 10, wid: 6, slopes: 2, margin: 10,
-    perim: 40, gutterLen: 3,
-    areaInp: 60, layers: 1, packSize: v.pack_quantity ?? 1,
-    perM2: 8, wallH: 3, openings: 15,
-  })
-  const setInp = (patch: Partial<CalcInputs>) => setInputs(i => ({ ...i, ...patch }))
-  const result = calcResult(type, inputs, v.sku_name ?? '', v.pack_quantity ?? 1)
 
   // Lightbox navigation
   const lbPrev = useCallback(() => setLbIdx(i => (i - 1 + imgs.length) % imgs.length), [imgs.length])
@@ -101,22 +92,6 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
     })
     setCallSent(true)
   }
-
-  const inp = (label: string, key: keyof CalcInputs, step = 1) => (
-    <div key={key} className="calc-inp-wrap">
-      <label>{label}</label>
-      <input
-        type="number"
-        className="calc-inp"
-        step={step}
-        value={inputs[key] === undefined || isNaN(Number(inputs[key])) ? '' : inputs[key]}
-        onChange={e => {
-          const val = parseFloat(e.target.value)
-          setInp({ [key]: isNaN(val) ? 0 : val })
-        }}
-      />
-    </div>
-  )
 
   return (
     <div id="main">
@@ -318,38 +293,9 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
 
       {/* Калькулятор — только для категорий где он имеет смысл */}
       {type !== null && (
-      <div className="calc-panel" style={{ marginTop: 24 }}>
-        <button className="calc-toggle" onClick={() => setCalcOpen(o => !o)}>
-          🧮 Калькулятор количества
-          <span style={{ marginLeft: 'auto', color: 'var(--muted)' }}>{calcOpen ? '▲' : '▼'}</span>
-        </button>
-        {calcOpen && (
-          <div className="calc-body">
-            <div className="calc-grid">
-              {type === 'roofing'    && <>{inp('Длина ската, м', 'len', 0.1)}{inp('Ширина ската, м', 'wid', 0.1)}{inp('Кол-во скатов', 'slopes')}{inp('Запас, %', 'margin')}</>}
-              {type === 'gutter'     && <>{inp('Периметр кровли, м', 'perim', 0.5)}{inp('Длина элемента, м', 'gutterLen', 0.5)}{inp('Запас, %', 'margin')}</>}
-              {type === 'insulation' && <>{inp('Площадь, м²', 'areaInp')}{inp('Слоёв', 'layers')}{inp('Плит в упаковке', 'packSize')}{inp('Запас, %', 'margin')}</>}
-              {type === 'screws'     && <>{inp('Площадь, м²', 'areaInp')}{inp('Расход, шт/м²', 'perM2')}{inp('Штук в упаковке', 'packSize')}</>}
-              {type === 'siding'     && <>{inp('Высота стены, м', 'wallH', 0.1)}{inp('Периметр, м', 'perim', 0.5)}{inp('Проёмы, м²', 'openings', 0.5)}{inp('Запас, %', 'margin')}</>}
-            </div>
-            <div className="calc-result">
-              <div className="cres-text">
-                Площадь: <strong>{result.area.toFixed(1)} {result.unit}</strong>
-                &nbsp;·&nbsp; Нужно: <strong>{result.qty} {result.qtyLabel}</strong>
-                {v.price > 0 && <>&nbsp;·&nbsp; Сумма: <strong style={{ color: 'var(--accent)' }}>{fmt(fp * result.qty)} ₽</strong></>}
-              </div>
-              <button className="calc-addbtn" onClick={() => {
-                const label = `${product.title} × ${result.qty} ${result.qtyLabel}`
-                add({ sku: v.sku, title: label, price: fp, img: imgUrl(imgs[0] ?? ''), qty: result.qty })
-                setToastTitle(label)
-                setToastShow(true)
-              }}>
-                + {result.qty} {result.qtyLabel} в корзину
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+        <div style={{ marginTop: 24 }}>
+          <Calculator groupSlug={groupSlug} catSlug={categorySlug} catName={categoryName} product={product} />
+        </div>
       )}
 
       {/* Характеристики */}
@@ -361,8 +307,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
               <div key={k} className="frow">
                 <div className="fkey">{k}</div>
                 <div className="fval">{val}</div>
-              </div>
-            ))}
+              </div>            ))}
           </div>
         </div>
       )}
