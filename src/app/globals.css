@@ -894,23 +894,6 @@ input, select, textarea { font-family: var(--fb); }
 .co-success h3   { font-family: var(--fh); font-size: 17px; margin-bottom: 10px; }
 .co-success p    { font-size: 13px; color: var(--muted); line-height: 1.7; }
 
-/* ══ КАЛЬКУЛЯТОР ═══════════════════════════════════════════════════════════ */
-.calc-panel {
-  background: var(--surface); border-radius: var(--rl); border: 1px solid var(--border);
-  padding: 22px 24px; margin-bottom: 20px; animation: fadeIn .2s ease;
-}
-.calc-panel h3     { font-family: var(--fh); font-size: 13px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-.calc-grid         { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 12px; margin-bottom: 16px; }
-.calc-inp-wrap     { display: flex; flex-direction: column; gap: 5px; }
-.calc-inp-wrap label { font-size: 10px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); }
-.calc-inp          { height: 38px; border-radius: 8px; border: 1.5px solid var(--border); padding: 0 12px; font-size: 13px; outline: none; background: var(--surface2); width: 100%; transition: border-color .2s; }
-.calc-inp:focus    { border-color: var(--dark); }
-.calc-result       { background: var(--bg); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.calc-result .cres-text { font-size: 13.5px; line-height: 1.6; }
-.calc-result strong { font-family: var(--fh); font-size: 16px; color: var(--dark); }
-.calc-addbtn       { height: 36px; padding: 0 18px; border-radius: 8px; background: var(--dark); color: #fff; border: none; font-size: 12.5px; font-weight: 500; white-space: nowrap; transition: background .15s; }
-.calc-addbtn:hover { background: var(--dark-h); }
-
 /* ══ МОДАЛКА ЛОЯЛЬНОСТИ ════════════════════════════════════════════════════ */
 .loyalty-modal {
   background: var(--surface); border-radius: 22px;
@@ -1602,28 +1585,7 @@ body { overflow-x: hidden; }
   }
 }
 
-/* Калькулятор на странице товара */
-.calc-panel {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--rl); overflow: hidden;
-}
-.calc-toggle {
-  width: 100%; display: flex; align-items: center; gap: 8px;
-  padding: 14px 18px; background: none; border: none;
-  font-size: 14px; font-weight: 600; cursor: pointer;
-  transition: background .15s; font-family: var(--fb);
-}
-.calc-toggle:hover { background: var(--surface2); }
-.calc-body { padding: 16px 18px; border-top: 1px solid var(--border); }
-.calc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 12px; margin-bottom: 16px; }
-.calc-inp-wrap { display: flex; flex-direction: column; gap: 4px; }
-.calc-inp-wrap label { font-size: 10px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); }
-.calc-inp { height: 36px; border-radius: 8px; border: 1px solid var(--border); padding: 0 10px; font-size: 13px; background: var(--surface2); outline: none; font-family: var(--fb); }
-.calc-inp:focus { border-color: var(--dark); }
-.calc-result { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: var(--surface2); border-radius: 10px; padding: 12px 16px; }
-.cres-text { font-size: 13px; }
-.calc-addbtn { height: 36px; padding: 0 16px; border-radius: 9px; background: var(--dark); color: #fff; border: none; font-size: 13px; font-weight: 600; white-space: nowrap; }
-.calc-addbtn:hover { background: var(--dark-h); }
+/* Калькулятор — стили вынесены в единый блок КАЛЬКУЛЯТОР v2 в конце файла */
 
 @media (max-width: 768px) {
   .prod-layout { grid-template-columns: 1fr; gap: 20px; }
@@ -1782,15 +1744,6 @@ html, body { height: 100%; }
 body { display: flex; flex-direction: column; min-height: 100vh; }
 body > * { flex-shrink: 0; }
 
-/* ══ CALC TOGGLE ═════════════════════════════════════════════════════════════ */
-.calc-toggle {
-  width: 100%; background: none; border: none; padding: 0;
-  display: flex; align-items: center; gap: 8px;
-  font-family: var(--fh); font-size: 13px; font-weight: 600;
-  color: var(--text); cursor: pointer;
-}
-.calc-body { margin-top: 18px; }
-
 /* ══ МОБИЛЬНАЯ ШАПКА ════════════════════════════════════════════════════════ */
 @media (max-width: 640px) {
   #hdr { padding: 0 12px; gap: 8px; }
@@ -1850,3 +1803,78 @@ main { flex: 1; }
   .checkout-panel { border-radius: 20px 20px 0 0; }
   .covl2 { align-items: flex-end; padding: 0; }
 }
+
+/* ══ КАЛЬКУЛЯТОР v2 (BOM: сайдинг/кровля/водосток/утеплитель/саморезы) ══════ */
+.calcw-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--rl); overflow: hidden; margin-bottom: 20px;
+}
+.calcw-toggle {
+  width: 100%; display: flex; align-items: center; gap: 8px;
+  padding: 14px 18px; background: none; border: none; text-align: left;
+  font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--text);
+  cursor: pointer; transition: background .15s;
+}
+.calcw-toggle:hover { background: var(--surface2); }
+.calcw-toggle .calcw-chev { margin-left: auto; color: var(--muted); font-size: 11px; }
+
+.calcw-body { border-top: 1px solid var(--border); padding: 18px; display: flex; flex-direction: column; gap: 20px; }
+.calcw-stack { display: flex; flex-direction: column; gap: 20px; }
+
+.calcw-cols2 { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media (min-width: 640px) { .calcw-cols2 { grid-template-columns: 1fr 1fr; } }
+
+.calcw-section { display: flex; flex-direction: column; gap: 10px; }
+.calcw-section-title { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+
+.calcw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px,1fr)); gap: 12px; }
+
+.calcw-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.calcw-field label { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+
+.calcw-input, .calcw-select {
+  height: 36px; width: 100%; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface2); padding: 0 12px; font-size: 13px; color: var(--text);
+  font-family: var(--fb); outline: none; transition: border-color .15s;
+}
+.calcw-input:focus, .calcw-select:focus { border-color: var(--dark); }
+.calcw-select { cursor: pointer; }
+
+.calcw-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.calcw-input.calcw-narrow { width: 84px; flex: none; }
+.calcw-input.calcw-xnarrow { width: 64px; flex: none; }
+.calcw-unit { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.calcw-x { font-size: 12px; color: var(--muted); }
+.calcw-zone-label { font-size: 13px; color: var(--text); min-width: 140px; }
+
+.calcw-del {
+  margin-left: auto; width: 28px; height: 28px; border: none; background: none;
+  border-radius: 7px; color: var(--muted); cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; transition: all .15s; flex: none;
+}
+.calcw-del:hover { background: var(--tag); color: var(--accent); }
+
+.calcw-add-link {
+  align-self: flex-start; background: none; border: none; cursor: pointer;
+  font-size: 12.5px; font-weight: 700; color: var(--dark); padding: 2px 0; transition: color .15s;
+}
+.calcw-add-link:hover { color: var(--dark-h); }
+
+.calcw-margin-box { display: flex; flex-direction: column; gap: 6px; max-width: 140px; }
+.calcw-margin-box label { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+
+.calcw-result { display: flex; flex-direction: column; gap: 10px; background: var(--surface2); border-radius: 10px; padding: 16px; }
+.calcw-result.calcw-result-row { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.calcw-result-area { font-size: 13px; color: var(--muted); }
+.calcw-result-area strong { font-family: var(--fh); font-size: 15px; color: var(--dark); }
+.calcw-bom { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text); }
+.calcw-bom-row { display: flex; justify-content: space-between; gap: 12px; }
+.calcw-bom-row strong { color: var(--dark); font-weight: 700; }
+.calcw-note { font-size: 11px; line-height: 1.6; color: var(--muted); }
+
+.calcw-primary-btn {
+  align-self: flex-start; height: 38px; padding: 0 18px; border-radius: 9px;
+  background: var(--dark); color: #fff; border: none; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: background .15s; font-family: var(--fb); white-space: nowrap;
+}
+.calcw-primary-btn:hover { background: var(--dark-h); }

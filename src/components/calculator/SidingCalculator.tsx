@@ -5,10 +5,7 @@ import { useCart } from '@/context/CartContext'
 import { imgUrl } from '@/lib/image'
 import { SALE_RATE } from '@/lib/constants'
 import type { Product } from '@/types/catalog'
-import {
-  CalcRowList, nextCalcId,
-  CALC_LABEL_CLS, CALC_INPUT_CLS, CALC_RESULT_PANEL_CLS, CALC_PRIMARY_BTN_CLS, CALC_HEADFONT,
-} from './CalcRowList'
+import { CalcRowList, nextCalcId } from './CalcRowList'
 
 const nextId = () => nextCalcId('siding')
 
@@ -48,8 +45,8 @@ export function SidingCalculator({ product }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+    <div className="calcw-stack">
+      <div className="calcw-cols2">
         <CalcRowList
           title="Стены (ширина × высота)"
           unit="м"
@@ -88,36 +85,33 @@ export function SidingCalculator({ product }: Props) {
         />
       </div>
 
-      <div className="flex flex-col gap-1.5 max-w-[140px]">
-        <label className={CALC_LABEL_CLS}>Запас, %</label>
+      <div className="calcw-margin-box">
+        <label>Запас, %</label>
         <input
           type="number"
           value={margin}
           onChange={e => setMargin(parseFloat(e.target.value) || 0)}
-          className={CALC_INPUT_CLS}
+          className="calcw-input"
         />
       </div>
 
-      <div className={CALC_RESULT_PANEL_CLS}>
-        <div className="text-[13px] text-[var(--muted)]">
-          Чистая площадь стен:{' '}
-          <strong style={CALC_HEADFONT} className="text-[15px] text-[var(--dark)]">
-            {result.area.toFixed(1)} м²
-          </strong>
+      <div className="calcw-result">
+        <div className="calcw-result-area">
+          Чистая площадь стен: <strong>{result.area.toFixed(1)} м²</strong>
         </div>
-        <div className="flex flex-col gap-1.5 text-[13px] text-[var(--text)]">
+        <div className="calcw-bom">
           {result.bom.map((b, i) => (
-            <div key={i} className="flex justify-between gap-3">
+            <div key={i} className="calcw-bom-row">
               <span>{b.label}</span>
-              <strong className="text-[var(--dark)]">{b.qty} {b.unit}</strong>
+              <strong>{b.qty} {b.unit}</strong>
             </div>
           ))}
         </div>
-        <p className="text-[11px] leading-relaxed text-[var(--muted)]">
+        <p className="calcw-note">
           Углы и стартовая планка — расчётные позиции для ориентира. Точный подбор комплектующих под вашу коллекцию — у нашего специалиста.
         </p>
         {product && (
-          <button onClick={handleAdd} className={CALC_PRIMARY_BTN_CLS}>
+          <button onClick={handleAdd} className="calcw-primary-btn">
             {added ? '✓ Добавлено!' : `+ В корзину (${result.qty} уп. панелей)`}
           </button>
         )}

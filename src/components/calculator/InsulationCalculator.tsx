@@ -5,11 +5,7 @@ import { useCart } from '@/context/CartContext'
 import { imgUrl } from '@/lib/image'
 import { SALE_RATE } from '@/lib/constants'
 import type { Product } from '@/types/catalog'
-import {
-  nextCalcId,
-  CALC_LABEL_CLS, CALC_INPUT_CLS, CALC_UNIT_CLS, CALC_ADD_LINK_CLS, CALC_DEL_BTN_CLS,
-  CALC_RESULT_PANEL_CLS, CALC_PRIMARY_BTN_CLS, CALC_HEADFONT,
-} from './CalcRowList'
+import { nextCalcId } from './CalcRowList'
 
 const nextId = () => nextCalcId('zone')
 
@@ -58,77 +54,74 @@ export function InsulationCalculator({ product }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-2.5">
-        <div className={CALC_LABEL_CLS}>Площадь по конструкциям</div>
+    <div className="calcw-stack">
+      <div className="calcw-section">
+        <div className="calcw-section-title">Площадь по конструкциям</div>
         {zones.map(z => (
-          <div key={z.id} className="flex flex-wrap items-center gap-2">
-            <span className="w-full text-[13px] text-[var(--text)] sm:w-36 sm:shrink-0 sm:truncate">{z.label}</span>
-            <div className="flex items-center gap-1.5">
+          <div key={z.id} className="calcw-row">
+            <span className="calcw-zone-label">{z.label}</span>
+            <span className="calcw-row" style={{ gap: 6 }}>
               <input
                 type="number" step="1" value={z.area}
                 onChange={e => setZone(z.id, 'area', parseFloat(e.target.value) || 0)}
                 title="Площадь, м²"
-                className={`${CALC_INPUT_CLS} w-[88px]`}
+                className="calcw-input calcw-narrow"
               />
-              <span className={CALC_UNIT_CLS}>м²</span>
-            </div>
-            <div className="flex items-center gap-1.5">
+              <span className="calcw-unit">м²</span>
+            </span>
+            <span className="calcw-row" style={{ gap: 6 }}>
               <input
                 type="number" step="1" min={1} value={z.layers}
                 onChange={e => setZone(z.id, 'layers', parseFloat(e.target.value) || 1)}
                 title="Слоёв"
-                className={`${CALC_INPUT_CLS} w-[64px]`}
+                className="calcw-input calcw-xnarrow"
               />
-              <span className={CALC_UNIT_CLS}>сл.</span>
-            </div>
+              <span className="calcw-unit">сл.</span>
+            </span>
             {zones.length > 1 && (
-              <button onClick={() => removeZone(z.id)} aria-label="Удалить" className={CALC_DEL_BTN_CLS}>✕</button>
+              <button onClick={() => removeZone(z.id)} aria-label="Удалить" className="calcw-del">✕</button>
             )}
           </div>
         ))}
-        <button onClick={addZone} className={CALC_ADD_LINK_CLS}>+ добавить зону</button>
+        <button onClick={addZone} className="calcw-add-link">+ добавить зону</button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 max-w-[320px]">
-        <div className="flex flex-col gap-1.5">
-          <label className={CALC_LABEL_CLS}>Плит в упаковке</label>
+      <div className="calcw-grid" style={{ maxWidth: 320 }}>
+        <div className="calcw-field">
+          <label>Плит в упаковке</label>
           <input
             type="number" value={packSize}
             onChange={e => setPackSize(parseFloat(e.target.value) || 1)}
-            className={CALC_INPUT_CLS}
+            className="calcw-input"
           />
         </div>
-        <div className="flex flex-col gap-1.5">
-          <label className={CALC_LABEL_CLS}>Запас, %</label>
+        <div className="calcw-field">
+          <label>Запас, %</label>
           <input
             type="number" value={margin}
             onChange={e => setMargin(parseFloat(e.target.value) || 0)}
-            className={CALC_INPUT_CLS}
+            className="calcw-input"
           />
         </div>
       </div>
 
-      <div className={CALC_RESULT_PANEL_CLS}>
-        <div className="text-[13px] text-[var(--muted)]">
-          Суммарная площадь с учётом слоёв:{' '}
-          <strong style={CALC_HEADFONT} className="text-[15px] text-[var(--dark)]">
-            {result.area.toFixed(1)} м²
-          </strong>
+      <div className="calcw-result">
+        <div className="calcw-result-area">
+          Суммарная площадь с учётом слоёв: <strong>{result.area.toFixed(1)} м²</strong>
         </div>
-        <div className="flex flex-col gap-1.5 text-[13px] text-[var(--text)]">
+        <div className="calcw-bom">
           {result.bom.map((b, i) => (
-            <div key={i} className="flex justify-between gap-3">
+            <div key={i} className="calcw-bom-row">
               <span>{b.label}</span>
-              <strong className="text-[var(--dark)]">{b.qty} {b.unit}</strong>
+              <strong>{b.qty} {b.unit}</strong>
             </div>
           ))}
         </div>
-        <p className="text-[11px] leading-relaxed text-[var(--muted)]">
+        <p className="calcw-note">
           Расчёт по каждой конструкции — отдельно, т.к. у стен, кровли и пола обычно разное число слоёв утеплителя.
         </p>
         {product && (
-          <button onClick={handleAdd} className={CALC_PRIMARY_BTN_CLS}>
+          <button onClick={handleAdd} className="calcw-primary-btn">
             {added ? '✓ Добавлено!' : `+ В корзину (${result.qty} уп.)`}
           </button>
         )}
