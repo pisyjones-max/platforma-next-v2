@@ -157,6 +157,51 @@ export function calcRoofDetailed(inputs: RoofInputs, variantSkuName = '', _packQ
   return { area, unit: 'м²', qty: sheetsQty, qtyLabel: 'шт.', bom }
 }
 
+// ─── Водосток: желоба отдельными участками + углы/воронки/трубы/колена ───
+// Мировая практика (Döcke calc-drainpipes): помимо погонажа жёлоба считают
+// отдельно углы (наружный/внутренний), воронки, водосточные трубы (по высоте
+// стены) и колена для отвода трубы от стены.
+export interface GutterRunItem { id: string; len: number }
+
+export interface GutterInputs {
+  runs: GutterRunItem[]
+  outerCorners: number
+  innerCorners: number
+  funnels: number       // воронки
+  wallHeight: number     // высота стены — для расчёта длины трубы
+  elbowsPerFunnel: number // колен на одну воронку (обычно 2: у карниза и у отмостки)
+  margin: number
+}
+
+// Стандартная длина желоба и трубы, м
+export const GUTTER_ELEMENT_LEN_M = 3
+export const PIPE_ELEMENT_LEN_M = 3
+
+export function calcGutterDetailed(inputs: GutterInputs, variantSkuName = '', _packQty = 1) {
+  const margin = (inputs.margin ?? 10) / 100
+
+  const totalLen = inputs.runs.reduce((s, r) => s + Math.max(0, r.len), 0)
+  const lenWithMargin = totalLen * (1 + margin)
+
+  const gutterElLen = parseFloat((variantSkuName.match(/(\d+[.,]\d+)\s*м/)?.[1] ?? '').replace(',', '.')) || GUTTER_ELEMENT_LEN_M
+  const gutterQty = Math.ceil(lenWithMargin / gutterElLen)
+
+  const pipeLen = Math.max(0, inputs.wallHeight) * Math.max(0, inputs.funnels)
+  const pipeQty = pipeLen > 0 ? Math.ceil(pipeLen / PIPE_ELEMENT_LEN_M) : 0
+  const elbowsQty = Math.max(0, inputs.funnels) * Math.max(0, inputs.elbowsPerFunnel)
+
+  const bom: BomItem[] = [
+    { label: 'Желоб водосточный', qty: gutterQty, unit: 'шт.' },
+  ]
+  if (inputs.outerCorners > 0) bom.push({ label: 'Угол жёлоба наружный', qty: Math.round(inputs.outerCorners), unit: 'шт.' })
+  if (inputs.innerCorners > 0) bom.push({ label: 'Угол жёлоба внутренний', qty: Math.round(inputs.innerCorners), unit: 'шт.' })
+  if (inputs.funnels > 0) bom.push({ label: 'Воронка', qty: Math.round(inputs.funnels), unit: 'шт.' })
+  if (pipeQty > 0) bom.push({ label: 'Труба водосточная', qty: pipeQty, unit: 'шт.' })
+  if (elbowsQty > 0) bom.push({ label: 'Колено', qty: Math.round(elbowsQty), unit: 'шт.' })
+
+  return { area: lenWithMargin, unit: 'м', qty: gutterQty, qtyLabel: 'шт.', bom }
+}
+
 export function calcResult(type: CalcType, inputs: CalcInputs, variantSkuName = '', packQty = 1) {
   const margin = (inputs.margin ?? 10) / 100
 
