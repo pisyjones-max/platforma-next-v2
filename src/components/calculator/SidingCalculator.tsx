@@ -5,54 +5,12 @@ import { useCart } from '@/context/CartContext'
 import { imgUrl } from '@/lib/image'
 import { SALE_RATE } from '@/lib/constants'
 import type { Product } from '@/types/catalog'
+import { CalcRowList, nextCalcId } from './CalcRowList'
 
-let uidCounter = 0
-const nextId = () => `siding_${Date.now()}_${uidCounter++}`
+const nextId = () => nextCalcId('siding')
 
 interface Props { product?: Product }
 
-interface FieldDef<T> { key: keyof T; label: string }
-
-function RowList<T extends { id: string }>({
-  title, items, onAdd, onRemove, onChange, fields, unit,
-}: {
-  title: string
-  items: T[]
-  onAdd: () => void
-  onRemove: (id: string) => void
-  onChange: (id: string, key: keyof T, val: number) => void
-  fields: FieldDef<T>[]
-  unit: string
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="text-xs font-semibold text-[var(--muted)]">{title}</div>
-      {items.map(item => (
-        <div key={item.id} className="flex items-center gap-2">
-          {fields.map(f => (
-            <input
-              key={String(f.key)}
-              type="number"
-              step="0.1"
-              value={item[f.key] as unknown as number}
-              onChange={e => onChange(item.id, f.key, parseFloat(e.target.value) || 0)}
-              title={f.label}
-              className="w-20 px-2 py-1.5 rounded-lg border border-gray-700 bg-[var(--bg)] text-sm outline-none focus:border-gray-500"
-            />
-          ))}
-          <span className="text-xs text-[var(--muted)]">{unit}</span>
-          {items.length > 1 && (
-            <button onClick={() => onRemove(item.id)}
-              className="ml-auto text-xs text-red-400 hover:text-red-300 px-1">✕</button>
-          )}
-        </div>
-      ))}
-      <button onClick={onAdd} className="self-start text-xs text-[var(--accent)] hover:underline">
-        + добавить
-      </button>
-    </div>
-  )
-}
 
 export function SidingCalculator({ product }: Props) {
   const { add } = useCart()
@@ -90,7 +48,7 @@ export function SidingCalculator({ product }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <div className="grid sm:grid-cols-2 gap-4">
-        <RowList
+        <CalcRowList
           title="Стены (ширина × высота)"
           unit="м"
           items={walls}
@@ -99,7 +57,7 @@ export function SidingCalculator({ product }: Props) {
           onChange={(id, key, val) => setWalls(w => w.map(x => (x.id === id ? { ...x, [key]: val } : x)))}
           fields={[{ key: 'w', label: 'Ширина' }, { key: 'h', label: 'Высота' }]}
         />
-        <RowList
+        <CalcRowList
           title="Проёмы: окна/двери (ширина × высота)"
           unit="м"
           items={openings}
@@ -108,7 +66,7 @@ export function SidingCalculator({ product }: Props) {
           onChange={(id, key, val) => setOpenings(o => o.map(x => (x.id === id ? { ...x, [key]: val } : x)))}
           fields={[{ key: 'w', label: 'Ширина' }, { key: 'h', label: 'Высота' }]}
         />
-        <RowList
+        <CalcRowList
           title="Наружные углы (высота каждого)"
           unit="м"
           items={outerCorners}
@@ -117,7 +75,7 @@ export function SidingCalculator({ product }: Props) {
           onChange={(id, key, val) => setOuterCorners(c => c.map(x => (x.id === id ? { ...x, [key]: val } : x)))}
           fields={[{ key: 'h', label: 'Высота' }]}
         />
-        <RowList
+        <CalcRowList
           title="Внутренние углы (высота каждого)"
           unit="м"
           items={innerCorners}

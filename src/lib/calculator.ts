@@ -112,6 +112,51 @@ export function calcSiding(inputs: SidingInputs, variantSkuName = '', _packQty =
   return { area: netArea, unit: 'м²', qty: panelsQty, qtyLabel: 'уп.', bom }
 }
 
+// ─── Кровля: несколько скатов + конёк/ендова/свесы отдельными позициями ───
+// Мировая практика (Döcke calc-roof): площадь считается по каждому скату
+// отдельно (т.к. скаты часто разного размера), плюс отдельные комплектующие
+// по длине конька, ендовы, карнизных и фронтонных свесов.
+export interface RoofSlopeItem { id: string; len: number; wid: number }
+
+export interface RoofInputs {
+  slopes: RoofSlopeItem[]
+  ridgeLen: number   // длина конька, м
+  eaveLen: number     // длина карнизных свесов, м
+  vergeLen: number    // длина фронтонных (ветровых) свесов, м
+  valleyLen: number   // длина ендовы, м
+  margin: number
+}
+
+// Стандартная длина элемента конька / карнизной планки / ендовы, м
+export const ROOF_RIDGE_ELEMENT_LEN_M = 2
+export const ROOF_EAVE_STRIP_LEN_M = 2
+export const ROOF_VALLEY_ELEMENT_LEN_M = 2
+
+export function calcRoofDetailed(inputs: RoofInputs, variantSkuName = '', _packQty = 1) {
+  const margin = (inputs.margin ?? 10) / 100
+
+  const grossArea = inputs.slopes.reduce((s, sl) => s + Math.max(0, sl.len) * Math.max(0, sl.wid), 0)
+  const area = grossArea * (1 + margin)
+
+  const unitM2 = parseFloat((variantSkuName.match(/(\d+[.,]\d+)\s*м²/)?.[1] ?? '').replace(',', '.')) || 0.9
+  const sheetsQty = Math.ceil(area / unitM2)
+
+  const ridgeQty = inputs.ridgeLen > 0 ? Math.ceil(inputs.ridgeLen / ROOF_RIDGE_ELEMENT_LEN_M) : 0
+  const eaveQty = inputs.eaveLen > 0 ? Math.ceil(inputs.eaveLen / ROOF_EAVE_STRIP_LEN_M) : 0
+  const vergeQty = inputs.vergeLen > 0 ? Math.ceil(inputs.vergeLen / ROOF_EAVE_STRIP_LEN_M) : 0
+  const valleyQty = inputs.valleyLen > 0 ? Math.ceil(inputs.valleyLen / ROOF_VALLEY_ELEMENT_LEN_M) : 0
+
+  const bom: BomItem[] = [
+    { label: 'Кровельный материал', qty: sheetsQty, unit: 'шт.' },
+  ]
+  if (ridgeQty > 0) bom.push({ label: 'Коньковый элемент', qty: ridgeQty, unit: 'шт.' })
+  if (eaveQty > 0) bom.push({ label: 'Карнизная планка', qty: eaveQty, unit: 'шт.' })
+  if (vergeQty > 0) bom.push({ label: 'Ветровая (фронтонная) планка', qty: vergeQty, unit: 'шт.' })
+  if (valleyQty > 0) bom.push({ label: 'Ендова', qty: valleyQty, unit: 'шт.' })
+
+  return { area, unit: 'м²', qty: sheetsQty, qtyLabel: 'шт.', bom }
+}
+
 export function calcResult(type: CalcType, inputs: CalcInputs, variantSkuName = '', packQty = 1) {
   const margin = (inputs.margin ?? 10) / 100
 
