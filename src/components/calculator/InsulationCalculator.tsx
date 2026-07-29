@@ -5,7 +5,11 @@ import { useCart } from '@/context/CartContext'
 import { imgUrl } from '@/lib/image'
 import { SALE_RATE } from '@/lib/constants'
 import type { Product } from '@/types/catalog'
-import { nextCalcId } from './CalcRowList'
+import {
+  nextCalcId,
+  CALC_LABEL_CLS, CALC_INPUT_CLS, CALC_UNIT_CLS, CALC_ADD_LINK_CLS, CALC_DEL_BTN_CLS,
+  CALC_RESULT_PANEL_CLS, CALC_PRIMARY_BTN_CLS, CALC_HEADFONT,
+} from './CalcRowList'
 
 const nextId = () => nextCalcId('zone')
 
@@ -54,74 +58,77 @@ export function InsulationCalculator({ product }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <div className="text-xs font-semibold text-[var(--muted)]">Площадь по конструкциям</div>
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-2.5">
+        <div className={CALC_LABEL_CLS}>Площадь по конструкциям</div>
         {zones.map(z => (
-          <div key={z.id} className="flex items-center gap-2">
-            <span className="text-sm w-36 shrink-0 truncate">{z.label}</span>
-            <input
-              type="number" step="1" value={z.area}
-              onChange={e => setZone(z.id, 'area', parseFloat(e.target.value) || 0)}
-              title="Площадь, м²"
-              className="w-24 px-2 py-1.5 rounded-lg border border-gray-700 bg-[var(--bg)] text-sm outline-none focus:border-gray-500"
-            />
-            <span className="text-xs text-[var(--muted)]">м²</span>
-            <input
-              type="number" step="1" min={1} value={z.layers}
-              onChange={e => setZone(z.id, 'layers', parseFloat(e.target.value) || 1)}
-              title="Слоёв"
-              className="w-16 px-2 py-1.5 rounded-lg border border-gray-700 bg-[var(--bg)] text-sm outline-none focus:border-gray-500"
-            />
-            <span className="text-xs text-[var(--muted)]">сл.</span>
+          <div key={z.id} className="flex flex-wrap items-center gap-2">
+            <span className="w-full text-[13px] text-[var(--text)] sm:w-36 sm:shrink-0 sm:truncate">{z.label}</span>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="number" step="1" value={z.area}
+                onChange={e => setZone(z.id, 'area', parseFloat(e.target.value) || 0)}
+                title="Площадь, м²"
+                className={`${CALC_INPUT_CLS} w-[88px]`}
+              />
+              <span className={CALC_UNIT_CLS}>м²</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="number" step="1" min={1} value={z.layers}
+                onChange={e => setZone(z.id, 'layers', parseFloat(e.target.value) || 1)}
+                title="Слоёв"
+                className={`${CALC_INPUT_CLS} w-[64px]`}
+              />
+              <span className={CALC_UNIT_CLS}>сл.</span>
+            </div>
             {zones.length > 1 && (
-              <button onClick={() => removeZone(z.id)}
-                className="ml-auto text-xs text-red-400 hover:text-red-300 px-1">✕</button>
+              <button onClick={() => removeZone(z.id)} aria-label="Удалить" className={CALC_DEL_BTN_CLS}>✕</button>
             )}
           </div>
         ))}
-        <button onClick={addZone} className="self-start text-xs text-[var(--accent)] hover:underline">
-          + добавить зону
-        </button>
+        <button onClick={addZone} className={CALC_ADD_LINK_CLS}>+ добавить зону</button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 max-w-[340px]">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-[var(--muted)]">Плит в упаковке</label>
+      <div className="grid grid-cols-2 gap-3 max-w-[320px]">
+        <div className="flex flex-col gap-1.5">
+          <label className={CALC_LABEL_CLS}>Плит в упаковке</label>
           <input
             type="number" value={packSize}
             onChange={e => setPackSize(parseFloat(e.target.value) || 1)}
-            className="px-3 py-2 rounded-xl border border-gray-700 bg-[var(--bg)] text-sm outline-none focus:border-gray-500"
+            className={CALC_INPUT_CLS}
           />
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-[var(--muted)]">Запас, %</label>
+        <div className="flex flex-col gap-1.5">
+          <label className={CALC_LABEL_CLS}>Запас, %</label>
           <input
             type="number" value={margin}
             onChange={e => setMargin(parseFloat(e.target.value) || 0)}
-            className="px-3 py-2 rounded-xl border border-gray-700 bg-[var(--bg)] text-sm outline-none focus:border-gray-500"
+            className={CALC_INPUT_CLS}
           />
         </div>
       </div>
 
-      <div className="bg-[var(--bg)] rounded-xl px-4 py-3 flex flex-col gap-2">
-        <div className="text-sm text-[var(--muted)]">
-          Суммарная площадь с учётом слоёв: <strong className="text-[var(--text)]">{result.area.toFixed(1)} м²</strong>
+      <div className={CALC_RESULT_PANEL_CLS}>
+        <div className="text-[13px] text-[var(--muted)]">
+          Суммарная площадь с учётом слоёв:{' '}
+          <strong style={CALC_HEADFONT} className="text-[15px] text-[var(--dark)]">
+            {result.area.toFixed(1)} м²
+          </strong>
         </div>
-        <div className="flex flex-col gap-1 text-sm">
+        <div className="flex flex-col gap-1.5 text-[13px] text-[var(--text)]">
           {result.bom.map((b, i) => (
-            <div key={i} className="flex justify-between">
+            <div key={i} className="flex justify-between gap-3">
               <span>{b.label}</span>
-              <strong>{b.qty} {b.unit}</strong>
+              <strong className="text-[var(--dark)]">{b.qty} {b.unit}</strong>
             </div>
           ))}
         </div>
-        <p className="text-[11px] text-[var(--muted)]">
+        <p className="text-[11px] leading-relaxed text-[var(--muted)]">
           Расчёт по каждой конструкции — отдельно, т.к. у стен, кровли и пола обычно разное число слоёв утеплителя.
         </p>
         {product && (
-          <button onClick={handleAdd}
-            className="mt-1 self-start text-sm bg-[var(--dark)] text-white px-4 py-2 rounded-xl hover:opacity-80 transition-opacity">
+          <button onClick={handleAdd} className={CALC_PRIMARY_BTN_CLS}>
             {added ? '✓ Добавлено!' : `+ В корзину (${result.qty} уп.)`}
           </button>
         )}

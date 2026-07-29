@@ -5,7 +5,10 @@ import { useCart } from '@/context/CartContext'
 import { imgUrl } from '@/lib/image'
 import { SALE_RATE } from '@/lib/constants'
 import type { Product } from '@/types/catalog'
-import { CalcRowList, nextCalcId } from './CalcRowList'
+import {
+  CalcRowList, nextCalcId,
+  CALC_LABEL_CLS, CALC_INPUT_CLS, CALC_RESULT_PANEL_CLS, CALC_PRIMARY_BTN_CLS, CALC_HEADFONT,
+} from './CalcRowList'
 
 const nextId = () => nextCalcId('run')
 
@@ -13,14 +16,14 @@ interface Props { product?: Product }
 
 function NumBox({ label, value, onChange, unit = 'м' }: { label: string; value: number; onChange: (v: number) => void; unit?: string }) {
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs text-[var(--muted)]">{label}, {unit}</label>
+    <div className="flex flex-col gap-1.5">
+      <label className={CALC_LABEL_CLS}>{label}, {unit}</label>
       <input
         type="number"
         step="1"
         value={value}
         onChange={e => onChange(parseFloat(e.target.value) || 0)}
-        className="px-3 py-2 rounded-xl border border-gray-700 bg-[var(--bg)] text-sm outline-none focus:border-gray-500"
+        className={CALC_INPUT_CLS}
       />
     </div>
   )
@@ -62,7 +65,7 @@ export function GutterCalculator({ product }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <CalcRowList
         title="Участки жёлоба (длина)"
         unit="м"
@@ -73,33 +76,35 @@ export function GutterCalculator({ product }: Props) {
         fields={[{ key: 'len', label: 'Длина' }]}
       />
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-3">
         <NumBox label="Углы наружные" value={outerCorners} onChange={setOuterCorners} unit="шт" />
         <NumBox label="Углы внутренние" value={innerCorners} onChange={setInnerCorners} unit="шт" />
         <NumBox label="Воронки" value={funnels} onChange={setFunnels} unit="шт" />
-        <NumBox label="Высота стены (для трубы)" value={wallHeight} onChange={setWallHeight} />
+        <NumBox label="Высота стены" value={wallHeight} onChange={setWallHeight} />
         <NumBox label="Колен на воронку" value={elbowsPerFunnel} onChange={setElbowsPerFunnel} unit="шт" />
         <NumBox label="Запас" value={margin} onChange={setMargin} unit="%" />
       </div>
 
-      <div className="bg-[var(--bg)] rounded-xl px-4 py-3 flex flex-col gap-2">
-        <div className="text-sm text-[var(--muted)]">
-          Длина жёлоба: <strong className="text-[var(--text)]">{result.area.toFixed(1)} м</strong>
+      <div className={CALC_RESULT_PANEL_CLS}>
+        <div className="text-[13px] text-[var(--muted)]">
+          Длина жёлоба:{' '}
+          <strong style={CALC_HEADFONT} className="text-[15px] text-[var(--dark)]">
+            {result.area.toFixed(1)} м
+          </strong>
         </div>
-        <div className="flex flex-col gap-1 text-sm">
+        <div className="flex flex-col gap-1.5 text-[13px] text-[var(--text)]">
           {result.bom.map((b, i) => (
-            <div key={i} className="flex justify-between">
+            <div key={i} className="flex justify-between gap-3">
               <span>{b.label}</span>
-              <strong>{b.qty} {b.unit}</strong>
+              <strong className="text-[var(--dark)]">{b.qty} {b.unit}</strong>
             </div>
           ))}
         </div>
-        <p className="text-[11px] text-[var(--muted)]">
+        <p className="text-[11px] leading-relaxed text-[var(--muted)]">
           Углы, воронки, трубы и колена — расчётные позиции для ориентира. Точную схему водоотведения под ваш дом подберёт наш специалист.
         </p>
         {product && (
-          <button onClick={handleAdd}
-            className="mt-1 self-start text-sm bg-[var(--dark)] text-white px-4 py-2 rounded-xl hover:opacity-80 transition-opacity">
+          <button onClick={handleAdd} className={CALC_PRIMARY_BTN_CLS}>
             {added ? '✓ Добавлено!' : `+ В корзину (${result.qty} шт. жёлоба)`}
           </button>
         )}

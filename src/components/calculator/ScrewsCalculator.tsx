@@ -5,6 +5,7 @@ import { useCart } from '@/context/CartContext'
 import { imgUrl } from '@/lib/image'
 import { SALE_RATE } from '@/lib/constants'
 import type { Product } from '@/types/catalog'
+import { CALC_LABEL_CLS, CALC_INPUT_CLS, CALC_RESULT_PANEL_CLS, CALC_PRIMARY_BTN_CLS } from './CalcRowList'
 
 interface Props { product?: Product }
 
@@ -37,57 +38,56 @@ export function ScrewsCalculator({ product }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="flex flex-col gap-1 sm:col-span-2">
-          <label className="text-xs text-[var(--muted)]">Материал монтажа</label>
+    <div className="flex flex-col gap-5">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3">
+        <div className="flex flex-col gap-1.5 sm:col-span-2">
+          <label className={CALC_LABEL_CLS}>Материал монтажа</label>
           <select
             value={materialId}
             onChange={e => setMaterialId(e.target.value)}
-            className="px-3 py-2 rounded-xl border border-gray-700 bg-[var(--bg)] text-sm outline-none focus:border-gray-500"
+            className={CALC_INPUT_CLS}
           >
             {SCREW_PRESETS.map(p => (
               <option key={p.id} value={p.id}>{p.label}{p.id !== 'custom' ? ` — ${p.perM2} шт/м²` : ''}</option>
             ))}
           </select>
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-[var(--muted)]">Площадь, м²</label>
+        <div className="flex flex-col gap-1.5">
+          <label className={CALC_LABEL_CLS}>Площадь, м²</label>
           <input
             type="number" value={area}
             onChange={e => setArea(parseFloat(e.target.value) || 0)}
-            className="px-3 py-2 rounded-xl border border-gray-700 bg-[var(--bg)] text-sm outline-none focus:border-gray-500"
+            className={CALC_INPUT_CLS}
           />
         </div>
         {materialId === 'custom' && (
-          <div className="flex flex-col gap-1">
-            <label className="text-xs text-[var(--muted)]">Расход, шт/м²</label>
+          <div className="flex flex-col gap-1.5">
+            <label className={CALC_LABEL_CLS}>Расход, шт/м²</label>
             <input
               type="number" value={customPerM2}
               onChange={e => setCustomPerM2(parseFloat(e.target.value) || 0)}
-              className="px-3 py-2 rounded-xl border border-gray-700 bg-[var(--bg)] text-sm outline-none focus:border-gray-500"
+              className={CALC_INPUT_CLS}
             />
           </div>
         )}
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-[var(--muted)]">Штук в упаковке</label>
+        <div className="flex flex-col gap-1.5">
+          <label className={CALC_LABEL_CLS}>Штук в упаковке</label>
           <input
             type="number" value={packSize}
             onChange={e => setPackSize(parseFloat(e.target.value) || 1)}
-            className="px-3 py-2 rounded-xl border border-gray-700 bg-[var(--bg)] text-sm outline-none focus:border-gray-500"
+            className={CALC_INPUT_CLS}
           />
         </div>
       </div>
 
-      <div className="flex items-center justify-between bg-[var(--bg)] rounded-xl px-4 py-3">
-        <div className="text-sm">
+      <div className={`${CALC_RESULT_PANEL_CLS} sm:flex-row sm:items-center sm:justify-between`}>
+        <div className="text-[13px] text-[var(--text)]">
           {Math.round(result.area)} шт. <span className="text-[var(--muted)]">(норма {result.perM2} шт/м²)</span>
           <span className="mx-2 text-[var(--muted)]">·</span>
-          <strong>{result.qty} {result.qtyLabel}</strong>
+          <strong className="text-[var(--dark)]">{result.qty} {result.qtyLabel}</strong>
         </div>
         {product && (
-          <button onClick={handleAdd}
-            className="text-sm bg-[var(--dark)] text-white px-4 py-2 rounded-xl hover:opacity-80 transition-opacity">
+          <button onClick={handleAdd} className={`${CALC_PRIMARY_BTN_CLS} mt-0`}>
             {added ? '✓ Добавлено!' : '+ В корзину'}
           </button>
         )}

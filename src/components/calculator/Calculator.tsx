@@ -7,6 +7,7 @@ import { RoofCalculator } from './RoofCalculator'
 import { GutterCalculator } from './GutterCalculator'
 import { InsulationCalculator } from './InsulationCalculator'
 import { ScrewsCalculator } from './ScrewsCalculator'
+import { CALC_HEADFONT } from './CalcRowList'
 
 interface Props { groupSlug?: string; catSlug: string; catName: string; product?: Product }
 
@@ -28,15 +29,18 @@ export function Calculator({ groupSlug = '', catSlug, catName, product }: Props)
   if (!type) return null
 
   return (
-    <div className="mb-6 rounded-2xl border border-gray-800 bg-[var(--panel)] overflow-hidden">
-      <button onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold hover:bg-white/5 transition-colors">
+    <div className="mb-5 overflow-hidden rounded-[var(--rl)] border border-[var(--border)] bg-[var(--surface)]">
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={CALC_HEADFONT}
+        className="flex w-full items-center gap-2 px-[18px] py-[14px] text-left text-[13px] font-semibold text-[var(--text)] transition-colors hover:bg-[var(--surface2)]"
+      >
         <span>{TITLES[type]}</span>
-        <span className="text-[var(--muted)]">{open ? '▲' : '▼'}</span>
+        <span className="ml-auto text-[var(--muted)]">{open ? '▲' : '▼'}</span>
       </button>
 
       {open && (
-        <div className="px-4 pb-4">
+        <div className="border-t border-[var(--border)] px-[18px] py-4">
           {type === 'siding' && <SidingCalculator product={product} />}
           {type === 'roofing' && <RoofCalculator product={product} />}
           {type === 'gutter' && <GutterCalculator product={product} />}
