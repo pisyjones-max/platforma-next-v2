@@ -27,16 +27,21 @@ import './globals.css'
 // ещё до первой отрисовки текста — отсюда красные FCP/LCP.
 // next/font/google скачивает шрифты на этапе сборки и раздаёт их с того же
 // домена, что и сайт: внешних запросов к Google больше нет вообще.
+//
+// Unbounded и Geologica — вариативные шрифты (variable fonts), поэтому вместо
+// перечисления начертаний массивом (['700','800'] -> 2 отдельных файла;
+// ['400','500','600'] -> 3 отдельных файла = 5 файлов суммарно) просто не
+// указываем weight — для вариативных шрифтов next/font скачивает один файл
+// на семейство, который уже покрывает все нужные начертания (2 файла вместо 5).
+// Меньше запросов -> быстрее срабатывает font swap -> раньше стабилизируется LCP.
 const unbounded = Unbounded({
   subsets: ['cyrillic', 'latin'],
-  weight: ['700', '800'],
   display: 'swap',
   variable: '--font-unbounded',
 })
 
 const geologica = Geologica({
   subsets: ['cyrillic', 'latin'],
-  weight: ['400', '500', '600'],
   display: 'swap',
   variable: '--font-geologica',
 })
@@ -86,6 +91,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ru" className={`${unbounded.variable} ${geologica.variable}`}>
       <head>
+        {/* Товарные фото раздаются с внешнего домена cdn.jsdelivr.net (см.
+            src/lib/image.ts) — preconnect заранее поднимает DNS+TLS до этого
+            домена, пока страница ещё грузится, вместо того чтобы платить эту
+            задержку при первом же запросе картинки. */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+
         {/* Schema.org: Organization + WebSite */}
         <script {...jsonLdScriptProps(organizationSchema())} />
         <script {...jsonLdScriptProps(websiteSchema())} />
