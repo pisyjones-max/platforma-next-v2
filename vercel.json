@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/promos/scrape",
-      "schedule": "0 6 * * *"
+      "schedule": "0 6 */3 * *"
     }
   ]
 }

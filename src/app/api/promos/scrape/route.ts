@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { TG_TOKEN, TG_CHAT_ID } from '@/lib/constants'
 
-// Vercel Cron: runs daily at 09:00 Moscow time (06:00 UTC)
-// Add to vercel.json: { "crons": [{ "path": "/api/promos/scrape", "schedule": "0 6 * * *" }] }
+// Cron: runs every 3 days at 09:00 Moscow time (06:00 UTC)
+// Add to vercel.json: { "crons": [{ "path": "/api/promos/scrape", "schedule": "0 6 */3 * *" }] }
+// NOTE: technonicol.ru removed — its site serves a certificate that doesn't match
+// its own hostname (ERR_TLS_CERT_ALTNAME_INVALID), which was crashing the Node
+// process on every scrape run (uncaught TLS error below the fetch() try/catch).
 
 const SOURCES = [
   {
@@ -15,12 +18,6 @@ const SOURCES = [
     brand: 'grandline',
     name: 'Гранд Лайн',
     url: 'https://www.grandline.ru/akczii/',
-    keywords: ['акция', 'скидка', 'распродажа', 'специальн', 'предложен'],
-  },
-  {
-    brand: 'technonicol',
-    name: 'ТехноНИКОЛЬ',
-    url: 'https://www.technonicol.ru/about/news/',
     keywords: ['акция', 'скидка', 'распродажа', 'специальн', 'предложен'],
   },
 ]
