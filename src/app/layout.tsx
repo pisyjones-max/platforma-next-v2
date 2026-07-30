@@ -2,6 +2,7 @@ import { SITE_URL } from '@/lib/site'
 import { organizationSchema, websiteSchema, jsonLdScriptProps } from '@/lib/schema'
 import type { Metadata } from 'next'
 import Script from 'next/script'
+import { Unbounded, Geologica } from 'next/font/google'
 import { CartProvider } from '@/context/CartContext'
 import { UIProvider } from '@/context/UIContext'
 import { CardProvider } from '@/context/CardContext'
@@ -17,6 +18,28 @@ import { PromoBanner } from '@/components/ui/PromoBanner'
 import { PromosBanner } from '@/components/ui/PromosBanner'
 import { TelegramChat } from '@/components/ui/TelegramChat'
 import './globals.css'
+
+// Раньше шрифты подключались через @import url("https://fonts.googleapis.com/...")
+// в globals.css — это render-blocking запрос: браузер должен скачать CSS,
+// распарсить @import, сходить на fonts.googleapis.com, получить оттуда ещё
+// один CSS, и только потом скачать сами файлы шрифтов с fonts.gstatic.com.
+// На медленном 4G (как в тесте PageSpeed) это добавляет несколько round-trip'ов
+// ещё до первой отрисовки текста — отсюда красные FCP/LCP.
+// next/font/google скачивает шрифты на этапе сборки и раздаёт их с того же
+// домена, что и сайт: внешних запросов к Google больше нет вообще.
+const unbounded = Unbounded({
+  subsets: ['cyrillic', 'latin'],
+  weight: ['700', '800'],
+  display: 'swap',
+  variable: '--font-unbounded',
+})
+
+const geologica = Geologica({
+  subsets: ['cyrillic', 'latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+  variable: '--font-geologica',
+})
 
 export const metadata: Metadata = {
   title: {
@@ -61,7 +84,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru">
+    <html lang="ru" className={`${unbounded.variable} ${geologica.variable}`}>
       <head>
         {/* Schema.org: Organization + WebSite */}
         <script {...jsonLdScriptProps(organizationSchema())} />

@@ -1,4 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800&family=Geologica:wght@400;500;600&display=swap");
+/* Шрифты Unbounded и Geologica подключаются через next/font/google в
+   src/app/layout.tsx (self-hosted, без внешних запросов к Google Fonts) —
+   см. CSS-переменные --font-unbounded / --font-geologica ниже. */
 
 /* ══════════════════════════════════════════════════════════════════════════
    PLATFORMA — style.css  v3.0 (fixed layout)
@@ -20,8 +22,8 @@
   --tag:      #E6E3DC;
   --success:  #2A7A4B;
   --gold:     #C8960C;
-  --fh:       'Unbounded', sans-serif;
-  --fb:       'Geologica', sans-serif;
+  --fh:       var(--font-unbounded), sans-serif;
+  --fb:       var(--font-geologica), sans-serif;
   --r:        10px;
   --rl:       14px;
   --hdr:      58px;
