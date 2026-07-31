@@ -1,6 +1,6 @@
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { getCatalog, findCategory } from '@/lib/catalog'
-import { findProductBySlug } from '@/lib/slug'
+import { findProductBySlug, productSlug } from '@/lib/slug'
 import { getCrossSellProducts } from '@/lib/crossSell'
 import { imgUrl } from '@/lib/image'
 import { productSchema, breadcrumbSchema, jsonLdScriptProps } from '@/lib/schema'
@@ -12,12 +12,32 @@ interface Props {
   params: Promise<{ catSlug: string; productId: string }>
 }
 
+/**
+ * Ищет товар по всему каталогу, если он не нашёлся в указанной по URL категории.
+ *
+ * Нужно из-за истории с коллизиями slug категорий (см. коммит bef05504):
+ * несколько категорий были переименованы, чтобы разрешить дубли slug
+ * ('fakro', 'velux', 'derevyannye', 'plastikovye', 'metallicheskie', 'kley').
+ * Старые URL вида /catalog/fakro/<productId> для товаров из переименованной
+ * категории успели проиндексироваться в Яндексе/Google — вместо того чтобы
+ * отдавать по ним 404, делаем постоянный редирект на актуальный адрес
+ * с правильным (новым) slug категории, сохраняя SEO-вес страницы.
+ */
+function findProductAnywhere(catalog: ReturnType<typeof getCatalog>, productId: string) {
+  for (const c of catalog.categories) {
+    const p = findProductBySlug(c.products, productId)
+    if (p) return { cat: c, product: p }
+  }
+  return null
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { catSlug, productId } = await params
   const catalog = getCatalog()
   const cat = findCategory(catalog, catSlug)
   const product = cat ? findProductBySlug(cat.products, productId) : undefined
   if (!product || !cat) return {}
+
   const v = product.variants[0]
   const price = Math.round(v.price * SALE_RATE)
   const priceStr = price > 0 ? `${price.toLocaleString('ru-RU')} ₽` : 'по запросу'
@@ -49,7 +69,14 @@ export default async function ProductRoute({ params }: Props) {
   const catalog = getCatalog()
   const cat = findCategory(catalog, catSlug)
   const product = cat ? findProductBySlug(cat.products, productId) : undefined
-  if (!product || !cat) notFound()
+
+  if (!product || !cat) {
+    const fallback = findProductAnywhere(catalog, productId)
+    if (fallback) {
+      permanentRedirect(`/catalog/${fallback.cat.slug}/${productSlug(fallback.product.id)}`)
+    }
+    notFound()
+  }
 
   const parent = Object.entries(catalog.groups)
     .find(([, g]) => g.categories.includes(catSlug))
