@@ -21,7 +21,12 @@ jobs:
             git pull origin main
             npm ci
             NODE_OPTIONS="--max-old-space-size=1536" npm run build
-            pm2 restart platforma
+            # reload вместо restart: старый процесс отдаёт уже принятые запросы
+            # и закрывается только после того, как новый поднялся и готов
+            # принимать соединения — без разрыва запросов Яндекс-бота/пользователей
+            # в момент деплоя. Раньше здесь был "pm2 restart", который резко убивал
+            # старый процесс и давал окно 502/504 на каждом деплое.
+            pm2 reload platforma --update-env
 
   ping-yandex:
     needs: deploy
