@@ -1,5 +1,6 @@
 import os
 import json
+from collections import Counter
 import requests
 from requests.adapters import HTTPAdapter
 import hashlib
@@ -451,8 +452,14 @@ def fetch_category_listing_full(url):
     return cat_name, first_soup, all_urls, all_prices
 
 
-def process_category(url, soup=None, product_urls=None):
-    cat_slug = url.strip("/").split("/")[-1]
+def process_category(url, soup=None, product_urls=None, cat_slug=None):
+    # cat_slug может быть передан явно вызывающим кодом (см. __main__), чтобы
+    # разрешать коллизии между категориями с одинаковым последним сегментом URL
+    # (например mansardnye-okna/fakro и cherdachnye-lestnitsy/fakro — оба дают
+    # "fakro", из-за чего вторая категория "терялась": findCategory() в Next.js
+    # находит только первую по такому slug, и все товары второй превращались в 404).
+    if cat_slug is None:
+        cat_slug = url.strip("/").split("/")[-1]
 
     if soup is None or product_urls is None:
         cat_name, s, product_urls, _ = fetch_category_listing_full(url)
@@ -1022,10 +1029,44 @@ if __name__ == "__main__":
     all_categories = []
     seen_urls = set()
 
+    # ── Разрешение коллизий slug ──────────────────────────────────────────
+    # Разные родительские категории могут вести на URL с одинаковым последним
+    # сегментом (например .../mansardnye-okna/fakro/ и .../cherdachnye-lestnitsy/fakro/
+    # оба дают "fakro"). Next.js findCategory() ищет категорию по slug первым
+    # совпадением, поэтому вторая категория с тем же slug становится недостижимой,
+    # а все её товары превращаются в 404. Здесь мы заранее вычисляем "естественный"
+    # slug для каждого URL и, если он не уникален, добавляем префикс родителя.
+    natural_slug_by_url = {}
+    for parent_slug, (parent_name, urls) in CATEGORY_TREE.items():
+        for url in urls:
+            natural_slug_by_url[url] = url.strip("/").split("/")[-1]
+
+    slug_counts = Counter(natural_slug_by_url.values())
+
+    final_slug_by_url = {}
+    for url, natural_slug in natural_slug_by_url.items():
+        if slug_counts[natural_slug] > 1:
+            parent_slug = next(
+                p for p, (_, urls) in CATEGORY_TREE.items() if url in urls
+            )
+            final_slug_by_url[url] = f"{parent_slug}-{natural_slug}"
+        else:
+            final_slug_by_url[url] = natural_slug
+
+    # На всякий случай проверяем, что после дизамбигуации коллизий не осталось —
+    # если вдруг остались, падаем с понятной ошибкой, а не молча теряем товары.
+    final_slug_counts = Counter(final_slug_by_url.values())
+    conflicting = {s: c for s, c in final_slug_counts.items() if c > 1}
+    if conflicting:
+        raise RuntimeError(
+            f"Не удалось разрешить коллизии slug категорий: {conflicting}. "
+            "Нужно вручную задать уникальные slug в CATEGORY_TREE."
+        )
+
     for parent_slug, (parent_name, urls) in CATEGORY_TREE.items():
         groups[parent_slug] = {"name": parent_name, "categories": []}
         for url in urls:
-            cat_slug = url.strip("/").split("/")[-1]
+            cat_slug = final_slug_by_url[url]
             if url not in seen_urls:
                 seen_urls.add(url)
                 all_categories.append((url, parent_slug))
@@ -1105,7 +1146,7 @@ if __name__ == "__main__":
     for i, (url, parent) in enumerate(all_categories, start=1):
         try:
             cat_name, s, product_urls = listing_cache[url]
-            cat_data = process_category(url, soup=s, product_urls=product_urls)
+            cat_data = process_category(url, soup=s, product_urls=product_urls, cat_slug=final_slug_by_url[url])
             cat_data["parent"] = parent
             catalog_categories.append(cat_data)
             log_progress(f"[{i}/{total_cats}] ✅ {cat_data['slug']} — товаров: {len(cat_data['products'])}")

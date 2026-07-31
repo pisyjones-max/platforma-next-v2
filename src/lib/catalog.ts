@@ -3,6 +3,28 @@ import type { Catalog, Category, Product } from '@/types/catalog'
 
 export const catalog = rawCatalog as unknown as Catalog
 
+// Защита от регресса: если у двух категорий совпадёт slug, findCategory()
+// найдёт только первую, а все товары второй молча станут 404 (как это уже
+// было с /catalog/fakro/... — там одновременно жили "Мансардные окна Fakro"
+// и "Чердачная лестница Fakro" с одинаковым slug "fakro"). Проверяем это
+// один раз при старте и громко предупреждаем, если коллизия вернулась.
+function warnOnDuplicateCategorySlugs(cat: Catalog) {
+  const seen = new Map<string, string>()
+  for (const c of cat.categories) {
+    const prev = seen.get(c.slug)
+    if (prev) {
+      console.error(
+        `[catalog] Дублирующийся slug категории "${c.slug}": "${prev}" и "${c.name}". ` +
+        `Товары второй категории будут недоступны (404) — нужно задать уникальный slug.`
+      )
+    } else {
+      seen.set(c.slug, c.name)
+    }
+  }
+}
+
+warnOnDuplicateCategorySlugs(catalog)
+
 export function getCatalog(): Catalog {
   return catalog
 }
