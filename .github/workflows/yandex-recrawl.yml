@@ -20,7 +20,7 @@ jobs:
             cd /var/www/platforma-next-v2
             git pull origin main
             npm ci
-            NODE_OPTIONS="--max-old-space-size=1536" npm run build
+            NEXT_PUBLIC_SITE_URL="https://platforma-msk.ru" NODE_OPTIONS="--max-old-space-size=1536" npm run build
             # reload вместо restart: старый процесс отдаёт уже принятые запросы
             # и закрывается только после того, как новый поднялся и готов
             # принимать соединения — без разрыва запросов Яндекс-бота/пользователей
