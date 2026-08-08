@@ -526,6 +526,103 @@ def process_category(url, soup=None, product_urls=None, cat_slug=None):
     }
 
 
+def process_category_incremental(url, soup, product_urls, changed_urls, old_product_by_url, cat_slug=None):
+    """
+    Как process_category(), но НЕ ходит на карточки товаров, которые не
+    входят в changed_urls (цена не менялась и товар уже был в каталоге
+    на прошлом прогоне) — вместо похода на сайт берёт готовую запись из
+    старого catalog.json как есть, байт-в-байт.
+
+    Это и есть тот самый инкрементальный обход: раньше при ЛЮБОМ изменении
+    где-либо в каталоге парсер заново открывал ВСЕ карточки товаров во ВСЕХ
+    категориях и полностью перезаписывал catalog.json (отсюда коммиты вида
+    "785 files changed" каждую ночь). Теперь карточка запрашивается только
+    если её цена в листинге категории реально изменилась (см. changed_urls,
+    считается по сравнению с price_map прошлого прогона) — итоговый git-диф
+    затрагивает только те товары, у которых правда что-то изменилось.
+    """
+    if cat_slug is None:
+        cat_slug = url.strip("/").split("/")[-1]
+
+    cat_name_tag = soup.select_one("h1, .category-title, .breadcrumb-item.active") if soup else None
+    cat_name = cat_name_tag.get_text(strip=True) if cat_name_tag else cat_slug
+
+    refetch_urls = [u for u in product_urls if u in changed_urls]
+    reused_count = len(product_urls) - len(refetch_urls)
+
+    print(f"\n{'=' * 50}")
+    print(f"📂 {cat_slug} / {cat_name}")
+    print(f"🛒 Товаров: {len(product_urls)} (обновляем: {len(refetch_urls)}, переиспользуем без похода на сайт: {reused_count})")
+
+    all_results = []
+    if refetch_urls:
+        done = 0
+        future_to_url = {PRODUCT_EXECUTOR.submit(parse_product_details, p_url): p_url for p_url in refetch_urls}
+        for f in concurrent.futures.as_completed(future_to_url):
+            p_url = future_to_url[f]
+            done += 1
+            res = f.result()
+            if res:
+                all_results.extend(res)
+                print(f"  [{done}/{len(refetch_urls)}] ✅ {p_url.split('/')[-2]} — вариантов: {len(res)}")
+            else:
+                print(f"  [{done}/{len(refetch_urls)}] ⚠️  {p_url.split('/')[-2]} — пусто")
+
+    products_by_base = {}
+    for item in all_results:
+        key = item.get("url", item["sku"])
+        if key not in products_by_base:
+            raw_path = key.replace("https://mk4s.ru/", "").replace("http://mk4s.ru/", "")
+            seo_slug = raw_path.strip("/").replace("/", "--")
+            if not seo_slug:
+                seo_slug = item["sku"][:20]
+
+            products_by_base[key] = {
+                "id": seo_slug,
+                "sku_base": item["sku"][:10],
+                "title": item["base_title"] or item["title"],
+                "description": item["description"],
+                "url": item["url"],
+                "features": item["features"],
+                "variants": [],
+            }
+        products_by_base[key]["variants"].append({
+            "sku": item["sku"],
+            "sku_id_1c": item.get("sku_id_1c", ""),
+            "sku_name": item.get("sku_name", ""),
+            "color": item.get("color", ""),
+            "price": item["price"],
+            "price_pack": item["price_pack"],
+            "old_price": item.get("old_price", ""),
+            "pack_quantity": item.get("pack_quantity", 1),
+            "images": item.get("images_local", item.get("images_original", [])),
+        })
+
+    # Собираем финальный список товаров В ТОМ ЖЕ ПОРЯДКЕ, в котором они идут
+    # в листинге категории — свежепарсенные заменяют старые на своих местах,
+    # остальные берутся из старого catalog.json без изменений. Именно
+    # сохранение порядка и переиспользование старых dict'ов "как есть" даёт
+    # минимальный git-диф (JSON с indent=2 иначе перегенерировал бы вообще
+    # весь файл заново при каждом запуске).
+    final_products = []
+    for p_url in product_urls:
+        if p_url in products_by_base:
+            final_products.append(products_by_base[p_url])
+        else:
+            old_p = old_product_by_url.get(p_url)
+            if old_p is not None:
+                final_products.append(old_p)
+            else:
+                log_progress(f"  ⚠️  Нет данных ни свежих, ни старых для {p_url} — пропускаю")
+
+    return {
+        "slug": cat_slug,
+        "name": cat_name,
+        "url": url,
+        "products": final_products,
+    }
+
+
 # Автоматически извлечено из основной навигации сайта mk4s.ru
 # (обход подкатегорий/брендов внутри уже существующих категорий CATEGORY_TREE).
 # Для каждой категории верхнего уровня указаны её дочерние страницы
@@ -1084,6 +1181,7 @@ if __name__ == "__main__":
     print("\n🔍 Быстрая проверка изменений (листинги категорий, без карточек товаров)...")
     listing_cache = {}  # url -> (cat_name, soup, product_urls)
     signature_parts = []
+    new_price_map = {}  # p_url -> price_text, по ВСЕМ товарам во ВСЕХ категориях
     prices_found = 0
 
     for i, (url, _parent) in enumerate(all_categories, start=1):
@@ -1095,47 +1193,78 @@ if __name__ == "__main__":
             price_text = price_map.get(p_url)
             if price_text:
                 prices_found += 1
+            new_price_map[p_url] = price_text or ""
             signature_parts.append(f"{p_url}::{price_text or ''}")
 
     new_signature = hashlib.sha256("\n".join(sorted(signature_parts)).encode("utf-8")).hexdigest()
 
     old_signature = None
+    old_price_map = None
     if os.path.exists(SIGNATURE_PATH):
         try:
             with open(SIGNATURE_PATH, "r", encoding="utf-8") as f:
-                old_signature = json.load(f).get("signature")
+                saved = json.load(f)
+                old_signature = saved.get("signature")
+                old_price_map = saved.get("price_map")  # None на старом формате файла — это ок, обработано ниже
         except Exception:
             old_signature = None
+            old_price_map = None
+
+    total_products_in_listing = sum(len(v[2]) for v in listing_cache.values())
 
     if prices_found == 0:
         print("⚠️  Цены в листинге категорий не найдены (не совпал CSS-селектор) — "
-              "сигнатура ловит только изменения ассортимента, но не цен. "
-              "Продолжаю полный обход, чтобы не потерять данные о ценах.")
+              "по ценам не можем определить, что именно изменилось. "
+              "Обхожу карточки ВСЕХ товаров, чтобы не потерять данные.")
+        changed_urls = set(new_price_map.keys())
     elif old_signature == new_signature:
         print(f"✅ Изменений нет (ни в ассортименте, ни в ценах {prices_found} товаров с ценой в листинге) "
-              f"— полный обход {sum(len(v[2]) for v in listing_cache.values())} карточек товаров и картинок пропущен.")
+              f"— полный обход {total_products_in_listing} карточек товаров и картинок пропущен.")
         PRODUCT_EXECUTOR.shutdown()
         IMAGE_EXECUTOR.shutdown()
         exit(0)
+    elif old_price_map is None:
+        print("ℹ️  Нет сохранённой истории цен по товарам (первый запуск после обновления парсера, "
+              "либо файл сигнатуры был в старом формате) — обхожу карточки ВСЕХ товаров один раз, "
+              "дальше буду обновлять только те, у которых реально поменялась цена.")
+        changed_urls = set(new_price_map.keys())
     else:
-        print(f"🔄 Обнаружены изменения (цены и/или ассортимент) — запускаю полный обход товаров.")
+        old_urls = set(old_price_map.keys())
+        new_urls_set = set(new_price_map.keys())
+        added_urls = new_urls_set - old_urls
+        removed_urls = old_urls - new_urls_set
+        price_changed_urls = {
+            u for u in (new_urls_set & old_urls)
+            if old_price_map.get(u) != new_price_map.get(u)
+        }
+        changed_urls = added_urls | price_changed_urls
+        print(f"🔄 Обнаружены изменения — новых товаров: {len(added_urls)}, "
+              f"с изменённой ценой: {len(price_changed_urls)}, пропало из листинга: {len(removed_urls)}. "
+              f"Карточки товаров будут запрошены только для {len(changed_urls)} из {total_products_in_listing} "
+              f"— остальные переиспользуются из прошлого catalog.json без похода на сайт.")
 
-    with open(SIGNATURE_PATH, "w", encoding="utf-8") as f:
-        json.dump({"signature": new_signature, "generated_at": datetime.now().isoformat()}, f)
-
-    # Сохраняем "было" (старый catalog.json) для отчёта о разнице ДО перезаписи.
+    # Сохраняем "было" (старый catalog.json) для отчёта о разнице и для
+    # переиспользования непеременившихся товаров — ДО перезаписи файла.
     old_catalog_by_slug = {}
+    old_product_by_url = {}
     if os.path.exists(CATALOG_JSON_PATH):
         try:
             with open(CATALOG_JSON_PATH, "r", encoding="utf-8") as f:
                 old_catalog = json.load(f)
             for c in old_catalog.get("categories", []):
                 old_catalog_by_slug[c.get("slug")] = len(c.get("products", []))
+                for p in c.get("products", []):
+                    p_url = p.get("url")
+                    if p_url:
+                        old_product_by_url[p_url] = p
         except Exception as e:
             log_progress(f"⚠️  Не удалось прочитать старый catalog.json для сравнения: {e}")
 
     # ─────────────────────────────────────────────
-    # ШАГ 2: полный обход товаров (используем уже загруженные листинги).
+    # ШАГ 2: обход товаров — карточка запрашивается заново ТОЛЬКО если её URL
+    # есть в changed_urls (новый товар или изменилась цена в листинге).
+    # Для остальных используем уже загруженные листинги, но данные карточки
+    # берём из старого catalog.json без похода на сайт (process_category_incremental).
     # Промежуточный прогресс сохраняется каждые CHECKPOINT_EVERY_N_CATEGORIES
     # категорий — при обрыве скрипта уже собранные данные не теряются.
     # ─────────────────────────────────────────────
@@ -1146,7 +1275,10 @@ if __name__ == "__main__":
     for i, (url, parent) in enumerate(all_categories, start=1):
         try:
             cat_name, s, product_urls = listing_cache[url]
-            cat_data = process_category(url, soup=s, product_urls=product_urls, cat_slug=final_slug_by_url[url])
+            cat_data = process_category_incremental(
+                url, soup=s, product_urls=product_urls, changed_urls=changed_urls,
+                old_product_by_url=old_product_by_url, cat_slug=final_slug_by_url[url],
+            )
             cat_data["parent"] = parent
             catalog_categories.append(cat_data)
             log_progress(f"[{i}/{total_cats}] ✅ {cat_data['slug']} — товаров: {len(cat_data['products'])}")
@@ -1179,6 +1311,16 @@ if __name__ == "__main__":
 
     with open(CATALOG_JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(catalog, f, ensure_ascii=False, indent=2)
+
+    # Сигнатуру и карту цен сохраняем ТОЛЬКО после успешной записи catalog.json —
+    # если скрипт упадёт где-то посередине, следующий запуск увидит старое
+    # состояние и корректно пересчитает изменения, а не решит, что всё ОК.
+    with open(SIGNATURE_PATH, "w", encoding="utf-8") as f:
+        json.dump({
+            "signature": new_signature,
+            "price_map": new_price_map,
+            "generated_at": datetime.now().isoformat(),
+        }, f, ensure_ascii=False)
 
     # Успешно записали финальный catalog.json — чекпоинт больше не нужен.
     if os.path.exists(CHECKPOINT_PATH):
