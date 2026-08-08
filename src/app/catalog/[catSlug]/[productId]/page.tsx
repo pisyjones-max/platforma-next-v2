@@ -36,7 +36,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const catalog = getCatalog()
   const cat = findCategory(catalog, catSlug)
   const product = cat ? findProductBySlug(cat.products, productId) : undefined
-  if (!product || !cat) return {}
+  // Защита от "битых" записей парсера (пустой variants выдаёт краш вместо 404,
+  // см. историю с 500-ошибками на ~150 товарных страницах, зафиксированную
+  // в отчёте Яндекс.Вебмастера — товар временно пересобирался ночным парсером
+  // без variants в момент обхода робота).
+  if (!product || !cat || !product.variants?.length) return {}
 
   const v = product.variants[0]
   const price = Math.round(v.price * SALE_RATE)
@@ -70,9 +74,16 @@ export default async function ProductRoute({ params }: Props) {
   const cat = findCategory(catalog, catSlug)
   const product = cat ? findProductBySlug(cat.products, productId) : undefined
 
-  if (!product || !cat) {
+  // Защита от "битых" записей парсера: если товар нашёлся, но у него нет
+  // валидных variants (пустой массив/temp-состояние ночной пересборки
+  // catalog.json), рендерить страницу нельзя — ProductPage читает
+  // product.variants[0].price без проверки и упадёт с 500 вместо честного
+  // 404. Лучше отдать 404: он не бьёт индексацию так, как повторяющиеся
+  // 500-ошибки, и страница переиндексируется сама на следующий обход,
+  // как только парсер досыплет данные обратно.
+  if (!product || !cat || !product.variants?.length) {
     const fallback = findProductAnywhere(catalog, productId)
-    if (fallback) {
+    if (fallback?.product.variants?.length) {
       permanentRedirect(`/catalog/${fallback.cat.slug}/${productSlug(fallback.product.id)}`)
     }
     notFound()
