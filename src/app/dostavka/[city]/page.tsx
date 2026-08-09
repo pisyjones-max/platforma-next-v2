@@ -11,6 +11,12 @@ export function generateStaticParams() {
   return CITIES.map(c => ({ city: c.slug }))
 }
 
+// См. комментарий в src/lib/catalog.ts — страница статически сгенерирована
+// (generateStaticParams), без явной ревалидации так и осталась бы навсегда
+// со снимком каталога на момент билда. Раз в 10 минут перегенерируется
+// в фоне со свежими данными, без ребилда и рестарта сайта.
+export const revalidate = 600
+
 export async function generateMetadata({ params }: { params: Promise<{ city: string }> }): Promise<Metadata> {
   const { city: citySlug } = await params
   const city = getCity(citySlug)

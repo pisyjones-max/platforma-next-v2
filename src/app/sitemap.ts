@@ -5,6 +5,11 @@ import { productSlug } from '@/lib/slug'
 import { CITIES } from '@/lib/cities'
 import { getAllArticles } from '@/lib/blog'
 
+// См. комментарий в src/lib/catalog.ts — каталог читается с диска в рантайме,
+// эта настройка даёт sitemap.xml подхватывать новые товары раз в 10 минут
+// без пересборки и рестарта сайта.
+export const revalidate = 600
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const catalog = getCatalog()
   const now = new Date()

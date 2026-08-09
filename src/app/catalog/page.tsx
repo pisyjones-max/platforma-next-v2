@@ -2,6 +2,11 @@ import Link from 'next/link'
 import { getCatalog } from '@/lib/catalog'
 import type { Metadata } from 'next'
 
+// См. комментарий в src/lib/catalog.ts — каталог читается с диска в рантайме,
+// эта настройка даёт странице подхватывать изменения ассортимента раз в
+// 10 минут без пересборки и рестарта сайта.
+export const revalidate = 600
+
 export const metadata: Metadata = {
   title: 'Каталог кровельных и фасадных материалов — PLATFORMA',
   description: 'Каталог строительных материалов: кровля, сайдинг, фасад, водостоки, утеплители. Доставка по Московской области. Скидка −17% на всё.',

@@ -1,6 +1,11 @@
 import { getCatalog } from '@/lib/catalog'
 import { GroupsPage } from '@/components/catalog/GroupsPage'
 
+// См. комментарий в src/lib/catalog.ts — каталог читается с диска в рантайме,
+// эта настройка даёт главной странице подхватывать изменения раз в 10 минут
+// без пересборки и рестарта сайта.
+export const revalidate = 600
+
 export default function Home() {
   const catalog = getCatalog()
   // Передаём в клиентский компонент только то, что реально используется на

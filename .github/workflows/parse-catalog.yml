@@ -12,6 +12,8 @@ jobs:
   parse:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    outputs:
+      changed: ${{ steps.changes.outputs.changed }}
 
     steps:
       - name: Checkout repo
@@ -35,15 +37,16 @@ jobs:
           REPO_ROOT: ${{ github.workspace }}
         run: python scripts/parser.py
 
-      - name: Sync catalog into src (это файл, который реально попадает в сборку сайта)
-        run: cp public/catalog/catalog.json src/catalog.json
-
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Проверка, что сайт с новым каталогом реально собирается
+        # Это чисто CI-проверка на одноразовой машине Actions — она никак не
+        # затрагивает прод и не может помешать живым посетителям сайта, даже
+        # если займёт несколько минут. Ловит битые/неполные записи парсера
+        # ДО того, как они уедут на сервер.
         run: |
           npm ci
           npx tsc --noEmit
@@ -54,7 +57,7 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          git add public/catalog/catalog.json src/catalog.json public/images/ scripts/.catalog_signature.json
+          git add public/catalog/catalog.json public/images/ scripts/.catalog_signature.json
           if git diff --cached --quiet; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
@@ -73,6 +76,93 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # ВАЖНО: catalog.json больше не вшивается в сборку (см. src/lib/catalog.ts —
+      # он читается с диска в рантайме). Поэтому изменение только каталога
+      # (даже одна цена) НЕ требует npm run build / pm2 reload на сервере —
+      # файл просто докладывается поверх старого, и сайт подхватывает свежие
+      # данные сам в течение 10 минут (ISR revalidate), без какого-либо
+      # прерывания для тех, кто уже находится на сайте. Полный деплой
+      # (yandex-recrawl.yml) запускается отдельно и только при изменении кода
+      # — см. paths-ignore в том воркфлоу.
+      - name: Deploy catalog.json + новые картинки на сервер (без билда и рестарта)
+        if: steps.changes.outputs.changed == 'true'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 185.197.75.101
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd /var/www/platforma-next-v2
+            git pull origin main
+
       - name: No changes
         if: steps.changes.outputs.changed == 'false'
         run: echo "✅ Каталог актуален, изменений нет"
+
+  # yandex-recrawl.yml теперь игнорирует коммиты, которые трогают только
+  # каталог (paths-ignore) — иначе он бы всё равно гонял npm run build +
+  # pm2 reload на каждое изменение цены, что и была вся суть этой переделки.
+  # Но пинг поисковиков после реального изменения каталога (новые товары,
+  # изменившиеся цены) всё ещё нужен — поэтому он продублирован здесь.
+  ping-search-engines:
+    needs: parse
+    if: needs.parse.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request recrawl for robots.txt and sitemap.xml
+        env:
+          YANDEX_OAUTH_TOKEN: ${{ secrets.YANDEX_OAUTH_TOKEN }}
+          YANDEX_USER_ID: ${{ secrets.YANDEX_USER_ID }}
+          YANDEX_HOST_ID: ${{ secrets.YANDEX_HOST_ID }}
+          SITE_URL: https://platforma-msk.ru
+        run: |
+          set -e
+
+          if [ -z "$YANDEX_OAUTH_TOKEN" ] || [ -z "$YANDEX_USER_ID" ] || [ -z "$YANDEX_HOST_ID" ]; then
+            echo "::error::Не заданы секреты YANDEX_OAUTH_TOKEN / YANDEX_USER_ID / YANDEX_HOST_ID"
+            exit 1
+          fi
+
+          for path in "/robots.txt" "/sitemap.xml"; do
+            echo "Запрашиваю переобход: ${SITE_URL}${path}"
+            curl -sS -X PUT \
+              "https://api.webmaster.yandex.net/v4/user/${YANDEX_USER_ID}/hosts/${YANDEX_HOST_ID}/recrawl/queue" \
+              -H "Authorization: OAuth ${YANDEX_OAUTH_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "{\"url\": \"${SITE_URL}${path}\"}"
+            echo ""
+          done
+
+      - name: IndexNow ping (Bing, Yandex, Seznam, Naver)
+        env:
+          SITE_URL: https://platforma-msk.ru
+          INDEXNOW_KEY: b5db20f76d0035b1bf4a3289c9b0c9d7
+        run: |
+          set -e
+
+          echo "Получаю список URL из sitemap.xml..."
+          curl -sS "${SITE_URL}/sitemap.xml" \
+            | grep -oE '<loc>[^<]+</loc>' \
+            | sed -E 's/<\/?loc>//g' \
+            | jq -R . | jq -s . > /tmp/urls.json
+
+          COUNT=$(jq 'length' /tmp/urls.json)
+          echo "Найдено URL в sitemap: ${COUNT}"
+
+          if [ "$COUNT" -eq 0 ]; then
+            echo "::warning::sitemap.xml пуст или недоступен, пингую только главную страницу"
+            jq -n --arg u "${SITE_URL}/" '[$u]' > /tmp/urls.json
+          fi
+
+          jq -n \
+            --arg host "platforma-msk.ru" \
+            --arg key "${INDEXNOW_KEY}" \
+            --arg keyLocation "${SITE_URL}/${INDEXNOW_KEY}.txt" \
+            --slurpfile urlList /tmp/urls.json \
+            '{host: $host, key: $key, keyLocation: $keyLocation, urlList: $urlList[0]}' > /tmp/payload.json
+
+          echo "Отправляю IndexNow-пинг ($(jq '.urlList | length' /tmp/payload.json) URL)..."
+          curl -sS -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            --data-binary @/tmp/payload.json
+          echo ""

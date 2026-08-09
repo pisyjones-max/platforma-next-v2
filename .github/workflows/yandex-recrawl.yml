@@ -1,9 +1,20 @@
 name: Deploy + Search engine recrawl ping (Yandex + IndexNow)
 
 # Деплоит на собственный VDS по SSH, затем пингует Yandex Webmaster и IndexNow.
+#
+# paths-ignore: коммиты, которые трогают ТОЛЬКО каталог (обновление цен/
+# ассортимента ночным парсером), не должны гонять здесь npm run build +
+# pm2 reload — каталог теперь читается сайтом с диска в рантайме и
+# доставляется на сервер отдельным лёгким шагом внутри parse-catalog.yml
+# (см. его "Deploy catalog.json..." — git pull без билда и рестарта).
+# Этот воркфлоу запускается только когда реально меняется код сайта.
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'public/catalog/catalog.json'
+      - 'public/images/**'
+      - 'scripts/.catalog_signature.json'
   workflow_dispatch:
 
 jobs:

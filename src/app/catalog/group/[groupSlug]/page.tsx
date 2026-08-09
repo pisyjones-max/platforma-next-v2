@@ -3,6 +3,12 @@ import { getCatalog } from '@/lib/catalog'
 import { GroupDetailPage } from '@/components/catalog/GroupDetailPage'
 import type { Metadata } from 'next'
 
+// Каталог теперь читается с диска в рантайме (см. src/lib/catalog.ts), а не
+// вшивается в билд — но без ISR-ревалидации Next.js всё равно закэширует
+// эту страницу навсегда после первого рендера. Раз в 10 минут страница
+// перегенерируется в фоне со свежими данными, без ребилда и рестарта.
+export const revalidate = 600
+
 interface Props {
   params: Promise<{ groupSlug: string }>
 }

@@ -8,6 +8,11 @@ import { SALE_RATE } from '@/lib/constants'
 import { ProductPage } from '@/components/product/ProductPage'
 import type { Metadata } from 'next'
 
+// См. комментарий в src/lib/catalog.ts — каталог читается с диска в рантайме,
+// эта настройка даёт странице подхватывать свежие цены раз в 10 минут без
+// пересборки и рестарта сайта.
+export const revalidate = 600
+
 interface Props {
   params: Promise<{ catSlug: string; productId: string }>
 }
