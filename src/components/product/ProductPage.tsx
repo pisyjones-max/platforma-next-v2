@@ -11,6 +11,7 @@ import { Calculator } from '@/components/calculator/Calculator'
 import { AddedToCartToast } from '@/components/ui/AddedToCartToast'
 import { CardPriceBlock } from '@/components/product/CardPriceBlock'
 import { CrossSellSection } from '@/components/product/CrossSellSection'
+import { DeliveryCountdown } from '@/components/product/DeliveryCountdown'
 import type { Product } from '@/types/catalog'
 import type { CrossSellProduct } from '@/lib/crossSell'
 
@@ -258,6 +259,8 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
               📞 Перезвоните мне
             </button>
           </div>
+
+          <DeliveryCountdown />
 
           {/* Форма обратного звонка */}
           {callOpen && (

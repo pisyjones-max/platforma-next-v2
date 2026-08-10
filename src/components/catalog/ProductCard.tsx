@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import Link from 'next/link'
 import { imgUrl } from '@/lib/image'
 import { useCart } from '@/context/CartContext'
@@ -34,14 +35,20 @@ function buildDesc(description?: string, features?: Record<string, string>): str
 export function ProductCard({ id, title, price, img, sku, href, description, features, onClick }: Props) {
   const { add } = useCart()
   const { verified } = useCard()
+  const [qty, setQty] = useState(1)
   const salePrice = Math.round(price * SALE_RATE)
   const cardPrice = Math.round(salePrice * (1 - CARD_DISCOUNT))
   const desc = buildDesc(description, features)
 
-  const handleAdd = (e: React.MouseEvent) => {
+  const stop = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    add({ sku: sku ?? id, title, price: salePrice, img: imgUrl(img ?? ''), qty: 1 })
+  }
+
+  const handleAdd = (e: React.MouseEvent) => {
+    stop(e)
+    add({ sku: sku ?? id, title, price: salePrice, img: imgUrl(img ?? ''), qty })
+    setQty(1)
   }
 
   const inner = (
@@ -83,6 +90,13 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
           <div className="pprow"><span className="psku">Цена по запросу</span></div>
         )}
       </div>
+      {price > 0 && (
+        <div className="pqty" onClick={stop}>
+          <button className="pqty-btn" onClick={() => setQty(q => Math.max(1, q - 1))} aria-label="Уменьшить количество">−</button>
+          <span className="pqty-val">{qty}</span>
+          <button className="pqty-btn" onClick={() => setQty(q => q + 1)} aria-label="Увеличить количество">+</button>
+        </div>
+      )}
       <button className="addbtn" onClick={handleAdd}>+ В корзину</button>
     </>
   )

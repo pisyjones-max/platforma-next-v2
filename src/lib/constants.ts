@@ -12,6 +12,16 @@ export const DESIGN_PROJECT_PRICE = 2700
 export const TG_TOKEN       = process.env.TG_TOKEN  ?? ''
 export const TG_CHAT_ID     = process.env.TG_CHAT_ID ?? ''
 
+// Рабочие часы менеджеров (МСК) — единый источник для футера и таймера
+// "успей оформить сегодня" на карточке товара. Заказы, оформленные до
+// окончания рабочего дня, обрабатываются менеджером в тот же день;
+// это НЕ обещание даты доставки (она зависит от города, см. src/lib/cities.ts).
+export const WORK_HOURS = {
+  weekday: { start: 9, end: 18 },  // Пн–Пт
+  saturday: { start: 9, end: 14 }, // Сб
+  // Вс — выходной
+}
+
 // Вторая фирма — получает заказы параллельно (без контактов клиента)
 export const TG_TOKEN_2     = process.env.TG_TOKEN_2  ?? ''
 export const TG_CHAT_ID_2   = process.env.TG_CHAT_ID_2 ?? ''

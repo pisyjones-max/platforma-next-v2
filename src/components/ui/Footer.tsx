@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useUI } from '@/context/UIContext'
-import { PHONE_NUMBER } from '@/lib/constants'
+import { PHONE_NUMBER, WORK_HOURS } from '@/lib/constants'
 import { CITIES } from '@/lib/cities'
 
 const YANDEX_MAPS_URL = 'https://yandex.ru/maps/?text=Новохаритоново+кровельные+материалы+PLATFORMA'
@@ -59,8 +59,8 @@ export function Footer() {
             <a href={`tel:${PHONE_NUMBER}`} style={{ color: '#7ECC9A', fontWeight: 700, fontSize: 15, display: 'block', marginBottom: 8, textDecoration: 'none' }}>
               {PHONE_NUMBER}
             </a>
-            <p style={{ fontSize: 12, marginBottom: 6 }}>Пн–Пт: 9:00–18:00</p>
-            <p style={{ fontSize: 12, marginBottom: 12 }}>Сб: 9:00–14:00</p>
+            <p style={{ fontSize: 12, marginBottom: 6 }}>Пн–Пт: {WORK_HOURS.weekday.start}:00–{WORK_HOURS.weekday.end}:00</p>
+            <p style={{ fontSize: 12, marginBottom: 12 }}>Сб: {WORK_HOURS.saturday.start}:00–{WORK_HOURS.saturday.end}:00</p>
             <a href={YANDEX_MAPS_URL} target="_blank" rel="noopener noreferrer"
               style={{ fontSize: 12, color: '#7ECC9A', textDecoration: 'none' }}>
               📍 Показать на карте
