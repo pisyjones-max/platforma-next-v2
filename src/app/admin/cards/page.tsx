@@ -7,6 +7,8 @@ interface CardRow {
   name?: string
   issuedAt?: number
   source?: string
+  bonus?: number
+  bonusReason?: string
 }
 
 const LS_ADMIN_KEY = 'platforma_admin_key'
@@ -157,6 +159,7 @@ export default function AdminCardsPage() {
               <th style={{ padding: '6px 4px' }}>Телефон</th>
               <th style={{ padding: '6px 4px' }}>Имя</th>
               <th style={{ padding: '6px 4px' }}>Источник</th>
+              <th style={{ padding: '6px 4px' }}>Бонус</th>
               <th style={{ padding: '6px 4px' }}>Выдана</th>
               <th style={{ padding: '6px 4px' }}></th>
             </tr>
@@ -167,6 +170,16 @@ export default function AdminCardsPage() {
                 <td style={{ padding: '6px 4px' }}>{formatPhone(c.phone)}</td>
                 <td style={{ padding: '6px 4px' }}>{c.name || '—'}</td>
                 <td style={{ padding: '6px 4px' }}>{c.source === 'admin' ? 'вручную' : 'сайт'}</td>
+                <td style={{ padding: '6px 4px' }}>
+                  {c.bonus ? (
+                    <span style={{ color: '#1a7a3d', fontWeight: 700 }}>+{c.bonus} ₽</span>
+                  ) : '—'}
+                  {c.bonus ? (
+                    <div style={{ fontSize: 10.5, color: '#999' }}>
+                      {c.bonusReason === 'design-project' ? 'за дизайн-проект' : c.bonusReason}
+                    </div>
+                  ) : null}
+                </td>
                 <td style={{ padding: '6px 4px' }}>{c.issuedAt ? new Date(c.issuedAt).toLocaleDateString('ru-RU') : '—'}</td>
                 <td style={{ padding: '6px 4px' }}>
                   <button

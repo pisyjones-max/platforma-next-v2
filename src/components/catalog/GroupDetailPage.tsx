@@ -6,7 +6,11 @@ type CategorySummary = { slug: string; name: string; productsCount: number }
 
 interface Props { groupSlug: string; group: Group; categories: CategorySummary[] }
 
-export function GroupDetailPage({ group, categories: cats }: Props) {
+// Группы, для которых имеет смысл предложить "примерить" материал на дом
+// через бесплатный дизайн-проект (визуальные, "фасадные" материалы).
+const DESIGN_PROMO_GROUPS = new Set(['sayding', 'krovlya', 'fasadnye-materialy'])
+
+export function GroupDetailPage({ groupSlug, group, categories: cats }: Props) {
   return (
     <div id="main">
       <nav className="breadcrumb">
@@ -21,6 +25,16 @@ export function GroupDetailPage({ group, categories: cats }: Props) {
           <p>{cats.length} категорий · Доставка по Московской области</p>
         </div>
       </div>
+
+      {DESIGN_PROMO_GROUPS.has(groupSlug) && (
+        <Link href="/dizayn-proekt" className="design-strip">
+          <div className="design-strip-text">
+            Не уверены, что материал впишется в ваш дом?
+            <small>Пришлите фото — покажем результат бесплатно</small>
+          </div>
+          <div className="design-strip-cta">Примерить бесплатно →</div>
+        </Link>
+      )}
 
       <div className="ggrid">
         {cats.map(cat => (

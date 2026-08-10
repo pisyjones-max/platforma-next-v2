@@ -1,0 +1,197 @@
+'use client'
+import { useState, useRef } from 'react'
+import { formatPhone } from '@/lib/phone'
+import { DESIGN_PROJECT_PRICE } from '@/lib/constants'
+
+const MATERIALS = ['Сайдинг', 'Металлочерепица', 'Фасадные панели', 'Другое / не знаю']
+const MAX_PHOTOS = 5
+
+export function DesignRequestForm() {
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [material, setMaterial] = useState(MATERIALS[0])
+  const [comment, setComment] = useState('')
+  const [files, setFiles] = useState<File[]>([])
+  const [previews, setPreviews] = useState<string[]>([])
+  const [status, setStatus] = useState<'idle' | 'sending' | 'ok' | 'error'>('idle')
+  const [error, setError] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const addFiles = (list: FileList | null) => {
+    if (!list) return
+    const next = [...files, ...Array.from(list)].slice(0, MAX_PHOTOS)
+    setFiles(next)
+    setPreviews(next.map(f => URL.createObjectURL(f)))
+  }
+
+  const removeFile = (i: number) => {
+    const next = files.filter((_, idx) => idx !== i)
+    setFiles(next)
+    setPreviews(next.map(f => URL.createObjectURL(f)))
+  }
+
+  const handleSubmit = async () => {
+    setError('')
+    const digits = phone.replace(/\D/g, '')
+    if (!name.trim()) { setError('Укажите имя'); return }
+    if (digits.length < 11) { setError('Укажите корректный телефон'); return }
+
+    setStatus('sending')
+    try {
+      const fd = new FormData()
+      fd.append('name', name.trim())
+      fd.append('phone', phone)
+      fd.append('material', material)
+      fd.append('comment', comment.trim())
+      files.forEach(f => fd.append('photos', f))
+
+      const res = await fetch('/api/design-request', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok || !data.ok) throw new Error(data.error || 'send_failed')
+      setStatus('ok')
+    } catch {
+      setStatus('error')
+      setError('Не получилось отправить. Попробуйте ещё раз или позвоните нам.')
+    }
+  }
+
+  if (status === 'ok') {
+    return (
+      <div style={{
+        background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 16,
+        padding: '28px 24px', textAlign: 'center',
+      }}>
+        <div style={{ fontSize: 32, marginBottom: 10 }}>✅</div>
+        <div style={{ fontFamily: 'var(--fh)', fontSize: 17, fontWeight: 800, marginBottom: 6 }}>
+          Заявка отправлена
+        </div>
+        <div style={{ fontSize: 13.5, color: 'var(--muted)' }}>
+          Наш дизайнер свяжется с вами в течение рабочего дня и уточнит детали проекта.
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{
+      background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16,
+      padding: '22px 20px', display: 'flex', flexDirection: 'column', gap: 12,
+    }}>
+      <input
+        placeholder="Ваше имя"
+        value={name}
+        onChange={e => setName(e.target.value)}
+        style={inputStyle}
+      />
+      <input
+        placeholder="+7 (___) ___-__-__"
+        value={phone}
+        onChange={e => setPhone(formatPhone(e.target.value))}
+        style={inputStyle}
+      />
+
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
+          Какой материал интересует
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {MATERIALS.map(m => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMaterial(m)}
+              style={{
+                padding: '7px 12px', borderRadius: 9, fontSize: 12.5, cursor: 'pointer',
+                border: `1.5px solid ${material === m ? 'var(--dark)' : 'var(--border)'}`,
+                background: material === m ? 'var(--dark)' : 'var(--surface)',
+                color: material === m ? '#fff' : 'var(--muted)',
+                fontWeight: material === m ? 700 : 400,
+              }}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <textarea
+        placeholder="Комментарий (необязательно): адрес, площадь дома, пожелания по цвету"
+        value={comment}
+        onChange={e => setComment(e.target.value)}
+        rows={3}
+        style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }}
+      />
+
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
+          Фото дома (до {MAX_PHOTOS} шт.)
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {previews.map((src, i) => (
+            <div key={i} style={{ position: 'relative', width: 64, height: 64 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }} />
+              <button
+                type="button"
+                onClick={() => removeFile(i)}
+                style={{
+                  position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%',
+                  background: 'var(--accent)', color: '#fff', border: 'none', fontSize: 11, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          {files.length < MAX_PHOTOS && (
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              style={{
+                width: 64, height: 64, borderRadius: 8, border: '1.5px dashed var(--border)',
+                background: 'var(--surface2)', color: 'var(--muted)', fontSize: 22, cursor: 'pointer',
+              }}
+            >
+              +
+            </button>
+          )}
+        </div>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          hidden
+          onChange={e => addFiles(e.target.files)}
+        />
+      </div>
+
+      {error && <div style={{ color: 'var(--accent)', fontSize: 12.5 }}>{error}</div>}
+
+      <button
+        type="button"
+        onClick={handleSubmit}
+        disabled={status === 'sending'}
+        style={{
+          marginTop: 4, padding: '13px 20px', borderRadius: 12, border: 'none',
+          background: 'linear-gradient(135deg, #7ecc9a, #4caf70)', color: '#0d1f14',
+          fontWeight: 800, fontSize: 14, cursor: status === 'sending' ? 'default' : 'pointer',
+          opacity: status === 'sending' ? 0.7 : 1,
+        }}
+      >
+        {status === 'sending' ? 'Отправляем…' : `Получить дизайн-проект бесплатно`}
+      </button>
+      <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>
+        Стоимость услуги — {DESIGN_PROJECT_PRICE} ₽. При оформлении карты лояльности PLATFORMA
+        сумма зачисляется на карту бонусом и списывается при покупке материалов по проекту.
+      </div>
+    </div>
+  )
+}
+
+const inputStyle: React.CSSProperties = {
+  width: '100%', padding: '11px 14px', borderRadius: 10,
+  border: '1px solid var(--border)', fontSize: 13.5, background: 'var(--surface)',
+  boxSizing: 'border-box',
+}

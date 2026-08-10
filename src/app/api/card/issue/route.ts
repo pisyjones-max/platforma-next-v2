@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { kvSet, isKvConfigured } from '@/lib/kv'
+import { kvSet, kvGet, isKvConfigured } from '@/lib/kv'
 import { normalizePhone } from '@/lib/phone'
+import { DESIGN_PROJECT_PRICE } from '@/lib/constants'
+
+interface DesignLead {
+  name?: string
+  status?: string
+}
 
 export async function POST(req: NextRequest) {
   const { name, phone } = await req.json()
@@ -15,8 +21,28 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await kvSet(`card:${p}`, { name: String(name ?? '').slice(0, 200), issuedAt: Date.now(), source: 'site' })
-    return NextResponse.json({ ok: true, persisted: true })
+    // Если по этому телефону раньше была заявка на бесплатный дизайн-проект —
+    // привязываем бонус к новой карте (списывается при покупке материалов).
+    let bonus = 0
+    let bonusReason: string | undefined
+    try {
+      const lead = await kvGet<DesignLead>(`designlead:${p}`)
+      if (lead) {
+        bonus = DESIGN_PROJECT_PRICE
+        bonusReason = 'design-project'
+        await kvSet(`designlead:${p}`, { ...lead, status: 'converted' })
+      }
+    } catch {
+      // Не блокируем выпуск карты, если проверка лида не удалась
+    }
+
+    await kvSet(`card:${p}`, {
+      name: String(name ?? '').slice(0, 200),
+      issuedAt: Date.now(),
+      source: 'site',
+      ...(bonus ? { bonus, bonusReason } : {}),
+    })
+    return NextResponse.json({ ok: true, persisted: true, bonus })
   } catch (e) {
     console.error('[CARD] issue error:', e)
     return NextResponse.json({ ok: false }, { status: 500 })

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { PHONE_NUMBER } from '@/lib/constants'
 import { HomeCalculator } from '@/components/ui/HomeCalculator'
 import { HomeFAQ } from '@/components/ui/HomeFAQ'
+import { DesignPromoBanner } from '@/components/design/DesignPromoBanner'
 
 const GROUP_ICONS: Record<string, string> = {
   krovlya:       '🏠',
@@ -66,6 +67,9 @@ export function GroupsPage({
           </div>
         ))}
       </div>
+
+      {/* Бесплатный дизайн-проект дома */}
+      <DesignPromoBanner />
 
       {/* Калькулятор */}
       <HomeCalculator />

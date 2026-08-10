@@ -7,6 +7,8 @@ interface CardRecord {
   name?: string
   issuedAt?: number
   source?: string
+  bonus?: number
+  bonusReason?: string
 }
 
 function checkAuth(req: NextRequest): boolean {

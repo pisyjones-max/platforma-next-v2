@@ -4,6 +4,11 @@ export const CASHBACK_RATE  = 0.005
 export const CARD_DISCOUNT  = 0.05          // доп. скидка по карте PLATFORMA поверх обычной цены (как "цена с картой Ozon")
 export const ADMIN_KEY      = process.env.ADMIN_KEY ?? ''   // секретный ключ для /admin/cards
 export const PHONE_NUMBER   = '+7 (933) 203-30-05'
+
+// Услуга "Дизайн-проект дома" — реальная стоимость услуги. Бесплатно для
+// клиента при оформлении карты лояльности: сумма зачисляется на карту
+// бонусом и используется при последующей покупке материалов по проекту.
+export const DESIGN_PROJECT_PRICE = 2700
 export const TG_TOKEN       = process.env.TG_TOKEN  ?? ''
 export const TG_CHAT_ID     = process.env.TG_CHAT_ID ?? ''
 

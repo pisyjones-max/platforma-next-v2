@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/delivery`,      lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${SITE_URL}/about`,         lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${SITE_URL}/loyalty-card`,  lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${SITE_URL}/dizayn-proekt`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
   ]
 
   for (const city of CITIES) {
