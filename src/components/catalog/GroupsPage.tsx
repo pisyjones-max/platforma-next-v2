@@ -4,6 +4,7 @@ import { PHONE_NUMBER } from '@/lib/constants'
 import { HomeCalculator } from '@/components/ui/HomeCalculator'
 import { HomeFAQ } from '@/components/ui/HomeFAQ'
 import { DesignPromoBanner } from '@/components/design/DesignPromoBanner'
+import { PriceMatchBanner } from '@/components/pricematch/PriceMatchBanner'
 
 const GROUP_ICONS: Record<string, string> = {
   krovlya:       '🏠',
@@ -71,6 +72,9 @@ export function GroupsPage({
       {/* Бесплатный дизайн-проект дома */}
       <DesignPromoBanner />
 
+      {/* Перебьём цену конкурента */}
+      <PriceMatchBanner />
+
       {/* Калькулятор */}
       <HomeCalculator />
 
@@ -115,7 +119,7 @@ export function GroupsPage({
           }}>
             <div style={{ fontSize: 24, marginBottom: 6 }}>{s.icon}</div>
             <div style={{ fontFamily: 'var(--fh)', fontSize: 22, fontWeight: 800, color: 'var(--accent)', marginBottom: 3 }}>{s.val}</div>
-            <div style={{ fontSize: 12, color: 'var(--muted)' }}>{s.label}</div>
+            <div style={{ fontSize: 13, color: 'var(--muted)' }}>{s.label}</div>
           </div>
         ))}
       </div>
@@ -135,7 +139,7 @@ export function GroupsPage({
           <div style={{ fontFamily: 'var(--fh)', fontSize: 20, fontWeight: 800, marginBottom: 6 }}>
             Нужна помощь с выбором материала?
           </div>
-          <div style={{ fontSize: 13.5, opacity: 0.75 }}>
+          <div style={{ fontSize: 14.5, opacity: 0.75 }}>
             Специалист подберёт оптимальное решение под ваш проект и бюджет
           </div>
         </div>
@@ -143,14 +147,14 @@ export function GroupsPage({
           <a href={`tel:${PHONE_NUMBER}`} style={{
             padding: '12px 22px', borderRadius: 12,
             background: '#7ecc9a', color: '#0d1f14',
-            fontWeight: 800, fontSize: 14, textDecoration: 'none',
+            fontWeight: 800, fontSize: 15, textDecoration: 'none',
           }}>
             📞 Позвонить
           </a>
           <a href="https://t.me/platforma_mo" target="_blank" rel="noopener noreferrer" style={{
             padding: '12px 22px', borderRadius: 12,
             background: 'rgba(255,255,255,.12)', color: '#fff',
-            fontWeight: 700, fontSize: 14, textDecoration: 'none',
+            fontWeight: 700, fontSize: 15, textDecoration: 'none',
             border: '1px solid rgba(255,255,255,.2)',
           }}>
             ✈️ Написать в Telegram
