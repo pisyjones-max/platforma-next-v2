@@ -59,7 +59,7 @@ jobs:
 
           for path in "/robots.txt" "/sitemap.xml"; do
             echo "Запрашиваю переобход: ${SITE_URL}${path}"
-            curl -sS -X PUT \
+            curl -sS -X POST \
               "https://api.webmaster.yandex.net/v4/user/${YANDEX_USER_ID}/hosts/${YANDEX_HOST_ID}/recrawl/queue" \
               -H "Authorization: OAuth ${YANDEX_OAUTH_TOKEN}" \
               -H "Content-Type: application/json" \
