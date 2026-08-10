@@ -172,7 +172,7 @@ export function PromoBanner() {
       >
         <span style={{ fontSize: 20 }}>{banner.icon}</span>
         <span style={{
-          fontSize: 9, color: 'rgba(255,255,255,.85)', fontWeight: 700,
+          fontSize: 10, color: 'rgba(255,255,255,.85)', fontWeight: 700,
           writingMode: 'vertical-rl', transform: 'rotate(180deg)',
           letterSpacing: 1, textTransform: 'uppercase',
         }}>акция</span>
@@ -196,14 +196,14 @@ export function PromoBanner() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
             <span style={{
               background: '#7ecc9a', color: '#0d1f14',
-              fontSize: 10, fontWeight: 800, letterSpacing: 1.2,
+              fontSize: 11, fontWeight: 800, letterSpacing: 1.2,
               padding: '3px 10px', borderRadius: 20, textTransform: 'uppercase',
             }}>{banner.badge}</span>
             <button onClick={e => { e.stopPropagation(); dismiss() }} style={{
               background: 'rgba(255,255,255,.12)', border: 'none', color: 'rgba(255,255,255,.7)',
               width: 26, height: 26, borderRadius: '50%',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 13, cursor: 'pointer',
+              fontSize: 14, cursor: 'pointer',
             }}>✕</button>
           </div>
 
@@ -218,7 +218,7 @@ export function PromoBanner() {
               <div style={{ fontFamily: 'var(--fh,sans-serif)', fontWeight: 800, fontSize: 16, lineHeight: 1.25, marginBottom: 6 }}>
                 {banner.title}
               </div>
-              <div style={{ fontSize: 13, opacity: 0.75, lineHeight: 1.6 }}>
+              <div style={{ fontSize: 14, opacity: 0.75, lineHeight: 1.6 }}>
                 {banner.text}
               </div>
             </div>
@@ -241,7 +241,7 @@ export function PromoBanner() {
             {banner.cta}
           </button>
 
-          <div style={{ textAlign: 'center', marginTop: 10, fontSize: 11.5, opacity: 0.45 }}>
+          <div style={{ textAlign: 'center', marginTop: 10, fontSize: 12.5, opacity: 0.45 }}>
             или звоните: +7 (933) 203-30-05
           </div>
 

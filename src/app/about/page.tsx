@@ -11,7 +11,7 @@ export default function AboutPage() {
       <h1 style={{ fontFamily: 'var(--fh)', fontSize: 32, fontWeight: 800, marginBottom: 8 }}>
         О компании
       </h1>
-      <p style={{ color: 'var(--muted)', marginBottom: 48, fontSize: 15 }}>
+      <p style={{ color: 'var(--muted)', marginBottom: 48, fontSize: 15.5 }}>
         PLATFORMA — надёжный поставщик кровельных материалов в Подмосковье
       </p>
 
@@ -23,7 +23,7 @@ export default function AboutPage() {
         <div style={{ fontFamily: 'var(--fh)', fontSize: 24, fontWeight: 800, marginBottom: 16 }}>
           PLAT<em style={{ color: 'var(--accent)' }}>FORMA</em>
         </div>
-        <p style={{ fontSize: 15, opacity: 0.85, lineHeight: 1.7, maxWidth: 560 }}>
+        <p style={{ fontSize: 15.5, opacity: 0.85, lineHeight: 1.7, maxWidth: 560 }}>
           Мы специализируемся на оптовой и розничной поставке кровельных и фасадных материалов
           для частного строительства и коммерческих объектов Московской области.
           Работаем напрямую с производителями — без посредников и переплат.
@@ -43,7 +43,7 @@ export default function AboutPage() {
             borderRadius: 14, padding: '24px 20px', textAlign: 'center',
           }}>
             <div style={{ fontFamily: 'var(--fh)', fontSize: 28, fontWeight: 800, color: 'var(--accent)', marginBottom: 6 }}>{s.val}</div>
-            <div style={{ fontSize: 13, color: 'var(--muted)' }}>{s.lbl}</div>
+            <div style={{ fontSize: 14, color: 'var(--muted)' }}>{s.lbl}</div>
           </div>
         ))}
       </div>
@@ -64,8 +64,8 @@ export default function AboutPage() {
             borderRadius: 14, padding: '22px 20px',
           }}>
             <div style={{ fontSize: 30, marginBottom: 12 }}>{item.icon}</div>
-            <div style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 15, marginBottom: 8 }}>{item.title}</div>
-            <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>{item.text}</div>
+            <div style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 15.5, marginBottom: 8 }}>{item.title}</div>
+            <div style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.6 }}>{item.text}</div>
           </div>
         ))}
       </div>
@@ -83,11 +83,11 @@ export default function AboutPage() {
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <span style={{ fontSize: 20, width: 28, textAlign: 'center' }}>{c.icon}</span>
               <div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 2 }}>{c.label}</div>
+                <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 2 }}>{c.label}</div>
                 {c.href ? (
-                  <a href={c.href} style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)', textDecoration: 'none' }}>{c.val}</a>
+                  <a href={c.href} style={{ fontSize: 15, fontWeight: 600, color: 'var(--accent)', textDecoration: 'none' }}>{c.val}</a>
                 ) : (
-                  <div style={{ fontSize: 14, fontWeight: 500 }}>{c.val}</div>
+                  <div style={{ fontSize: 15, fontWeight: 500 }}>{c.val}</div>
                 )}
               </div>
             </div>

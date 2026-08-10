@@ -59,7 +59,7 @@ export function CategoryPage({ category, parentGroup }: Props) {
 
       <div className="fbar">
         <input
-          style={{ padding: '0 14px', width: 220, border: '1px solid var(--border)', background: 'var(--surface)', fontSize: 12, height: 32, borderRadius: 20, outline: 'none' }}
+          style={{ padding: '0 14px', width: 220, border: '1px solid var(--border)', background: 'var(--surface)', fontSize: 13, height: 32, borderRadius: 20, outline: 'none' }}
           placeholder="🔍 Поиск..."
           value={search}
           onChange={e => setSearch(e.target.value)}

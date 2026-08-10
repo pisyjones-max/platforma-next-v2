@@ -98,8 +98,8 @@ export function LoyaltyModal() {
                     border: '1px solid var(--border)',
                   }}>
                     <div style={{ fontSize: 22, marginBottom: 6 }}>{p.icon}</div>
-                    <div style={{ fontWeight: 600, fontSize: 12, marginBottom: 3 }}>{p.title}</div>
-                    <div style={{ fontSize: 11, color: 'var(--muted)' }}>{p.text}</div>
+                    <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 3 }}>{p.title}</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>{p.text}</div>
                   </div>
                 ))}
               </div>
@@ -112,7 +112,7 @@ export function LoyaltyModal() {
                 <div style={{ fontFamily: 'var(--fh)', fontSize: 16, fontWeight: 700, marginBottom: 8 }}>
                   Заявка принята!
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
+                <div style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.6 }}>
                   Менеджер свяжется с вами и оформит карту.<br />
                   Бонус 5 000 ₽ будет начислен сразу!
                 </div>

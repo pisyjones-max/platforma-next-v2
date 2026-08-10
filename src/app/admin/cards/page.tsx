@@ -114,7 +114,7 @@ export default function AdminCardsPage() {
         >
           Войти
         </button>
-        {error && <div style={{ color: '#BF3E22', fontSize: 13, marginTop: 8 }}>{error}</div>}
+        {error && <div style={{ color: '#BF3E22', fontSize: 14, marginTop: 8 }}>{error}</div>}
       </div>
     )
   }
@@ -145,15 +145,15 @@ export default function AdminCardsPage() {
         </button>
       </div>
 
-      {error && <div style={{ color: '#BF3E22', fontSize: 13, marginBottom: 12 }}>{error}</div>}
-      {loading && <div style={{ fontSize: 13, color: '#888' }}>Загрузка…</div>}
+      {error && <div style={{ color: '#BF3E22', fontSize: 14, marginBottom: 12 }}>{error}</div>}
+      {loading && <div style={{ fontSize: 14, color: '#888' }}>Загрузка…</div>}
 
       {cards && cards.length === 0 && !loading && (
-        <div style={{ fontSize: 13, color: '#888' }}>Карт пока нет.</div>
+        <div style={{ fontSize: 14, color: '#888' }}>Карт пока нет.</div>
       )}
 
       {cards && cards.length > 0 && (
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
           <thead>
             <tr style={{ textAlign: 'left', borderBottom: '1px solid #ddd' }}>
               <th style={{ padding: '6px 4px' }}>Телефон</th>
@@ -175,7 +175,7 @@ export default function AdminCardsPage() {
                     <span style={{ color: '#1a7a3d', fontWeight: 700 }}>+{c.bonus} ₽</span>
                   ) : '—'}
                   {c.bonus ? (
-                    <div style={{ fontSize: 10.5, color: '#999' }}>
+                    <div style={{ fontSize: 11.5, color: '#999' }}>
                       {c.bonusReason === 'design-project' ? 'за дизайн-проект' : c.bonusReason}
                     </div>
                   ) : null}

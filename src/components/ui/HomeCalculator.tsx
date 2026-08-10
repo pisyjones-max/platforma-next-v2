@@ -49,7 +49,7 @@ export function HomeCalculator() {
             Калькулятор материалов
           </h2>
         </div>
-        <p style={{ margin: 0, fontSize: 13, opacity: 0.7 }}>
+        <p style={{ margin: 0, fontSize: 14, opacity: 0.7 }}>
           Точный расчёт по вашему дому — стены, скаты, углы, проёмы
         </p>
       </div>
@@ -65,7 +65,7 @@ export function HomeCalculator() {
               background: mode === m.id ? 'rgba(126,204,154,.12)' : 'var(--bg)',
               color: mode === m.id ? '#3d7a54' : 'var(--muted)',
               fontWeight: mode === m.id ? 700 : 400,
-              fontSize: 13, cursor: 'pointer', transition: 'all .15s',
+              fontSize: 14, cursor: 'pointer', transition: 'all .15s',
             }}>
               <span>{m.icon}</span> {m.label}
             </button>
@@ -87,7 +87,7 @@ export function HomeCalculator() {
               borderRadius: 12,
               color: '#0d1f14',
               fontWeight: 800,
-              fontSize: 13.5,
+              fontSize: 14.5,
               textDecoration: 'none',
               whiteSpace: 'nowrap',
             }}
@@ -96,7 +96,7 @@ export function HomeCalculator() {
           </Link>
         </div>
 
-        <p style={{ fontSize: 11.5, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.5 }}>
+        <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.5 }}>
           Точный расчёт с учётом типа материала и раскладки — бесплатно у нашего специалиста.{' '}
           <a href="tel:+79332033005" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>
             Позвоните нам

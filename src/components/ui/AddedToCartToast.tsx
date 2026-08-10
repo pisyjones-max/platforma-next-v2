@@ -32,22 +32,22 @@ export function AddedToCartToast({ show, productTitle, onClose, onGoToCart }: Pr
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <span style={{ fontSize: 22 }}>🛒</span>
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 2 }}>Товар в корзине!</div>
-          <div style={{ fontSize: 11, opacity: 0.65, lineHeight: 1.3,
+          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>Товар в корзине!</div>
+          <div style={{ fontSize: 12, opacity: 0.65, lineHeight: 1.3,
             maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {productTitle}
           </div>
         </div>
         <button onClick={onClose} style={{
           background: 'rgba(255,255,255,.12)', border: 'none', color: '#fff',
-          width: 24, height: 24, borderRadius: '50%', fontSize: 13, cursor: 'pointer',
+          width: 24, height: 24, borderRadius: '50%', fontSize: 14, cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
         }}>✕</button>
       </div>
       <button onClick={onGoToCart} style={{
         width: '100%', height: 38, borderRadius: 10,
         background: 'var(--accent)', color: '#fff', border: 'none',
-        fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'background .15s',
+        fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'background .15s',
       }}
         onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent-h)')}
         onMouseLeave={e => (e.currentTarget.style.background = 'var(--accent)')}

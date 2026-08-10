@@ -57,20 +57,20 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(bcSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
 
-      <Link href="/blog" style={{ fontSize: 13, color: 'var(--muted)', textDecoration: 'none' }}>
+      <Link href="/blog" style={{ fontSize: 14, color: 'var(--muted)', textDecoration: 'none' }}>
         ← Все статьи
       </Link>
 
       <h1 style={{ fontFamily: 'var(--fh)', fontSize: 30, fontWeight: 800, margin: '16px 0 8px' }}>
         {article.title}
       </h1>
-      <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 32 }}>
+      <div style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 32 }}>
         {new Date(article.publishedAt).toLocaleDateString('ru-RU')}
       </div>
 
       <div
         className="article-body"
-        style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--fg)' }}
+        style={{ fontSize: 15.5, lineHeight: 1.7, color: 'var(--fg)' }}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>

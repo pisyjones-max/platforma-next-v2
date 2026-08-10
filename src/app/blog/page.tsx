@@ -32,11 +32,11 @@ export default function BlogIndexPage() {
               color: 'inherit',
             }}
           >
-            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>
+            <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 6 }}>
               {new Date(a.publishedAt).toLocaleDateString('ru-RU')}
             </div>
             <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>{a.title}</div>
-            <div style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.5 }}>{a.excerpt}</div>
+            <div style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.5 }}>{a.excerpt}</div>
           </Link>
         ))}
 

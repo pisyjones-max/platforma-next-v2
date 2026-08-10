@@ -184,7 +184,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
               </div>
             )}
 
-            <div style={{ position: 'absolute', bottom: 50, right: 20, color: 'rgba(255,255,255,.4)', fontSize: 12 }}>
+            <div style={{ position: 'absolute', bottom: 50, right: 20, color: 'rgba(255,255,255,.4)', fontSize: 13 }}>
               {lbIdx + 1} / {imgs.length}
             </div>
           </div>
@@ -214,7 +214,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
           {product.description && (
             <div style={{
               background: 'var(--surface2)', borderRadius: 10, padding: '12px 14px',
-              fontSize: 13, lineHeight: 1.7, color: 'var(--text)', border: '1px solid var(--border)',
+              fontSize: 14, lineHeight: 1.7, color: 'var(--text)', border: '1px solid var(--border)',
             }}>
               {product.description}
             </div>
@@ -243,7 +243,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
               <span className="qval">{qty}</span>
               <button className="qbtn" onClick={() => setQty(q => q + 1)}>+</button>
               {v.price > 0 && (
-                <span style={{ marginLeft: 12, fontSize: 15, fontWeight: 700, color: 'var(--accent)' }}>
+                <span style={{ marginLeft: 12, fontSize: 15.5, fontWeight: 700, color: 'var(--accent)' }}>
                   = {fmt(fp * qty)} ₽
                 </span>
               )}
@@ -272,7 +272,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
                   <input className="finp" placeholder="+7 (___) ___-__-__" value={callPhone}
                     onChange={e => setCallPhone(e.target.value)} style={{ marginBottom: 8 }} />
                   <button className="prod-add-btn" onClick={handleCall}>Перезвоните мне</button>
-                  <p style={{ fontSize: 10, color: 'var(--muted)', marginTop: 6 }}>
+                  <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6 }}>
                     Нажимая кнопку, вы соглашаетесь с{' '}
                     <Link href="/privacy" style={{ textDecoration: 'underline' }}>политикой обработки данных</Link> (ФЗ-152)
                   </p>
@@ -285,7 +285,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
             {['🚚 Доставка по МО', '✅ Гарантия', '💳 Кэшбэк 0.5%'].map((t, i) => (
               <div key={i} style={{
-                fontSize: 11, fontWeight: 500, background: 'var(--surface2)',
+                fontSize: 12, fontWeight: 500, background: 'var(--surface2)',
                 border: '1px solid var(--border)', padding: '4px 10px', borderRadius: 20,
                 color: 'var(--muted)',
               }}>{t}</div>

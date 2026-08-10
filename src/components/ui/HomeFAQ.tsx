@@ -45,7 +45,7 @@ export function HomeFAQ() {
         <h2 style={{ margin: '0 0 6px', fontFamily: 'var(--fh)', fontSize: 22, fontWeight: 800 }}>
           Частые вопросы
         </h2>
-        <p style={{ margin: 0, fontSize: 13.5, color: 'var(--muted)' }}>
+        <p style={{ margin: 0, fontSize: 14.5, color: 'var(--muted)' }}>
           Отвечаем на главные вопросы о кровельных материалах
         </p>
       </div>
@@ -74,7 +74,7 @@ export function HomeFAQ() {
                 }}
               >
                 <span style={{
-                  fontSize: 14, fontWeight: 600, color: 'var(--text)', lineHeight: 1.4, flex: 1,
+                  fontSize: 15, fontWeight: 600, color: 'var(--text)', lineHeight: 1.4, flex: 1,
                 }}>
                   {faq.q}
                 </span>
@@ -93,7 +93,7 @@ export function HomeFAQ() {
               }}>
                 <div style={{
                   padding: '0 20px 18px',
-                  fontSize: 13.5,
+                  fontSize: 14.5,
                   lineHeight: 1.75,
                   color: 'var(--muted)',
                   borderTop: '1px solid var(--border)',
@@ -121,8 +121,8 @@ export function HomeFAQ() {
       }}>
         <span style={{ fontSize: 28 }}>👷</span>
         <div style={{ flex: 1, minWidth: 200 }}>
-          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 3 }}>Не нашли ответ?</div>
-          <div style={{ fontSize: 13, color: 'var(--muted)' }}>
+          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 3 }}>Не нашли ответ?</div>
+          <div style={{ fontSize: 14, color: 'var(--muted)' }}>
             Наш специалист ответит на любой вопрос по материалам и монтажу — бесплатно.
           </div>
         </div>
@@ -134,7 +134,7 @@ export function HomeFAQ() {
             borderRadius: 10,
             color: '#0d1f14',
             fontWeight: 800,
-            fontSize: 13.5,
+            fontSize: 14.5,
             textDecoration: 'none',
             whiteSpace: 'nowrap',
             flexShrink: 0,

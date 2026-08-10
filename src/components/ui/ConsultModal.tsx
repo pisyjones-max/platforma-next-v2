@@ -89,7 +89,7 @@ export function ConsultModal() {
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {['🎯 Точный расчёт материалов', '🆓 Бесплатно', '⚡ Приедем за 1–2 дня'].map((t, i) => (
                   <div key={i} style={{
-                    fontSize: 11, fontWeight: 600, background: 'var(--dark)', color: '#fff',
+                    fontSize: 12, fontWeight: 600, background: 'var(--dark)', color: '#fff',
                     padding: '4px 10px', borderRadius: 20,
                   }}>{t}</div>
                 ))}
@@ -119,7 +119,7 @@ export function ConsultModal() {
                     <button key={d.value} onClick={() => !d.disabled && setDay(d.value)}
                       disabled={d.disabled}
                       style={{
-                        padding: '6px 10px', borderRadius: 8, fontSize: 12, border: '1.5px solid',
+                        padding: '6px 10px', borderRadius: 8, fontSize: 13, border: '1.5px solid',
                         borderColor: day === d.value ? 'var(--dark)' : 'var(--border)',
                         background: day === d.value ? 'var(--dark)' : 'var(--surface2)',
                         color: day === d.value ? '#fff' : d.disabled ? 'var(--muted)' : 'var(--text)',
@@ -137,7 +137,7 @@ export function ConsultModal() {
                   {TIME_SLOTS.map(t => (
                     <button key={t} onClick={() => setTime(t)}
                       style={{
-                        padding: '6px 12px', borderRadius: 8, fontSize: 12, border: '1.5px solid',
+                        padding: '6px 12px', borderRadius: 8, fontSize: 13, border: '1.5px solid',
                         borderColor: time === t ? 'var(--dark)' : 'var(--border)',
                         background: time === t ? 'var(--dark)' : 'var(--surface2)',
                         color: time === t ? '#fff' : 'var(--text)', cursor: 'pointer',

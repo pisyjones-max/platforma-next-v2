@@ -62,7 +62,7 @@ export function ExitIntentModal() {
             <button onClick={closeExit} style={{
               position: 'absolute', top: 14, right: 14,
               background: 'rgba(255,255,255,.15)', border: 'none', color: 'rgba(255,255,255,.8)',
-              width: 30, height: 30, borderRadius: '50%', fontSize: 15, cursor: 'pointer',
+              width: 30, height: 30, borderRadius: '50%', fontSize: 15.5, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>✕</button>
 
@@ -70,14 +70,14 @@ export function ExitIntentModal() {
             <div style={{ fontFamily: 'var(--fh)', fontSize: 22, fontWeight: 800, marginBottom: 6, lineHeight: 1.2 }}>
               Подождите! Уходите без скидки?
             </div>
-            <div style={{ fontSize: 13, opacity: 0.8, lineHeight: 1.55 }}>
+            <div style={{ fontSize: 14, opacity: 0.8, lineHeight: 1.55 }}>
               Только сейчас для вас действует спецпредложение
             </div>
 
             {/* Таймер */}
             <div style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 8,
               background: 'rgba(0,0,0,.3)', borderRadius: 12, padding: '8px 18px' }}>
-              <span style={{ fontSize: 11, opacity: 0.7, letterSpacing: 0.5 }}>ПРЕДЛОЖЕНИЕ ИСТЕКАЕТ ЧЕРЕЗ</span>
+              <span style={{ fontSize: 12, opacity: 0.7, letterSpacing: 0.5 }}>ПРЕДЛОЖЕНИЕ ИСТЕКАЕТ ЧЕРЕЗ</span>
               <span style={{
                 fontFamily: 'monospace', fontSize: 20, fontWeight: 800, color: '#7ecc9a',
                 letterSpacing: 2,
@@ -94,7 +94,7 @@ export function ExitIntentModal() {
                 border: 'none', borderBottom: tab === t ? '2px solid #7ecc9a' : '2px solid transparent',
                 color: tab === t ? 'var(--text)' : 'var(--muted)',
                 fontWeight: tab === t ? 700 : 400,
-                fontSize: 13, cursor: 'pointer', transition: 'all .15s',
+                fontSize: 14, cursor: 'pointer', transition: 'all .15s',
               }}>
                 {t === 'bonus' ? '🎁 Бонусная карта' : '📞 Перезвоните мне'}
               </button>
@@ -111,7 +111,7 @@ export function ExitIntentModal() {
                     { icon: '📦', text: 'Кэшбэк 0.5% с каждой покупки' },
                     { icon: '🔧', text: 'Бесплатный выезд замерщика' },
                   ].map((item, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13.5 }}>
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14.5 }}>
                       <span style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</span>
                       <span>{item.text}</span>
                     </div>
@@ -123,7 +123,7 @@ export function ExitIntentModal() {
                     width: '100%', height: 52, borderRadius: 12,
                     background: 'linear-gradient(135deg, #7ecc9a 0%, #4caf70 100%)',
                     color: '#0d1f14', border: 'none',
-                    fontSize: 15, fontWeight: 800, cursor: 'pointer',
+                    fontSize: 15.5, fontWeight: 800, cursor: 'pointer',
                     transition: 'filter .15s',
                   }}
                   onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.08)'}
@@ -140,11 +140,11 @@ export function ExitIntentModal() {
                   <div style={{ textAlign: 'center', padding: '20px 0' }}>
                     <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
                     <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 6 }}>Заявка принята!</div>
-                    <div style={{ fontSize: 13, color: 'var(--muted)' }}>Перезвоним в течение 15 минут</div>
+                    <div style={{ fontSize: 14, color: 'var(--muted)' }}>Перезвоним в течение 15 минут</div>
                   </div>
                 ) : (
                   <>
-                    <div style={{ fontSize: 14, marginBottom: 16, lineHeight: 1.6 }}>
+                    <div style={{ fontSize: 15, marginBottom: 16, lineHeight: 1.6 }}>
                       Оставьте номер — менеджер перезвонит, ответит на вопросы и зафиксирует для вас цену.
                     </div>
                     <input
@@ -160,12 +160,12 @@ export function ExitIntentModal() {
                         width: '100%', height: 52, borderRadius: 12,
                         background: 'linear-gradient(135deg, #7ecc9a 0%, #4caf70 100%)',
                         color: '#0d1f14', border: 'none',
-                        fontSize: 15, fontWeight: 800, cursor: 'pointer',
+                        fontSize: 15.5, fontWeight: 800, cursor: 'pointer',
                       }}
                     >
                       📞 Перезвоните мне
                     </button>
-                    <p style={{ fontSize: 10.5, color: 'var(--muted)', marginTop: 8, textAlign: 'center' }}>
+                    <p style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 8, textAlign: 'center' }}>
                       Нажимая кнопку, вы соглашаетесь с обработкой персональных данных (ФЗ-152)
                     </p>
                   </>
@@ -176,7 +176,7 @@ export function ExitIntentModal() {
             <button onClick={closeExit} style={{
               width: '100%', marginTop: 10, padding: '8px 0',
               background: 'none', border: 'none',
-              fontSize: 12, color: 'var(--muted)', cursor: 'pointer', opacity: 0.65,
+              fontSize: 13, color: 'var(--muted)', cursor: 'pointer', opacity: 0.65,
             }}>
               Продолжить без скидки
             </button>

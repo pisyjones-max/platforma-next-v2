@@ -73,7 +73,7 @@ export function PromosBanner() {
         alignItems: 'center',
         justifyContent: 'space-between',
       }}>
-        <span style={{ color: '#fff', fontWeight: 700, fontSize: 12, letterSpacing: 1, textTransform: 'uppercase' }}>
+        <span style={{ color: '#fff', fontWeight: 700, fontSize: 13, letterSpacing: 1, textTransform: 'uppercase' }}>
           🏭 Акция от {p.brandName}
         </span>
         <button
@@ -85,7 +85,7 @@ export function PromosBanner() {
             width: 22,
             height: 22,
             borderRadius: '50%',
-            fontSize: 11,
+            fontSize: 12,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -105,7 +105,7 @@ export function PromosBanner() {
             <div style={{
               fontFamily: 'var(--fh,sans-serif)',
               fontWeight: 800,
-              fontSize: 14,
+              fontSize: 15,
               color: 'var(--text,#1A1916)',
               marginBottom: 4,
             }}>{p.title}</div>
@@ -114,14 +114,14 @@ export function PromosBanner() {
                 display: 'inline-block',
                 background: p.color,
                 color: '#fff',
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 700,
                 padding: '2px 8px',
                 borderRadius: 20,
                 marginBottom: 6,
               }}>{p.discount}</span>
             )}
-            <div style={{ fontSize: 12, color: 'var(--muted,#7B7772)', lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, color: 'var(--muted,#7B7772)', lineHeight: 1.5 }}>
               {p.desc}
             </div>
           </div>
@@ -139,7 +139,7 @@ export function PromosBanner() {
             color: '#fff',
             borderRadius: 10,
             fontWeight: 700,
-            fontSize: 13,
+            fontSize: 14,
             textDecoration: 'none',
           }}
         >

@@ -73,7 +73,7 @@ export default async function SearchPage({ searchParams }: Props) {
           )}
 
           {total > results.length && (
-            <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 12.5, marginTop: 16 }}>
+            <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 13.5, marginTop: 16 }}>
               Показаны первые {results.length} из {total} найденных товаров. Уточните запрос, чтобы сузить результаты.
             </p>
           )}

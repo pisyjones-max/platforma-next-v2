@@ -12,7 +12,7 @@ export function CityConsultButton({ city }: { city: string }) {
         border: 'none',
         borderRadius: 12,
         padding: '14px 28px',
-        fontSize: 15,
+        fontSize: 15.5,
         fontWeight: 700,
         cursor: 'pointer',
         fontFamily: 'var(--fh)',

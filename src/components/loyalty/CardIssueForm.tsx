@@ -42,7 +42,7 @@ export function CardIssueForm() {
         <div style={{ fontFamily: 'var(--fh)', fontSize: 17, fontWeight: 800, marginBottom: 6 }}>
           Карта оформлена
         </div>
-        <div style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.5 }}>
+        <div style={{ fontSize: 14.5, color: 'var(--muted)', lineHeight: 1.5 }}>
           Скидка по карте уже действует — назовите свой телефон на кассе или при оформлении заказа на сайте.
         </div>
         {bonus > 0 && (
@@ -50,10 +50,10 @@ export function CardIssueForm() {
             marginTop: 14, padding: '12px 14px', borderRadius: 12,
             background: 'var(--surface)', border: '1px solid var(--border)',
           }}>
-            <div style={{ fontFamily: 'var(--fh)', fontSize: 15, fontWeight: 800, color: 'var(--accent)' }}>
+            <div style={{ fontFamily: 'var(--fh)', fontSize: 15.5, fontWeight: 800, color: 'var(--accent)' }}>
               +{bonus} ₽ бонус на карте
             </div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4, lineHeight: 1.5 }}>
               Начислено за дизайн-проект — спишется при покупке материалов.
             </div>
           </div>
@@ -80,7 +80,7 @@ export function CardIssueForm() {
         style={inputStyle}
       />
 
-      {error && <div style={{ color: 'var(--accent)', fontSize: 12.5 }}>{error}</div>}
+      {error && <div style={{ color: 'var(--accent)', fontSize: 13.5 }}>{error}</div>}
 
       <button
         type="button"
@@ -89,13 +89,13 @@ export function CardIssueForm() {
         style={{
           marginTop: 4, padding: '13px 20px', borderRadius: 12, border: 'none',
           background: 'linear-gradient(135deg, #7ecc9a, #4caf70)', color: '#0d1f14',
-          fontWeight: 800, fontSize: 14, cursor: status === 'sending' ? 'default' : 'pointer',
+          fontWeight: 800, fontSize: 15, cursor: status === 'sending' ? 'default' : 'pointer',
           opacity: status === 'sending' ? 0.7 : 1,
         }}
       >
         {status === 'sending' ? 'Оформляем…' : 'Оформить карту бесплатно'}
       </button>
-      <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>
+      <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>
         Оформление бесплатно и занимает 10 секунд. Если ранее вы оставляли заявку на
         бесплатный дизайн-проект — бонус за него автоматически появится на карте.
       </div>
@@ -105,6 +105,6 @@ export function CardIssueForm() {
 
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '11px 14px', borderRadius: 10,
-  border: '1px solid var(--border)', fontSize: 13.5, background: 'var(--surface)',
+  border: '1px solid var(--border)', fontSize: 14.5, background: 'var(--surface)',
   boxSizing: 'border-box',
 }

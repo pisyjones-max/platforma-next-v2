@@ -11,7 +11,7 @@ export default function DeliveryPage() {
       <h1 style={{ fontFamily: 'var(--fh)', fontSize: 32, fontWeight: 800, marginBottom: 8 }}>
         Доставка и оплата
       </h1>
-      <p style={{ color: 'var(--muted)', marginBottom: 40, fontSize: 15 }}>
+      <p style={{ color: 'var(--muted)', marginBottom: 40, fontSize: 15.5 }}>
         Работаем по всей Московской области
       </p>
 
@@ -52,7 +52,7 @@ export default function DeliveryPage() {
             <div style={{ fontSize: 36, marginBottom: 14 }}>{card.icon}</div>
             <div style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 17, marginBottom: 12 }}>{card.title}</div>
             {card.lines.map((l, j) => (
-              <div key={j} style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 6 }}>— {l}</div>
+              <div key={j} style={{ fontSize: 15, color: 'var(--muted)', marginBottom: 6 }}>— {l}</div>
             ))}
           </div>
         ))}
@@ -62,12 +62,12 @@ export default function DeliveryPage() {
         <h2 style={{ fontFamily: 'var(--fh)', fontSize: 20, fontWeight: 700, marginBottom: 16 }}>Зоны доставки</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 8 }}>
           {['Новохаритоново', 'Гжель', 'Электросталь', 'Балашиха', 'Железнодорожный', 'Реутов', 'Люберцы', 'Раменское', 'Жуковский', 'Домодедово', 'Бронницы', 'Коломна', 'Воскресенск', 'Орехово-Зуево', 'Щёлково', 'Лосино-Петровский'].map((city, i) => (
-            <div key={i} style={{ fontSize: 13, color: 'var(--muted)', padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
+            <div key={i} style={{ fontSize: 14, color: 'var(--muted)', padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
               📍 {city}
             </div>
           ))}
         </div>
-        <p style={{ marginTop: 16, fontSize: 13, color: 'var(--muted)' }}>
+        <p style={{ marginTop: 16, fontSize: 14, color: 'var(--muted)' }}>
           Доставка в другие населённые пункты — уточняйте по телефону{' '}
           <a href="tel:+79332033005" style={{ color: 'var(--accent)', fontWeight: 600 }}>+7 (933) 203-30-05</a>
         </p>
@@ -77,7 +77,7 @@ export default function DeliveryPage() {
         <div style={{ fontFamily: 'var(--fh)', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>
           🚛 Самовывоз со склада
         </div>
-        <div style={{ fontSize: 14, opacity: 0.75, lineHeight: 1.6 }}>
+        <div style={{ fontSize: 15, opacity: 0.75, lineHeight: 1.6 }}>
           Заберите заказ самостоятельно со склада в Новохаритонове.
           Оформите заказ онлайн или по телефону — мы подготовим товар к вашему приезду.
         </div>

@@ -45,7 +45,7 @@ function CallbackForm({ onClose }: { onClose: () => void }) {
     <div style={{ padding: '32px 20px', textAlign: 'center' }}>
       <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
       <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>Заявка принята!</div>
-      <div style={{ color: '#7B7772', fontSize: 13 }}>Перезвоним в течение 15 минут</div>
+      <div style={{ color: '#7B7772', fontSize: 14 }}>Перезвоним в течение 15 минут</div>
       <button onClick={onClose} style={{
         marginTop: 20, padding: '10px 24px', background: '#C8102E',
         color: '#fff', border: 'none', borderRadius: 10, fontWeight: 700, cursor: 'pointer',
@@ -55,21 +55,21 @@ function CallbackForm({ onClose }: { onClose: () => void }) {
 
   return (
     <div style={{ padding: '20px' }}>
-      <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Обратный звонок</div>
-      <div style={{ fontSize: 12, color: '#7B7772', marginBottom: 16 }}>Перезвоним в течение 15 минут</div>
+      <div style={{ fontWeight: 700, fontSize: 15.5, marginBottom: 4 }}>Обратный звонок</div>
+      <div style={{ fontSize: 13, color: '#7B7772', marginBottom: 16 }}>Перезвоним в течение 15 минут</div>
       <input
         value={name} onChange={e => setName(e.target.value)}
         placeholder="Ваше имя"
-        style={{ width: '100%', border: '1px solid #e4e1da', borderRadius: 10, padding: '10px 12px', fontSize: 13, outline: 'none', marginBottom: 10, boxSizing: 'border-box' }}
+        style={{ width: '100%', border: '1px solid #e4e1da', borderRadius: 10, padding: '10px 12px', fontSize: 14, outline: 'none', marginBottom: 10, boxSizing: 'border-box' }}
       />
       <input
         value={phone} onChange={e => setPhone(e.target.value)}
         placeholder="+7 (___) ___-__-__" inputMode="tel"
-        style={{ width: '100%', border: '1px solid #e4e1da', borderRadius: 10, padding: '10px 12px', fontSize: 13, outline: 'none', marginBottom: 14, boxSizing: 'border-box' }}
+        style={{ width: '100%', border: '1px solid #e4e1da', borderRadius: 10, padding: '10px 12px', fontSize: 14, outline: 'none', marginBottom: 14, boxSizing: 'border-box' }}
       />
       <button onClick={send} disabled={!phone.trim() || sending} style={{
         width: '100%', padding: '12px', background: '#C8102E', color: '#fff',
-        border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: 'pointer',
+        border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: 'pointer',
         opacity: phone.trim() && !sending ? 1 : 0.5,
       }}>{sending ? 'Отправляем...' : 'Перезвоните мне'}</button>
     </div>
@@ -153,7 +153,7 @@ function ChatWindow() {
     <>
       <div style={{ flex: 1, overflowY: 'auto', padding: '12px', background: '#f5f5f5', display: 'flex', flexDirection: 'column', gap: 8 }}>
         {!nameSet ? (
-          <div style={{ textAlign: 'center', color: '#7B7772', fontSize: 13, marginTop: 30 }}>
+          <div style={{ textAlign: 'center', color: '#7B7772', fontSize: 14, marginTop: 30 }}>
             <div style={{ fontSize: 36, marginBottom: 10 }}>👋</div>
             <div style={{ fontWeight: 700, marginBottom: 6, color: '#1A1916' }}>Напишите нам!</div>
             <div>Введите ваше имя, чтобы начать чат</div>
@@ -165,10 +165,10 @@ function ChatWindow() {
               background: m.from === 'visitor' ? 'linear-gradient(135deg,#229ED9,#1a7fad)' : '#fff',
               color: m.from === 'visitor' ? '#fff' : '#1A1916',
               borderRadius: m.from === 'visitor' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-              padding: '8px 12px', fontSize: 13, lineHeight: 1.5, boxShadow: '0 1px 4px rgba(0,0,0,.1)',
+              padding: '8px 12px', fontSize: 14, lineHeight: 1.5, boxShadow: '0 1px 4px rgba(0,0,0,.1)',
             }}>
               <div>{m.text}</div>
-              <div style={{ fontSize: 10, opacity: 0.6, marginTop: 3, textAlign: 'right' }}>{fmt(m.ts)}</div>
+              <div style={{ fontSize: 11, opacity: 0.6, marginTop: 3, textAlign: 'right' }}>{fmt(m.ts)}</div>
             </div>
           </div>
         ))}
@@ -180,7 +180,7 @@ function ChatWindow() {
           <>
             <input value={name} onChange={e => setName(e.target.value)} onKeyDown={handleKey}
               placeholder="Ваше имя..."
-              style={{ flex: 1, border: '1px solid #e4e1da', borderRadius: 10, padding: '10px 12px', fontSize: 13, outline: 'none' }} />
+              style={{ flex: 1, border: '1px solid #e4e1da', borderRadius: 10, padding: '10px 12px', fontSize: 14, outline: 'none' }} />
             <button onClick={startChat} disabled={!name.trim()} style={{
               background: '#229ED9', border: 'none', color: '#fff', width: 38, height: 38,
               borderRadius: 10, fontSize: 18, cursor: 'pointer', opacity: name.trim() ? 1 : 0.5,
@@ -191,7 +191,7 @@ function ChatWindow() {
           <>
             <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey}
               placeholder="Написать сообщение..." rows={1}
-              style={{ flex: 1, border: '1px solid #e4e1da', borderRadius: 10, padding: '10px 12px', fontSize: 13, outline: 'none', resize: 'none', maxHeight: 80, overflowY: 'auto' }} />
+              style={{ flex: 1, border: '1px solid #e4e1da', borderRadius: 10, padding: '10px 12px', fontSize: 14, outline: 'none', resize: 'none', maxHeight: 80, overflowY: 'auto' }} />
             <button onClick={send} disabled={!input.trim() || sending} style={{
               background: '#229ED9', border: 'none', color: '#fff', width: 38, height: 38,
               borderRadius: 10, fontSize: 16, cursor: 'pointer',
@@ -201,7 +201,7 @@ function ChatWindow() {
           </>
         )}
       </div>
-      <div style={{ textAlign: 'center', fontSize: 10, color: '#aaa', padding: '4px 0 8px' }}>Powered by Telegram · PLATFORMA</div>
+      <div style={{ textAlign: 'center', fontSize: 11, color: '#aaa', padding: '4px 0 8px' }}>Powered by Telegram · PLATFORMA</div>
     </>
   )
 }
@@ -250,7 +250,7 @@ export function TelegramChat() {
         {unread > 0 && !panel && !menuOpen && (
           <span style={{
             position: 'absolute', top: -4, right: -4, background: '#e74c3c', color: '#fff',
-            fontSize: 11, fontWeight: 700, minWidth: 18, height: 18, borderRadius: 9,
+            fontSize: 12, fontWeight: 700, minWidth: 18, height: 18, borderRadius: 9,
             display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px',
           }}>{unread}</span>
         )}
@@ -274,7 +274,7 @@ export function TelegramChat() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0,
               }}>{item.icon}</span>
-              <span style={{ fontWeight: 600, fontSize: 13, color: '#1A1916' }}>{item.label}</span>
+              <span style={{ fontWeight: 600, fontSize: 14, color: '#1A1916' }}>{item.label}</span>
             </button>
           ))}
         </div>
@@ -306,16 +306,16 @@ export function TelegramChat() {
               {panel === 'callback' ? '📞' : '👷'}
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, fontSize: 14 }}>
+              <div style={{ fontWeight: 700, fontSize: 15 }}>
                 {panel === 'callback' ? 'Обратный звонок' : 'Менеджер PLATFORMA'}
               </div>
-              <div style={{ fontSize: 11, opacity: 0.85 }}>
+              <div style={{ fontSize: 12, opacity: 0.85 }}>
                 {panel === 'callback' ? `Перезвоним: ${PHONE_NUMBER}` : 'Онлайн · ответим за 5 мин'}
               </div>
             </div>
             <button onClick={closeAll} style={{
               background: 'rgba(255,255,255,.2)', border: 'none', color: '#fff',
-              width: 28, height: 28, borderRadius: '50%', fontSize: 14, cursor: 'pointer',
+              width: 28, height: 28, borderRadius: '50%', fontSize: 15, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>✕</button>
           </div>

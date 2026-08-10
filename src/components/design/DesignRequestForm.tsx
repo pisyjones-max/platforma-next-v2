@@ -65,7 +65,7 @@ export function DesignRequestForm() {
         <div style={{ fontFamily: 'var(--fh)', fontSize: 17, fontWeight: 800, marginBottom: 6 }}>
           Заявка отправлена
         </div>
-        <div style={{ fontSize: 13.5, color: 'var(--muted)' }}>
+        <div style={{ fontSize: 14.5, color: 'var(--muted)' }}>
           Наш дизайнер свяжется с вами в течение рабочего дня и уточнит детали проекта.
         </div>
       </div>
@@ -91,7 +91,7 @@ export function DesignRequestForm() {
       />
 
       <div>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
           Какой материал интересует
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -101,7 +101,7 @@ export function DesignRequestForm() {
               type="button"
               onClick={() => setMaterial(m)}
               style={{
-                padding: '7px 12px', borderRadius: 9, fontSize: 12.5, cursor: 'pointer',
+                padding: '7px 12px', borderRadius: 9, fontSize: 13.5, cursor: 'pointer',
                 border: `1.5px solid ${material === m ? 'var(--dark)' : 'var(--border)'}`,
                 background: material === m ? 'var(--dark)' : 'var(--surface)',
                 color: material === m ? '#fff' : 'var(--muted)',
@@ -123,7 +123,7 @@ export function DesignRequestForm() {
       />
 
       <div>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6 }}>
           Фото дома (до {MAX_PHOTOS} шт.)
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -136,7 +136,7 @@ export function DesignRequestForm() {
                 onClick={() => removeFile(i)}
                 style={{
                   position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%',
-                  background: 'var(--accent)', color: '#fff', border: 'none', fontSize: 11, cursor: 'pointer',
+                  background: 'var(--accent)', color: '#fff', border: 'none', fontSize: 12, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}
               >
@@ -167,7 +167,7 @@ export function DesignRequestForm() {
         />
       </div>
 
-      {error && <div style={{ color: 'var(--accent)', fontSize: 12.5 }}>{error}</div>}
+      {error && <div style={{ color: 'var(--accent)', fontSize: 13.5 }}>{error}</div>}
 
       <button
         type="button"
@@ -176,13 +176,13 @@ export function DesignRequestForm() {
         style={{
           marginTop: 4, padding: '13px 20px', borderRadius: 12, border: 'none',
           background: 'linear-gradient(135deg, #7ecc9a, #4caf70)', color: '#0d1f14',
-          fontWeight: 800, fontSize: 14, cursor: status === 'sending' ? 'default' : 'pointer',
+          fontWeight: 800, fontSize: 15, cursor: status === 'sending' ? 'default' : 'pointer',
           opacity: status === 'sending' ? 0.7 : 1,
         }}
       >
         {status === 'sending' ? 'Отправляем…' : `Получить дизайн-проект бесплатно`}
       </button>
-      <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>
+      <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>
         Стоимость услуги — {DESIGN_PROJECT_PRICE} ₽. При оформлении карты лояльности PLATFORMA
         сумма зачисляется на карту бонусом и списывается при покупке материалов по проекту.
       </div>
@@ -192,6 +192,6 @@ export function DesignRequestForm() {
 
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '11px 14px', borderRadius: 10,
-  border: '1px solid var(--border)', fontSize: 13.5, background: 'var(--surface)',
+  border: '1px solid var(--border)', fontSize: 14.5, background: 'var(--surface)',
   boxSizing: 'border-box',
 }

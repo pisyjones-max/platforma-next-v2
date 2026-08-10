@@ -59,7 +59,7 @@ export default async function CityDeliveryPage({ params }: { params: Promise<{ c
       <h1 style={{ fontFamily: 'var(--fh)', fontSize: 30, fontWeight: 800, marginBottom: 8 }}>
         Доставка стройматериалов в {city.nameGenitive}
       </h1>
-      <p style={{ color: 'var(--muted)', marginBottom: 32, fontSize: 15, lineHeight: 1.6, maxWidth: 640 }}>
+      <p style={{ color: 'var(--muted)', marginBottom: 32, fontSize: 15.5, lineHeight: 1.6, maxWidth: 640 }}>
         {city.intro}
       </p>
 
@@ -67,17 +67,17 @@ export default async function CityDeliveryPage({ params }: { params: Promise<{ c
         <div style={CARD_STYLE}>
           <div style={{ fontSize: 28, marginBottom: 10 }}>🚚</div>
           <div style={{ fontFamily: 'var(--fh)', fontWeight: 700, marginBottom: 8 }}>Срок доставки</div>
-          <div style={{ fontSize: 14, color: 'var(--muted)' }}>{city.distanceNote}</div>
+          <div style={{ fontSize: 15, color: 'var(--muted)' }}>{city.distanceNote}</div>
         </div>
         <div style={CARD_STYLE}>
           <div style={{ fontSize: 28, marginBottom: 10 }}>🗺️</div>
           <div style={{ fontFamily: 'var(--fh)', fontWeight: 700, marginBottom: 8 }}>Маршрут</div>
-          <div style={{ fontSize: 14, color: 'var(--muted)' }}>Едем {city.route}</div>
+          <div style={{ fontSize: 15, color: 'var(--muted)' }}>Едем {city.route}</div>
         </div>
         <div style={CARD_STYLE}>
           <div style={{ fontSize: 28, marginBottom: 10 }}>📍</div>
           <div style={{ fontFamily: 'var(--fh)', fontWeight: 700, marginBottom: 8 }}>Обслуживаем район</div>
-          <div style={{ fontSize: 14, color: 'var(--muted)' }}>{city.landmarks.join(', ')}</div>
+          <div style={{ fontSize: 15, color: 'var(--muted)' }}>{city.landmarks.join(', ')}</div>
         </div>
       </div>
 
@@ -92,7 +92,7 @@ export default async function CityDeliveryPage({ params }: { params: Promise<{ c
               href={`/catalog/group/${slug}`}
               style={{
                 display: 'block',
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: 600,
                 padding: '14px 16px',
                 background: 'var(--surface2)',
@@ -117,14 +117,14 @@ export default async function CityDeliveryPage({ params }: { params: Promise<{ c
           <div style={{ fontFamily: 'var(--fh)', fontSize: 18, fontWeight: 700, marginBottom: 6 }}>
             Оформите заказ с доставкой в {city.nameGenitive}
           </div>
-          <div style={{ fontSize: 14, opacity: 0.75 }}>
+          <div style={{ fontSize: 15, opacity: 0.75 }}>
             Или позвоните: <a href="tel:+79332033005" style={{ color: '#fff' }}>+7 (933) 203-30-05</a>
           </div>
         </div>
         <CityConsultButton city={city.name} />
       </div>
 
-      <p style={{ marginTop: 32, fontSize: 13, color: 'var(--muted)' }}>
+      <p style={{ marginTop: 32, fontSize: 14, color: 'var(--muted)' }}>
         Смотрите также: <Link href="/delivery" style={{ color: 'var(--accent)' }}>все зоны доставки</Link> и полный{' '}
         <Link href="/catalog/group/krovlya" style={{ color: 'var(--accent)' }}>каталог кровельных материалов</Link>.
       </p>

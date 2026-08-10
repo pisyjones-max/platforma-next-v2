@@ -65,7 +65,7 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
         {sku && <div className="psku">Арт. {sku}</div>}
         {desc && (
           <div style={{
-            fontSize: 11.5,
+            fontSize: 12.5,
             color: 'var(--muted)',
             lineHeight: 1.5,
             marginTop: 4,

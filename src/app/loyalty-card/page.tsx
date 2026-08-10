@@ -39,7 +39,7 @@ export default function LoyaltyCardPage() {
         <div style={{
           display: 'inline-block', padding: '6px 14px', borderRadius: 20,
           background: 'var(--surface2)', border: '1px solid var(--border)',
-          fontSize: 12, fontWeight: 700, color: 'var(--muted)', marginBottom: 16,
+          fontSize: 13, fontWeight: 700, color: 'var(--muted)', marginBottom: 16,
         }}>
           💳 Карта лояльности PLATFORMA
         </div>
@@ -49,7 +49,7 @@ export default function LoyaltyCardPage() {
         }}>
           Скидка и кэшбэк на кровлю<br />и стройматериалы — бесплатно
         </h1>
-        <p style={{ fontSize: 15, color: 'var(--muted)', maxWidth: 620, margin: '0 auto' }}>
+        <p style={{ fontSize: 15.5, color: 'var(--muted)', maxWidth: 620, margin: '0 auto' }}>
           Оформите карту лояльности по имени и телефону — дополнительная скидка{' '}
           {Math.round(CARD_DISCOUNT * 100)}% и кэшбэк начнут действовать сразу же.
         </p>
@@ -67,8 +67,8 @@ export default function LoyaltyCardPage() {
             padding: '18px 16px',
           }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>{b.icon}</div>
-            <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 6 }}>{b.title}</div>
-            <div style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5 }}>{b.text}</div>
+            <div style={{ fontWeight: 700, fontSize: 14.5, marginBottom: 6 }}>{b.title}</div>
+            <div style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.5 }}>{b.text}</div>
           </div>
         ))}
       </div>
@@ -140,8 +140,8 @@ function ConditionRow({ icon, title, text }: { icon: string; title: string; text
     <div style={{ display: 'flex', gap: 12 }}>
       <div style={{ fontSize: 20, flexShrink: 0 }}>{icon}</div>
       <div>
-        <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 3 }}>{title}</div>
-        <div style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5 }}>{text}</div>
+        <div style={{ fontWeight: 700, fontSize: 14.5, marginBottom: 3 }}>{title}</div>
+        <div style={{ fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.5 }}>{text}</div>
       </div>
     </div>
   )
@@ -153,8 +153,8 @@ function FaqItem({ q, a }: { q: string; a: string }) {
       background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12,
       padding: '12px 16px',
     }}>
-      <summary style={{ fontWeight: 700, fontSize: 13.5, cursor: 'pointer' }}>{q}</summary>
-      <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 8, lineHeight: 1.55 }}>{a}</div>
+      <summary style={{ fontWeight: 700, fontSize: 14.5, cursor: 'pointer' }}>{q}</summary>
+      <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 8, lineHeight: 1.55 }}>{a}</div>
     </details>
   )
 }
