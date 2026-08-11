@@ -1031,6 +1031,17 @@ body { overflow-x: hidden; }
 .delivery-countdown-icon { font-size: 15.5px; flex-shrink: 0; }
 .delivery-countdown-closed { color: var(--muted); }
 
+.ask-kev { margin-top: 14px; }
+.ask-kev-title { font-size: 12.5px; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+.ask-kev-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.ask-kev-chip {
+  height: 34px; padding: 0 14px; border-radius: 20px;
+  border: 1px solid var(--border); background: var(--surface);
+  font-size: 12.5px; display: flex; align-items: center; gap: 6px;
+  transition: all .15s; white-space: nowrap; color: var(--text); cursor: pointer;
+}
+.ask-kev-chip:hover { border-color: var(--dark); color: var(--dark); background: var(--surface2); }
+
 .prod-callback {
   background: var(--surface2); border-radius: 12px; padding: 16px;
   display: flex; flex-direction: column; gap: 8px;

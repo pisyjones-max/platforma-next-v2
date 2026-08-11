@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { PHONE_NUMBER } from '@/lib/constants'
+import { useUI } from '@/context/UIContext'
 
 interface Message {
   id: string
@@ -77,7 +78,7 @@ function CallbackForm({ onClose }: { onClose: () => void }) {
 }
 
 // ── Chat window ────────────────────────────────────────────────
-function ChatWindow() {
+function ChatWindow({ prefill, prefillNonce }: { prefill: string; prefillNonce: number }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
@@ -95,6 +96,13 @@ function ChatWindow() {
   }, [])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
+
+  // Пресет-вопрос с карточки товара ("Ask Kev") — подставляем текст в поле
+  // ввода. Если имя ещё не введено, текст просто ждёт в input и появится
+  // в поле сообщения сразу после того, как посетитель представится.
+  useEffect(() => {
+    if (prefillNonce > 0 && prefill) setInput(prefill)
+  }, [prefillNonce, prefill])
 
   useEffect(() => {
     if (!nameSet) return
@@ -210,6 +218,7 @@ function ChatWindow() {
 type Panel = 'chat' | 'callback' | null
 
 export function TelegramChat() {
+  const ctx = useUI()
   const [menuOpen, setMenuOpen] = useState(false)
   const [panel, setPanel] = useState<Panel>(null)
   const [unread, setUnread] = useState(0)
@@ -217,7 +226,15 @@ export function TelegramChat() {
   const phoneClean = PHONE_NUMBER.replace(/\D/g, '')
 
   const openPanel = (p: Panel) => { setPanel(p); setMenuOpen(false); if (p === 'chat') setUnread(0) }
-  const closeAll = () => { setPanel(null); setMenuOpen(false) }
+  const closeAll = () => { setPanel(null); setMenuOpen(false); ctx.closeChat() }
+
+  // Внешние запросы на открытие чата (например, пресет-вопросы на странице
+  // товара через useUI().openChat(text)) — открываем панель чата и сбрасываем
+  // счётчик непрочитанных, как при обычном клике по FAB.
+  useEffect(() => {
+    if (ctx.chatOpen) openPanel('chat')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ctx.chatNonce])
 
   const MENU_ITEMS = [
     { id: 'chat', icon: '💬', label: 'Написать в чат', color: '#229ED9', action: () => openPanel('chat') },
@@ -323,7 +340,7 @@ export function TelegramChat() {
           {panel === 'callback' ? (
             <CallbackForm onClose={closeAll} />
           ) : (
-            <ChatWindow />
+            <ChatWindow prefill={ctx.chatPrefill} prefillNonce={ctx.chatNonce} />
           )}
         </div>
       )}

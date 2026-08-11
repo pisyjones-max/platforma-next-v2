@@ -12,6 +12,7 @@ import { AddedToCartToast } from '@/components/ui/AddedToCartToast'
 import { CardPriceBlock } from '@/components/product/CardPriceBlock'
 import { CrossSellSection } from '@/components/product/CrossSellSection'
 import { DeliveryCountdown } from '@/components/product/DeliveryCountdown'
+import { AskKevPresets } from '@/components/product/AskKevPresets'
 import type { Product } from '@/types/catalog'
 import type { CrossSellProduct } from '@/lib/crossSell'
 
@@ -261,6 +262,8 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
           </div>
 
           <DeliveryCountdown />
+
+          <AskKevPresets productTitle={product.title} />
 
           {/* Форма обратного звонка */}
           {callOpen && (
