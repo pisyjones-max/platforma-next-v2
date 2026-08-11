@@ -50,7 +50,7 @@ export function findProductBySlug<T extends { id: string }>(products: T[], produ
   const wanted = slugify(productId)
   return products.find(p =>
     productSlug(p.id) === wanted ||
-    p.id.split('--').pop() === productId ||  // обратная совместимость со старыми URL
+    p.id.split('--').pop()?.trim() === productId ||  // обратная совместимость со старыми URL
     p.id === productId
   )
 }

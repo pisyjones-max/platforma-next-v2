@@ -69,7 +69,8 @@ export function getCatalog(): Catalog {
 export function findProduct(cat: Catalog, id: string): Product | undefined {
   for (const c of cat.categories) {
     const p = c.products.find(
-      p => p.id === id || p.id.split('--').pop() === id
+      // .trim() — часть id из парсера содержит хвостовые пробелы (см. src/lib/slug.ts)
+      p => p.id === id || p.id.split('--').pop()?.trim() === id
     )
     if (p) return p
   }

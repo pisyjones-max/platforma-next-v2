@@ -7,6 +7,7 @@ import { imgUrl } from '@/lib/image'
 import { fmt } from '@/lib/price'
 import { SALE_RATE, DISC_LABEL, CARD_DISCOUNT } from '@/lib/constants'
 import { getCalcType } from '@/lib/calculator'
+import { productSlug } from '@/lib/slug'
 import { Calculator } from '@/components/calculator/Calculator'
 import { AddedToCartToast } from '@/components/ui/AddedToCartToast'
 import { CardPriceBlock } from '@/components/product/CardPriceBlock'
@@ -334,7 +335,9 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
         <h2 className="prod-section-title">Другие товары в категории</h2>
         <div className="pgrid">
           {otherProducts.map(p => {
-            const pid = p.id.split('--').pop() ?? p.id
+            // productSlug() — см. аналогичный фикс и комментарий в CategoryPage.tsx:
+            // сырой p.id.split('--').pop() давал 404 на части товаров.
+            const pid = productSlug(p.id)
             return (
               <Link key={p.id} href={`/catalog/${categorySlug}/${pid}`} className="pcard">
                 {p.price > 0 && <div className="pcard-discount-tag">{DISC_LABEL}</div>}

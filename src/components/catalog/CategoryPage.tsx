@@ -7,6 +7,7 @@ import { useFilters } from '@/hooks/useFilters'
 import { findProduct } from '@/lib/catalog'
 import { DISC_LABEL } from '@/lib/constants'
 import { getBrandFacets } from '@/lib/brandAliases'
+import { productSlug } from '@/lib/slug'
 import type { Category } from '@/types/catalog'
 
 interface Props {
@@ -94,7 +95,12 @@ export function CategoryPage({ category, parentGroup }: Props) {
         <div className="cat-main">
           <div className="pgrid">
             {filtered.map(p => {
-              const pid = p.id.split('--').pop() ?? p.id
+              // productSlug() — та же функция, что использует findProductBySlug() на
+              // странице товара и sitemap.ts. Раньше здесь был "сырой" p.id.split('--').pop(),
+              // который не убирал пробелы/кириллицу в id (косяки парсера) и не решал
+              // коллизии одинаковых суффиксов между брендами внутри категории — из-за
+              // этого часть карточек вела на 404 (напр. .../termopaneli-fasadnye/sand-glatt).
+              const pid = productSlug(p.id)
               return (
                 <ProductCard
                   key={p.id}
