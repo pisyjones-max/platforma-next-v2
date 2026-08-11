@@ -184,7 +184,12 @@ def parse_product_details(product_url):
         return []
 
     description = ""
-    desc_block = soup.select_one(".product-description, #tab-description, .tab-pane")
+    # Вёрстка сайта-источника поменялась (см. отчёт Вебмастера от 11.08.2026:
+    # description возвращался пустым для всех товаров) — старые селекторы
+    # .product-description/#tab-description/.tab-pane больше не совпадают
+    # ни с чем на странице. Актуальный блок описания — .product-page__description,
+    # текст лежит в нескольких <p> внутри, get_text склеивает их через пробел.
+    desc_block = soup.select_one(".product-page__description")
     if desc_block:
         description = desc_block.get_text(" ", strip=True)
 
@@ -219,8 +224,12 @@ def parse_product_details(product_url):
             features_raw[original_name] = value
             features_clean[clean_name] = value
 
+    # Аналогично description: раньше заголовок товара был в h1.title_h1,
+    # теперь верстка отдаёт h1.title (без модификатора title_h1) — из-за
+    # этого title тоже уходил пустым примерно у половины товаров.
+    title_tag = soup.select_one("h1.title")
     product_base = {
-        "title": soup.select_one("h1.title_h1").get_text(strip=True) if soup.select_one("h1.title_h1") else "",
+        "title": title_tag.get_text(strip=True) if title_tag else "",
         "features": features_raw,
         "features_clean": features_clean,
         "url": product_url,
