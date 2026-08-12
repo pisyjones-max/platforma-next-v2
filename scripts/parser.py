@@ -1221,12 +1221,45 @@ if __name__ == "__main__":
 
     total_products_in_listing = sum(len(v[2]) for v in listing_cache.values())
 
+    # Сохраняем "было" (старый catalog.json) для отчёта о разнице и для
+    # переиспользования непеременившихся товаров — ДО перезаписи файла.
+    # Читаем его ЗДЕСЬ (до принятия решения "обходить/не обходить карточки"),
+    # чтобы иметь возможность force-переобойти товары с пустыми title/description
+    # (см. missing_content_urls ниже) — иначе пустые поля, однажды попавшие в
+    # catalog.json (например, из-за временно неверных CSS-селекторов на сайте-
+    # источнике), будут просто копироваться из прогона в прогон, пока у товара
+    # случайно не изменится цена.
+    old_catalog_by_slug = {}
+    old_product_by_url = {}
+    if os.path.exists(CATALOG_JSON_PATH):
+        try:
+            with open(CATALOG_JSON_PATH, "r", encoding="utf-8") as f:
+                old_catalog = json.load(f)
+            for c in old_catalog.get("categories", []):
+                old_catalog_by_slug[c.get("slug")] = len(c.get("products", []))
+                for p in c.get("products", []):
+                    p_url = p.get("url")
+                    if p_url:
+                        old_product_by_url[p_url] = p
+        except Exception as e:
+            log_progress(f"⚠️  Не удалось прочитать старый catalog.json для сравнения: {e}")
+
+    missing_content_urls = {
+        p_url for p_url, p in old_product_by_url.items()
+        if not (p.get("title") or "").strip() or not (p.get("description") or "").strip()
+    }
+    if missing_content_urls:
+        log_progress(
+            f"  ℹ️  У {len(missing_content_urls)} товаров в старом catalog.json пустой title/description — "
+            f"переобойдём их карточки независимо от того, менялась ли цена."
+        )
+
     if prices_found == 0:
         print("⚠️  Цены в листинге категорий не найдены (не совпал CSS-селектор) — "
               "по ценам не можем определить, что именно изменилось. "
               "Обхожу карточки ВСЕХ товаров, чтобы не потерять данные.")
         changed_urls = set(new_price_map.keys())
-    elif old_signature == new_signature:
+    elif old_signature == new_signature and not missing_content_urls:
         print(f"✅ Изменений нет (ни в ассортименте, ни в ценах {prices_found} товаров с ценой в листинге) "
               f"— полный обход {total_products_in_listing} карточек товаров и картинок пропущен.")
         PRODUCT_EXECUTOR.shutdown()
@@ -1246,28 +1279,12 @@ if __name__ == "__main__":
             u for u in (new_urls_set & old_urls)
             if old_price_map.get(u) != new_price_map.get(u)
         }
-        changed_urls = added_urls | price_changed_urls
+        changed_urls = added_urls | price_changed_urls | missing_content_urls
         print(f"🔄 Обнаружены изменения — новых товаров: {len(added_urls)}, "
-              f"с изменённой ценой: {len(price_changed_urls)}, пропало из листинга: {len(removed_urls)}. "
+              f"с изменённой ценой: {len(price_changed_urls)}, "
+              f"с пустым title/description: {len(missing_content_urls)}, пропало из листинга: {len(removed_urls)}. "
               f"Карточки товаров будут запрошены только для {len(changed_urls)} из {total_products_in_listing} "
               f"— остальные переиспользуются из прошлого catalog.json без похода на сайт.")
-
-    # Сохраняем "было" (старый catalog.json) для отчёта о разнице и для
-    # переиспользования непеременившихся товаров — ДО перезаписи файла.
-    old_catalog_by_slug = {}
-    old_product_by_url = {}
-    if os.path.exists(CATALOG_JSON_PATH):
-        try:
-            with open(CATALOG_JSON_PATH, "r", encoding="utf-8") as f:
-                old_catalog = json.load(f)
-            for c in old_catalog.get("categories", []):
-                old_catalog_by_slug[c.get("slug")] = len(c.get("products", []))
-                for p in c.get("products", []):
-                    p_url = p.get("url")
-                    if p_url:
-                        old_product_by_url[p_url] = p
-        except Exception as e:
-            log_progress(f"⚠️  Не удалось прочитать старый catalog.json для сравнения: {e}")
 
     # ─────────────────────────────────────────────
     # ШАГ 2: обход товаров — карточка запрашивается заново ТОЛЬКО если её URL
