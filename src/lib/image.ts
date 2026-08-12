@@ -1,15 +1,18 @@
-// Картинки лежат в GitHub репо и раздаются через jsDelivr CDN
-// Это позволяет деплоить на Vercel без 1.8GB в public/
-const CDN_BASE = 'https://cdn.jsdelivr.net/gh/pisyjones-max/platforma-next-v2@main/public'
-
+// Раньше картинки раздавались через jsDelivr CDN (проксировал GitHub-репо),
+// чтобы можно было деплоить на Vercel без 1.8GB в public/. С переездом на
+// свой VDS (Timeweb) в этом больше нет смысла: файлы физически лежат в
+// public/images на самом сервере и отдаются nginx/Next напрямую, мгновенно
+// и без обращения к внешнему сервису. jsDelivr при этом сам подгружает файл
+// из GitHub только по факту первого запроса — при 140k+ файлов в репозитории
+// многие товарные картинки оставались "холодными" и либо не грузились,
+// либо грузились медленно/нестабильно (задержки, рейт-лимиты GitHub).
+// Поэтому теперь просто отдаём собственный путь на сайте.
 export function imgUrl(src: string): string {
   if (!src) return ''
   // Уже полный URL — отдаём как есть
   if (src.startsWith('http')) return src
-  // Абсолютный путь с / — проверяем начало
-  if (src.startsWith('/images/')) return CDN_BASE + src
-  // Относительный путь типа "images/xxx/xxx.jpg"
-  if (src.startsWith('images/')) return CDN_BASE + '/' + src
+  // Относительный путь типа "images/xxx/xxx.jpg" — делаем абсолютным
+  if (src.startsWith('images/')) return '/' + src
   // Всё остальное
   return src.startsWith('/') ? src : '/' + src
 }

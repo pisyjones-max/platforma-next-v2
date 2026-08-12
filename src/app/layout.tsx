@@ -95,13 +95,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ru" className={`${unbounded.variable} ${geologica.variable}`}>
       <head>
-        {/* Товарные фото раздаются с внешнего домена cdn.jsdelivr.net (см.
-            src/lib/image.ts) — preconnect заранее поднимает DNS+TLS до этого
-            домена, пока страница ещё грузится, вместо того чтобы платить эту
-            задержку при первом же запросе картинки. */}
-        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
-
         {/* Schema.org: Organization + WebSite */}
         <script {...jsonLdScriptProps(organizationSchema())} />
         <script {...jsonLdScriptProps(websiteSchema())} />
