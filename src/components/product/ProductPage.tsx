@@ -212,16 +212,6 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
             </div>
           )}
 
-          {/* Описание */}
-          {product.description && (
-            <div style={{
-              background: 'var(--surface2)', borderRadius: 10, padding: '12px 14px',
-              fontSize: 14, lineHeight: 1.7, color: 'var(--text)', border: '1px solid var(--border)',
-            }}>
-              {product.description}
-            </div>
-          )}
-
           {/* Варианты */}
           {product.variants.length > 1 && (
             <div className="prod-section">
