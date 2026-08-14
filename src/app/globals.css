@@ -1055,8 +1055,46 @@ body { overflow-x: hidden; }
   border-bottom: 2px solid var(--border);
 }
 
-/* ══ БЛОК "С этим товаром покупают" (кросс-продажи) ═══════════════════════ */
+/* ══ БЛОК "С этим товаром покупают" / "Собрать комплект" ══════════════════ */
 .cross-sell-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+
+.kit-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.kit-title { border-bottom: none; margin-bottom: 4px; padding-bottom: 0; }
+.kit-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+
+.kit-card { padding-top: 6px; }
+.kit-card-link { display: contents; color: inherit; text-decoration: none; }
+.kit-card.kit-card-selected { border-color: var(--dark); box-shadow: 0 0 0 1px var(--dark); }
+
+.kit-check {
+  position: absolute; top: 8px; right: 8px; z-index: 3;
+  width: 22px; height: 22px; border-radius: 6px;
+  background: rgba(255,255,255,.92); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; backdrop-filter: blur(2px);
+}
+.kit-check input[type=checkbox] { accent-color: var(--dark); width: 15px; height: 15px; cursor: pointer; }
+
+.kit-summary {
+  margin-top: 16px; padding: 14px 18px; border-radius: var(--rl);
+  background: var(--surface2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.kit-summary-info { font-size: 14px; color: var(--text); }
+.kit-summary-info b { color: var(--accent); font-family: var(--fh); }
+.kit-add-btn {
+  height: 42px; padding: 0 20px; border-radius: 9px; border: none;
+  background: var(--dark); color: #fff; font-size: 14px; font-weight: 600;
+  white-space: nowrap; transition: background .15s, transform .1s;
+}
+.kit-add-btn:hover:not(:disabled) { background: var(--dark-h); }
+.kit-add-btn:active:not(:disabled) { transform: scale(.97); }
+.kit-add-btn:disabled { opacity: .5; cursor: default; }
+
+@media (max-width: 768px) {
+  .kit-summary { flex-direction: column; align-items: stretch; text-align: center; }
+  .kit-add-btn { width: 100%; }
+}
 
 @media (max-width: 768px) {
   /* Горизонтальный скролл карточек вместо сетки на мобильных.
