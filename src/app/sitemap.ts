@@ -4,6 +4,7 @@ import { SITE_URL } from '@/lib/site'
 import { productSlug } from '@/lib/slug'
 import { CITIES } from '@/lib/cities'
 import { getAllArticles } from '@/lib/blog'
+import { getAllBrands } from '@/lib/brands'
 
 // См. комментарий в src/lib/catalog.ts — каталог читается с диска в рантайме,
 // эта настройка даёт sitemap.xml подхватывать новые товары раз в 10 минут
@@ -38,6 +39,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   for (const groupSlug of Object.keys(catalog.groups)) {
     urls.push({ url: `${SITE_URL}/catalog/group/${groupSlug}`, changeFrequency: 'weekly', priority: 0.8 })
+  }
+
+  urls.push({ url: `${SITE_URL}/catalog/brand`, changeFrequency: 'weekly', priority: 0.7, lastModified: now })
+  for (const brand of getAllBrands(catalog)) {
+    urls.push({ url: `${SITE_URL}/catalog/brand/${brand.slug}`, changeFrequency: 'weekly', priority: 0.75, lastModified: now })
   }
 
   const seenUrls = new Set<string>()

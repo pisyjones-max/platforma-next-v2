@@ -20,7 +20,7 @@ const CYRILLIC_TO_LATIN: Record<string, string> = {
  * обрезает пробелы по краям, транслитерирует кириллицу, схлопывает
  * все не-[a-z0-9] символы в дефис.
  */
-function slugify(raw: string): string {
+export function slugify(raw: string): string {
   const lower = raw.trim().toLowerCase()
   const translit = lower.replace(/[а-яё]/g, (ch) => CYRILLIC_TO_LATIN[ch] ?? ch)
   return translit

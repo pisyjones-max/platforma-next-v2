@@ -72,6 +72,7 @@ export function Footer() {
             <div style={{ color: '#fff', fontWeight: 600, fontSize: 13, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '1px' }}>Каталог</div>
             {[
               { href: '/catalog', label: 'Все категории' },
+              { href: '/catalog/brand', label: 'Бренды' },
               { href: '/catalog/metallocherepica', label: 'Металлочерепица' },
               { href: '/catalog/profnastil', label: 'Профнастил' },
               { href: '/catalog/krovelnye-materialy', label: 'Кровельные материалы' },
