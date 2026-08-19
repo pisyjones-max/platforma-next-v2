@@ -7,6 +7,7 @@ import { SearchBox } from '@/components/ui/SearchBox'
 
 const NAV = [
   { href: '/catalog', label: 'Каталог' },
+  { href: '/fasad/fasad-doma', label: 'Фасад дома' },
   { href: '/delivery', label: 'Доставка' },
   { href: '/deshevle-konkurentov', label: 'Дешевле' },
   { href: '/about', label: 'О компании' },
