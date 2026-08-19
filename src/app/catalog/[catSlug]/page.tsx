@@ -19,6 +19,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cat = findCategory(getCatalog(), catSlug)
   if (!cat) return {}
   const count = cat.products.length
+
+  // Пустая категория: не выдумываем цены и наличие, которых нет, и просим
+  // поисковики не индексировать — страница остаётся доступной (для клиента
+  // и на случай скорого поступления товара), но не участвует в выдаче как
+  // thin content. См. также sitemap.ts — такие категории туда не попадают.
+  if (count === 0) {
+    return {
+      title: `${cat.name} — скоро в наличии | PLATFORMA`,
+      description: `${cat.name} — товар временно отсутствует. Уточните сроки поступления по телефону +7 (933) 203-30-05.`,
+      alternates: { canonical: `/catalog/${catSlug}` },
+      robots: { index: false, follow: true },
+    }
+  }
+
   const minPrice = cat.products.reduce((min, p) => {
     const price = Math.round((p.variants[0]?.price ?? 0) * SALE_RATE)
     return price > 0 && price < min ? price : min

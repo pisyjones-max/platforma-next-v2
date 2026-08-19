@@ -49,6 +49,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const seenUrls = new Set<string>()
 
   for (const cat of catalog.categories) {
+    // Пустые категории (0 товаров) не индексируем — thin content, риск для
+    // остального сайта в глазах Яндекса/Google. См. CategoryPage generateMetadata:
+    // такие страницы дополнительно получают noindex. Как только категория
+    // наполнится товарами, она сама появится здесь на следующей ревалидации.
+    if (cat.products.length === 0) continue
+
     const catUrl = `${SITE_URL}/catalog/${cat.slug}`
     if (!seenUrls.has(catUrl)) {
       seenUrls.add(catUrl)

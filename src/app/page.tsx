@@ -1,5 +1,7 @@
 import { getCatalog } from '@/lib/catalog'
 import { GroupsPage } from '@/components/catalog/GroupsPage'
+import { faqSchema, jsonLdScriptProps } from '@/lib/schema'
+import { HOME_FAQS } from '@/lib/faq'
 
 // См. комментарий в src/lib/catalog.ts — каталог читается с диска в рантайме,
 // эта настройка даёт главной странице подхватывать изменения раз в 10 минут
@@ -19,5 +21,12 @@ export default function Home() {
       { name: g.name, categoriesCount: g.categories.length },
     ])
   )
-  return <GroupsPage groups={groups} totalProducts={catalog.meta?.total_products ?? 0} />
+  return (
+    <>
+      {/* FAQPage разметка — вопросы дословно совпадают с тем, что рендерит
+          HomeFAQ (src/lib/faq.ts — общий источник), как требуют Google/Яндекс */}
+      <script {...jsonLdScriptProps(faqSchema(HOME_FAQS))} />
+      <GroupsPage groups={groups} totalProducts={catalog.meta?.total_products ?? 0} />
+    </>
+  )
 }

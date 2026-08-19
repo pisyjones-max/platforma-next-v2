@@ -93,6 +93,28 @@ export function CategoryPage({ category, parentGroup }: Props) {
         )}
 
         <div className="cat-main">
+          {category.products.length === 0 ? (
+            <div style={{
+              textAlign: 'center', padding: '56px 24px', background: 'var(--surface)',
+              border: '1px solid var(--border)', borderRadius: 16,
+            }}>
+              <div style={{ fontSize: 34, marginBottom: 12 }}>📦</div>
+              <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 8px' }}>
+                Товар временно отсутствует
+              </h2>
+              <p style={{ color: 'var(--muted)', fontSize: 14.5, maxWidth: 420, margin: '0 auto 20px' }}>
+                Мы регулярно обновляем ассортимент «{category.name.toLowerCase()}». Позвоните — уточним сроки
+                поступления или подберём аналог из наличия.
+              </p>
+              <a
+                href="tel:+79332033005"
+                className="btn-sm primary"
+                style={{ display: 'inline-block', padding: '11px 22px', textDecoration: 'none' }}
+              >
+                📞 +7 (933) 203-30-05
+              </a>
+            </div>
+          ) : (
           <div className="pgrid">
             {filtered.map(p => {
               // productSlug() — та же функция, что использует findProductBySlug() на
@@ -121,6 +143,7 @@ export function CategoryPage({ category, parentGroup }: Props) {
               </div>
             )}
           </div>
+          )}
         </div>
       </div>
     </div>

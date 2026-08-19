@@ -1,0 +1,48 @@
+cluster,total_freq,n,existing,url,best_priority
+Фасад дома — общий хаб (intent неопределён),1533679,3284,none,/fasad/fasad-doma,P1
+Технониколь — бренд-хаб,1216507,2017,full,/catalog/brand/tehnonikol,P0
+Кровля — общий хаб (сравнение/сервис),1100386,1411,partial,/catalog/group/krovlya,P1
+Сайдинг — общее,1050930,1725,none,/fasad/sajding,P1
+Grand Line / Гранд Лайн — бренд-хаб,277753,3538,full,/catalog/brand/grand-line,P0
+Мягкая кровля (битумная черепица),121193,199,full,/catalog/myagkaya-krovlya,P0
+Фальцевая кровля / кликфальц,59221,48,full,/catalog/falcevaya-krovlya,P0
+Плоская/рулонная/наплавляемая кровля,35860,59,none,,P1
+Сайдинг металлический,27907,57,full,/catalog/metallicheskiy,P0
+Сайдинг под дерево/брус/бревно/камень/кирпич,25117,42,full,/catalog/pod-derevo,P1
+Клинкерная плитка/кирпич для фасада,24223,34,partial,/catalog/fasadnaya-plitka,P1
+Герметики и мастики,24085,45,partial,/catalog/germetiki,P1
+Гидроизоляция / пароизоляция / мембраны,23209,39,full,/catalog/gidroizolyatsiya,P1
+Docke/Деке — бренд-хаб,20802,68,full,/catalog/brand/docke,P1
+Сайдинг фиброцементный,19472,48,full,/catalog/fibrotsementnyy,P1
+Жидкая кровля / жидкая резина,19219,24,none,,P1
+Вентилируемый фасад,15250,34,partial,/catalog/group/fasadnye-materialy,P1
+Сайдинг виниловый,12957,45,full,/catalog/vinilovyy,P2
+Металлочерепица,12773,23,full,/catalog/metallocherepitsa,P1
+Профнастил (кровля),12439,35,full,/catalog/profnastil,P1
+Утепление фасада,12257,66,partial,/catalog/uteplitel,P1
+Сайдинг цокольный,12227,29,full,/catalog/cokolnyy,P1
+Утеплитель — общее,11576,41,full,/catalog/uteplitel,P1
+Фасадные термопанели,10327,32,full,/catalog/termopaneli-fasadnye,P1
+Мокрый фасад / штукатурный фасад,9572,15,none,,P1
+Водостоки,4964,15,full,/catalog/group/vodostoki,P2
+Не кластеризовано,3358,29,unknown,,P2
+Эксплуатируемая кровля,3113,4,full,/catalog/ekspluatiruemaya-krovlya,P1
+Фасад — камень (искусственный),2618,16,partial,/catalog/fasadnaya-plitka,P2
+Вентиляция кровли / аэраторы,2410,6,full,/catalog/group/ventilyatsiya-krovli,P2
+Фиброцементные панели,2166,3,full,/catalog/fibrotsementnye-paneli,P1
+Снегозадержатели,1607,3,full,/catalog/group/snegozaderzhateli,P2
+Katepal — бренд-хаб,1330,2,full,/catalog/brand/katepal,P2
+Дымоходы,1324,6,full,/catalog/group/dymohody,P2
+"Крепёж (саморезы, гвозди)",1287,2,full,/catalog/group/krepezh,P2
+Ondulin — бренд-хаб,1110,1,full,/catalog/krovlya/ondulin,P2
+Террасная доска / ДПК,1054,3,full,/catalog/group/terrasnaya-doska-dpk,P2
+OSB / гипсокартон / ДСП,1038,4,full,/catalog/group/drevesno-plitnye-materialy,P2
+Сэндвич-панели,662,5,full,/catalog/sendvich-paneli,P2
+Заборы — общее,608,4,full,/catalog/group/zabory,P2
+Tegola — бренд-хаб,596,2,full,/catalog/brand/tegola,P2
+Планкен,365,3,full,/catalog/planken,P2
+Антисептики / защита древесины,325,2,full,/catalog/group/himiya,P3
+Сухие смеси,325,1,full,/catalog/group/suhie-smesi,P2
+Мансардные окна,304,1,full,/catalog/group/mansardnye-okna,P2
+Фасадные панели — общее,169,2,full,/catalog/fasadnye-paneli,P3
+Fakro — бренд-хаб,133,1,full,/catalog/brand/fakro,P3

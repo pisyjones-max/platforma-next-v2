@@ -93,6 +93,22 @@ export function productSchema(product: Product, category: Category, catSlug: str
   }
 }
 
+/** FAQPage — только для реально отображаемого на странице FAQ (см. src/lib/faq.ts). */
+export function faqSchema(items: { q: string; a: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map(item => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
+  }
+}
+
 /** Утилита для безопасной вставки JSON-LD в <script> без риска инъекции. */
 export function jsonLdScriptProps(data: unknown) {
   return {
