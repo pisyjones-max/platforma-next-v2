@@ -73,6 +73,7 @@ export function Footer() {
             {[
               { href: '/catalog', label: 'Все категории' },
               { href: '/fasad/fasad-doma', label: 'Фасад дома' },
+              { href: '/fasad/sajding', label: 'Сайдинг' },
               { href: '/catalog/brand', label: 'Бренды' },
               { href: '/catalog/metallocherepica', label: 'Металлочерепица' },
               { href: '/catalog/profnastil', label: 'Профнастил' },
