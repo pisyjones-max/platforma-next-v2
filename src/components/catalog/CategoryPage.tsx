@@ -13,9 +13,13 @@ import type { Category } from '@/types/catalog'
 interface Props {
   category: Category
   parentGroup: { slug: string; group: { name: string } } | null
+  totalCount?: number
+  page?: number
+  totalPages?: number
+  catSlug?: string
 }
 
-export function CategoryPage({ category, parentGroup }: Props) {
+export function CategoryPage({ category, parentGroup, totalCount, page = 1, totalPages = 1, catSlug }: Props) {
   const { filters, setFilters, search, setSearch, filtered, reset } = useFilters(category.products)
   const [brandModalOpen, setBrandModalOpen] = useState(false)
 
@@ -53,7 +57,7 @@ export function CategoryPage({ category, parentGroup }: Props) {
           <p>Доставка по Московской области · Скидка −17% на всё</p>
         </div>
         <div className="hero-right">
-          <div className="hero-stat"><span>{category.products.length}</span><small>товаров</small></div>
+          <div className="hero-stat"><span>{totalCount ?? category.products.length}</span><small>товаров</small></div>
           <div className="hero-badge"><div className="hero-badge-val">{DISC_LABEL}</div><div className="hero-badge-lbl">скидка</div></div>
         </div>
       </div>
@@ -143,6 +147,34 @@ export function CategoryPage({ category, parentGroup }: Props) {
               </div>
             )}
           </div>
+          )}
+          {/* Настоящие ссылки ?page=N (не onClick/state) — краулер должен
+              дойти до всех страниц пагинации и увидеть их как отдельные
+              200 OK URL с уникальным title/description (см. generateMetadata
+              в src/app/catalog/[catSlug]/page.tsx). */}
+          {totalPages > 1 && catSlug && (
+            <nav aria-label="Пагинация" style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 28, flexWrap: 'wrap' }}>
+              {page > 1 && (
+                <Link className="btn-sm" href={page - 1 === 1 ? `/catalog/${catSlug}` : `/catalog/${catSlug}?page=${page - 1}`}>
+                  ← Назад
+                </Link>
+              )}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+                <Link
+                  key={n}
+                  className={`btn-sm ${n === page ? 'active' : ''}`}
+                  href={n === 1 ? `/catalog/${catSlug}` : `/catalog/${catSlug}?page=${n}`}
+                  aria-current={n === page ? 'page' : undefined}
+                >
+                  {n}
+                </Link>
+              ))}
+              {page < totalPages && (
+                <Link className="btn-sm" href={`/catalog/${catSlug}?page=${page + 1}`}>
+                  Вперёд →
+                </Link>
+              )}
+            </nav>
           )}
         </div>
       </div>

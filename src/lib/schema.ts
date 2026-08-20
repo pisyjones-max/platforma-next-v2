@@ -1,6 +1,7 @@
 import { SITE_URL } from '@/lib/site'
 import { imgUrl } from '@/lib/image'
 import { SALE_RATE } from '@/lib/constants'
+import { normalizeBrand } from '@/lib/brandAliases'
 import type { Product, Category } from '@/types/catalog'
 
 /**
@@ -66,11 +67,23 @@ export function breadcrumbSchema(items: { name: string; url: string }[]) {
   }
 }
 
-/** Product schema с ценой и наличием — база для расширенных сниппетов и Google Merchant. */
+/**
+ * Product schema с ценой и наличием — база для расширенных сниппетов и Google Merchant.
+ *
+ * ВАЖНО: aggregateRating добавляется в объект ТОЛЬКО если у товара реально
+ * есть отзывы (reviewCount > 0). Google Search Console помечает ошибкой
+ * "Missing field aggregateRating" карточки, где это поле присутствует, но
+ * пустое/нулевое — поэтому поле либо есть целиком и с реальными цифрами,
+ * либо отсутствует в JSON-LD вовсе.
+ */
 export function productSchema(product: Product, category: Category, catSlug: string, productSlug: string) {
   const v = product.variants[0]
   const price = Math.round((v?.price ?? 0) * SALE_RATE)
   const images = (v?.images ?? []).slice(0, 4).map(img => imgUrl(img)).filter(Boolean)
+  const brandName = normalizeBrand(product.features?.['Производитель']) || 'PLATFORMA'
+
+  const hasReviews = typeof product.reviewCount === 'number' && product.reviewCount > 0
+    && typeof product.rating === 'number' && product.rating > 0
 
   return {
     '@context': 'https://schema.org',
@@ -80,7 +93,7 @@ export function productSchema(product: Product, category: Category, catSlug: str
     sku: v?.sku,
     image: images.length ? images : undefined,
     category: category.name,
-    brand: { '@type': 'Brand', name: 'PLATFORMA' },
+    brand: { '@type': 'Brand', name: brandName },
     offers: {
       '@type': 'Offer',
       url: `${SITE_URL}/catalog/${catSlug}/${productSlug}`,
@@ -90,6 +103,15 @@ export function productSchema(product: Product, category: Category, catSlug: str
       itemCondition: 'https://schema.org/NewCondition',
       seller: { '@id': `${SITE_URL}/#organization` },
     },
+    ...(hasReviews ? {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: product.rating,
+        reviewCount: product.reviewCount,
+        bestRating: 5,
+        worstRating: 1,
+      },
+    } : {}),
   }
 }
 

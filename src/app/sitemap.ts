@@ -64,11 +64,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
 
     for (const p of cat.products) {
+      // Без variants страница товара отдаёт notFound() (см. product page.tsx) —
+      // такую запись нельзя пускать в sitemap, иначе это гарантированный 404
+      // по ссылке из sitemap.xml вместо честных 200 OK.
+      if (!p.variants?.length) continue
+
       const pid = productSlug(p.id)
       const productUrl = `${SITE_URL}/catalog/${cat.slug}/${pid}`
       if (!seenUrls.has(productUrl)) {
         seenUrls.add(productUrl)
-        urls.push({ url: productUrl, changeFrequency: 'weekly', priority: 0.6 })
+        urls.push({ url: productUrl, changeFrequency: 'weekly', priority: 0.6, lastModified: now })
       }
     }
   }

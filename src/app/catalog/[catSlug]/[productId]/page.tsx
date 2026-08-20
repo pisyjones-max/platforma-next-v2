@@ -1,11 +1,13 @@
-import { notFound, permanentRedirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { getCatalog, findCategory } from '@/lib/catalog'
-import { findProductBySlug, productSlug } from '@/lib/slug'
+import { findProductBySlug } from '@/lib/slug'
 import { getCrossSellProducts } from '@/lib/crossSell'
 import { imgUrl } from '@/lib/image'
-import { productSchema, breadcrumbSchema, jsonLdScriptProps } from '@/lib/schema'
+import { breadcrumbSchema, jsonLdScriptProps } from '@/lib/schema'
+import { normalizeBrand } from '@/lib/brandAliases'
 import { SALE_RATE } from '@/lib/constants'
 import { ProductPage } from '@/components/product/ProductPage'
+import { ProductJsonLd } from '@/components/product/ProductJsonLd'
 import type { Metadata } from 'next'
 
 // См. комментарий в src/lib/catalog.ts — каталог читается с диска в рантайме,
@@ -15,25 +17,6 @@ export const revalidate = 600
 
 interface Props {
   params: Promise<{ catSlug: string; productId: string }>
-}
-
-/**
- * Ищет товар по всему каталогу, если он не нашёлся в указанной по URL категории.
- *
- * Нужно из-за истории с коллизиями slug категорий (см. коммит bef05504):
- * несколько категорий были переименованы, чтобы разрешить дубли slug
- * ('fakro', 'velux', 'derevyannye', 'plastikovye', 'metallicheskie', 'kley').
- * Старые URL вида /catalog/fakro/<productId> для товаров из переименованной
- * категории успели проиндексироваться в Яндексе/Google — вместо того чтобы
- * отдавать по ним 404, делаем постоянный редирект на актуальный адрес
- * с правильным (новым) slug категории, сохраняя SEO-вес страницы.
- */
-function findProductAnywhere(catalog: ReturnType<typeof getCatalog>, productId: string) {
-  for (const c of catalog.categories) {
-    const p = findProductBySlug(c.products, productId)
-    if (p) return { cat: c, product: p }
-  }
-  return null
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -50,6 +33,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const v = product.variants[0]
   const price = Math.round(v.price * SALE_RATE)
   const priceStr = price > 0 ? `${price.toLocaleString('ru-RU')} ₽` : 'по запросу'
+  const brand = normalizeBrand(product.features?.['Производитель'])
+  // Артикул — самый надёжный якорь уникальности: у одинаковых по названию
+  // товаров разных цветов/партий он всегда разный, в отличие от title.
+  const sku = v.sku?.trim()
 
   // Собираем ключевые характеристики для description
   const featureSnippet = Object.entries(product.features ?? {})
@@ -57,12 +44,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .map(([k, val]) => `${k}: ${val}`)
     .join(', ')
 
+  const titleSuffix = [brand, sku ? `арт. ${sku}` : ''].filter(Boolean).join(', ')
+
   const desc = product.description?.trim()
-    ? `${product.description.trim().slice(0, 120)}. Цена ${priceStr}. Доставка по МО.`
-    : `${product.title}${featureSnippet ? '. ' + featureSnippet : ''}. Цена ${priceStr}. Скидка −17%. Доставка по Московской области. Звоните: +7 (933) 203-30-05.`
+    ? `${product.description.trim().slice(0, 120)}. ${brand ? `Бренд ${brand}. ` : ''}${sku ? `Артикул ${sku}. ` : ''}Цена ${priceStr}. Доставка по МО.`
+    : `${product.title}${featureSnippet ? '. ' + featureSnippet : ''}. ${brand ? `Бренд ${brand}. ` : ''}${sku ? `Артикул ${sku}. ` : ''}Цена ${priceStr}. Скидка −17%. Доставка по Московской области. Звоните: +7 (933) 203-30-05.`
 
   return {
-    title: `${product.title} — купить, цена ${priceStr}`,
+    title: `${product.title}${titleSuffix ? ` (${titleSuffix})` : ''} — купить, цена ${priceStr}`,
     description: desc,
     alternates: { canonical: `/catalog/${catSlug}/${productId}` },
     openGraph: {
@@ -87,10 +76,6 @@ export default async function ProductRoute({ params }: Props) {
   // 500-ошибки, и страница переиндексируется сама на следующий обход,
   // как только парсер досыплет данные обратно.
   if (!product || !cat || !product.variants?.length) {
-    const fallback = findProductAnywhere(catalog, productId)
-    if (fallback?.product.variants?.length) {
-      permanentRedirect(`/catalog/${fallback.cat.slug}/${productSlug(fallback.product.id)}`)
-    }
     notFound()
   }
 
@@ -123,7 +108,7 @@ export default async function ProductRoute({ params }: Props) {
 
   return (
     <>
-      <script {...jsonLdScriptProps(productSchema(product, cat, catSlug, productId))} />
+      <ProductJsonLd product={product} category={cat} catSlug={catSlug} productSlug={productId} />
       <script {...jsonLdScriptProps(breadcrumbs)} />
       <ProductPage
         product={product}
