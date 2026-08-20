@@ -16,6 +16,7 @@ import { DeliveryCountdown } from '@/components/product/DeliveryCountdown'
 import { AskKevPresets } from '@/components/product/AskKevPresets'
 import type { Product } from '@/types/catalog'
 import type { CrossSellProduct } from '@/lib/crossSell'
+import type { FaqItem } from '@/lib/productFaq'
 
 export type RelatedProduct = {
   id: string
@@ -32,9 +33,10 @@ interface Props {
   groupName: string
   otherProducts?: RelatedProduct[]
   crossSellProducts?: CrossSellProduct[]
+  faq?: FaqItem[]
 }
 
-export function ProductPage({ product, categorySlug, categoryName, groupSlug, groupName, otherProducts = [], crossSellProducts = [] }: Props) {
+export function ProductPage({ product, categorySlug, categoryName, groupSlug, groupName, otherProducts = [], crossSellProducts = [], faq = [] }: Props) {
   const { add } = useCart()
   const { openCart } = useUI()
   const [varIdx, setVarIdx] = useState(0)
@@ -47,6 +49,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
   const [callOpen, setCallOpen] = useState(false)
   const [callPhone, setCallPhone] = useState('')
   const [callSent, setCallSent] = useState(false)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   const v = product.variants[varIdx]
   const fp = Math.round(v.price * SALE_RATE)
@@ -314,6 +317,61 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
         <div className="prod-desc">
           <h2 className="prod-section-title">Описание</h2>
           <p className="mdesc">{product.description}</p>
+        </div>
+      )}
+
+      {/* Вопросы и ответы — универсальный блок, буквально соответствует FAQPage
+          schema в src/app/catalog/[catSlug]/[productId]/page.tsx (см. комментарий
+          в src/lib/productFaq.ts про требование Google/Яндекс к соответствию
+          видимого контента и разметки) */}
+      {faq.length > 0 && (
+        <div style={{ marginTop: 40 }}>
+          <h2 className="prod-section-title">Вопросы и ответы</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 16 }}>
+            {faq.map((item, i) => {
+              const isOpen = openFaq === i
+              return (
+                <div
+                  key={i}
+                  style={{
+                    background: 'var(--surface)',
+                    border: `1.5px solid ${isOpen ? 'rgba(126,204,154,.4)' : 'var(--border)'}`,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    transition: 'border-color .2s',
+                  }}
+                >
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : i)}
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'center',
+                      justifyContent: 'space-between', gap: 12,
+                      padding: '14px 18px', background: 'none', border: 'none',
+                      cursor: 'pointer', textAlign: 'left',
+                    }}
+                  >
+                    <span style={{ fontSize: 14.5, fontWeight: 600, color: 'var(--text)', lineHeight: 1.4, flex: 1 }}>
+                      {item.q}
+                    </span>
+                    <span style={{
+                      fontSize: 18, color: isOpen ? '#7ecc9a' : 'var(--muted)',
+                      transition: 'transform .25s, color .2s',
+                      transform: isOpen ? 'rotate(45deg)' : 'rotate(0deg)',
+                      flexShrink: 0, lineHeight: 1,
+                    }}>+</span>
+                  </button>
+                  <div style={{ maxHeight: isOpen ? 400 : 0, overflow: 'hidden', transition: 'max-height .3s cubic-bezier(0.4,0,0.2,1)' }}>
+                    <div style={{
+                      padding: '0 18px 16px', fontSize: 14, lineHeight: 1.7, color: 'var(--muted)',
+                      borderTop: '1px solid var(--border)', paddingTop: 12, marginTop: 0,
+                    }}>
+                      {item.a}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
 

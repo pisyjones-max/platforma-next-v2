@@ -3,8 +3,9 @@ import { getCatalog, findCategory } from '@/lib/catalog'
 import { findProductBySlug } from '@/lib/slug'
 import { getCrossSellProducts } from '@/lib/crossSell'
 import { imgUrl } from '@/lib/image'
-import { breadcrumbSchema, jsonLdScriptProps } from '@/lib/schema'
+import { breadcrumbSchema, faqSchema, jsonLdScriptProps } from '@/lib/schema'
 import { normalizeBrand } from '@/lib/brandAliases'
+import { getProductFaq } from '@/lib/productFaq'
 import { SALE_RATE } from '@/lib/constants'
 import { ProductPage } from '@/components/product/ProductPage'
 import { ProductJsonLd } from '@/components/product/ProductJsonLd'
@@ -106,10 +107,14 @@ export default async function ProductRoute({ params }: Props) {
     { name: product.title, url: `/catalog/${catSlug}/${productId}` },
   ])
 
+  const price = Math.round((product.variants[0]?.price ?? 0) * SALE_RATE)
+  const faq = getProductFaq(product, cat, price)
+
   return (
     <>
       <ProductJsonLd product={product} category={cat} catSlug={catSlug} productSlug={productId} />
       <script {...jsonLdScriptProps(breadcrumbs)} />
+      <script {...jsonLdScriptProps(faqSchema(faq))} />
       <ProductPage
         product={product}
         categorySlug={cat.slug}
@@ -118,6 +123,7 @@ export default async function ProductRoute({ params }: Props) {
         groupName={parent?.[1]?.name ?? ''}
         otherProducts={otherProducts}
         crossSellProducts={crossSellProducts}
+        faq={faq}
       />
     </>
   )
