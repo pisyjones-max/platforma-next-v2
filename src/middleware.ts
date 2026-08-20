@@ -42,6 +42,17 @@ function findProductAnywhere(catalog: Catalog, productId: string) {
 // /catalog/:catSlug/:productId — ровно 3 сегмента
 const PRODUCT_PATH = /^\/catalog\/([^/]+)\/([^/]+)\/?$/
 
+// Зарезервированные первые сегменты под /catalog/, которые НЕ являются
+// slug категории товаров — это отдельные роуты (/catalog/brand/[slug],
+// /catalog/group/[slug], см. src/app/catalog). Без этого исключения
+// PRODUCT_PATH ошибочно матчил, например, /catalog/brand/docke как
+// catSlug="brand" + productId="docke", не находил прямого совпадения и
+// улетал в findProductAnywhere() — а там мог найтись товар с id,
+// заканчивающимся на "-docke" (сайдинг, мембрана и т.д.), и страницу
+// бренда 301-редиректило на случайный товар вместо самой себя. Ни один
+// slug категории не совпадает с этими именами (проверено по catalog.json).
+const RESERVED_CATALOG_SEGMENTS = new Set(['brand', 'group'])
+
 export function middleware(request: NextRequest) {
   const host = request.headers.get('host') ?? ''
   const { pathname, search } = request.nextUrl
@@ -66,19 +77,21 @@ export function middleware(request: NextRequest) {
   const match = pathname.match(PRODUCT_PATH)
   if (match) {
     const [, catSlug, productId] = match
-    const catalog = loadCatalog()
-    if (catalog) {
-      const cat = catalog.categories.find(c => c.slug === catSlug)
-      const directHit = cat ? findProductBySlug(cat.products, productId) : undefined
-      if (!directHit || !directHit.variants?.length) {
-        const fallback = findProductAnywhere(catalog, productId)
-        if (fallback) {
-          const url = request.nextUrl.clone()
-          url.pathname = `/catalog/${fallback.cat.slug}/${productSlug(fallback.product.id)}`
-          return NextResponse.redirect(url, 301)
+    if (!RESERVED_CATALOG_SEGMENTS.has(catSlug)) {
+      const catalog = loadCatalog()
+      if (catalog) {
+        const cat = catalog.categories.find(c => c.slug === catSlug)
+        const directHit = cat ? findProductBySlug(cat.products, productId) : undefined
+        if (!directHit || !directHit.variants?.length) {
+          const fallback = findProductAnywhere(catalog, productId)
+          if (fallback) {
+            const url = request.nextUrl.clone()
+            url.pathname = `/catalog/${fallback.cat.slug}/${productSlug(fallback.product.id)}`
+            return NextResponse.redirect(url, 301)
+          }
+          // Ни прямого совпадения, ни где-либо ещё в каталоге — честный 404
+          // без промежуточных редиректов, отдаёт сама страница товара (notFound()).
         }
-        // Ни прямого совпадения, ни где-либо ещё в каталоге — честный 404
-        // без промежуточных редиректов, отдаёт сама страница товара (notFound()).
       }
     }
   }
