@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getCatalog } from '@/lib/catalog'
-import { findBrandBySlug, getBrandProducts, getBrandSeo } from '@/lib/brands'
-import { breadcrumbSchema, jsonLdScriptProps } from '@/lib/schema'
+import { findBrandBySlug, getBrandProducts, getBrandSeo, getBrandStats, getBrandFaq } from '@/lib/brands'
+import { breadcrumbSchema, faqSchema, jsonLdScriptProps } from '@/lib/schema'
 import { BrandPage } from '@/components/catalog/BrandPage'
 import type { Metadata } from 'next'
 
@@ -39,6 +39,8 @@ export default async function BrandRoutePage({ params }: Props) {
 
   const seo = getBrandSeo(brand.name, brand.count)
   const items = getBrandProducts(catalog, brand.name)
+  const stats = getBrandStats(catalog, brand.name)
+  const faq = getBrandFaq(brand.name, stats)
 
   const breadcrumbs = breadcrumbSchema([
     { name: 'Главная', url: '/' },
@@ -49,7 +51,8 @@ export default async function BrandRoutePage({ params }: Props) {
   return (
     <>
       <script {...jsonLdScriptProps(breadcrumbs)} />
-      <BrandPage brandName={brand.name} seo={seo} items={items} categoryFacets={brand.categories} />
+      <script {...jsonLdScriptProps(faqSchema(faq))} />
+      <BrandPage brandName={brand.name} seo={seo} items={items} categoryFacets={brand.categories} stats={stats} faq={faq} />
     </>
   )
 }

@@ -3,9 +3,9 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
 import { productSlug } from '@/lib/slug'
-import { DISC_LABEL } from '@/lib/constants'
+import { DISC_LABEL, PHONE_NUMBER } from '@/lib/constants'
 import type { Product, Category } from '@/types/catalog'
-import type { BrandSeo } from '@/lib/brands'
+import type { BrandSeo, BrandStats, BrandFaqItem } from '@/lib/brands'
 
 interface CategoryFacet {
   slug: string
@@ -18,13 +18,16 @@ interface Props {
   seo: BrandSeo
   items: { product: Product; category: Category }[]
   categoryFacets: CategoryFacet[]
+  stats?: BrandStats
+  faq?: BrandFaqItem[]
 }
 
-export function BrandPage({ brandName, seo, items, categoryFacets }: Props) {
+export function BrandPage({ brandName, seo, items, categoryFacets, stats, faq = [] }: Props) {
   const [selectedCats, setSelectedCats] = useState<string[]>([])
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<'default' | 'price_asc' | 'price_desc' | 'name'>('default')
   const [catModalOpen, setCatModalOpen] = useState(false)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   const toggleCat = (slug: string) => {
     setSelectedCats(s => (s.includes(slug) ? s.filter(x => x !== slug) : [...s, slug]))
@@ -72,6 +75,58 @@ export function BrandPage({ brandName, seo, items, categoryFacets }: Props) {
           <div className="hero-badge"><div className="hero-badge-val">{DISC_LABEL}</div><div className="hero-badge-lbl">скидка</div></div>
         </div>
       </div>
+
+      {/* О бренде: реальные факты из данных каталога (страна, гарантия) +
+          ручной текст про историю для брендов с прямым спросом в Wordstat
+          (см. src/lib/brands.ts BRAND_SEO). Факты показываются для ЛЮБОГО
+          бренда, где они есть в данных парсера — не только для топовых. */}
+      {(seo.about || (stats && (stats.countries.length > 0 || stats.warrantyMin !== null || stats.hasLifetimeWarranty))) && (
+        <div style={{
+          marginTop: 20, padding: '22px 26px', background: 'var(--surface)',
+          border: '1px solid var(--border)', borderRadius: 16,
+        }}>
+          <div style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 16, marginBottom: 10 }}>
+            О бренде {brandName}
+          </div>
+          {seo.about && (
+            <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, margin: seo.about ? '0 0 14px' : 0 }}>
+              {seo.about}
+            </p>
+          )}
+          {stats && (stats.countries.length > 0 || stats.warrantyMin !== null || stats.hasLifetimeWarranty) && (
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {stats.countries.length > 0 && (
+                <div style={{
+                  fontSize: 12.5, fontWeight: 500, background: 'var(--surface2)',
+                  border: '1px solid var(--border)', padding: '6px 12px', borderRadius: 20, color: 'var(--muted)',
+                }}>
+                  📍 Производство: {stats.countries.join(', ')}
+                </div>
+              )}
+              {(stats.warrantyMin !== null || stats.hasLifetimeWarranty) && (
+                <div style={{
+                  fontSize: 12.5, fontWeight: 500, background: 'var(--surface2)',
+                  border: '1px solid var(--border)', padding: '6px 12px', borderRadius: 20, color: 'var(--muted)',
+                }}>
+                  ✅ Гарантия: {stats.warrantyMin !== null
+                    ? (stats.warrantyMin === stats.warrantyMax ? `${stats.warrantyMin} лет` : `${stats.warrantyMin}–${stats.warrantyMax} лет`)
+                    : ''}
+                  {stats.warrantyMin !== null && stats.hasLifetimeWarranty ? ', на часть коллекций — пожизненная' : ''}
+                  {stats.warrantyMin === null && stats.hasLifetimeWarranty ? 'пожизненная (по отдельным коллекциям)' : ''}
+                </div>
+              )}
+              {stats.colorWarrantyMin !== null && (
+                <div style={{
+                  fontSize: 12.5, fontWeight: 500, background: 'var(--surface2)',
+                  border: '1px solid var(--border)', padding: '6px 12px', borderRadius: 20, color: 'var(--muted)',
+                }}>
+                  🎨 Гарантия на цвет: {stats.colorWarrantyMin === stats.colorWarrantyMax ? `${stats.colorWarrantyMin} лет` : `${stats.colorWarrantyMin}–${stats.colorWarrantyMax} лет`}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="fbar">
         <input
@@ -184,6 +239,80 @@ export function BrandPage({ brandName, seo, items, categoryFacets }: Props) {
           </div>
         </div>
       </div>
+
+      {faq.length > 0 && (
+        <div style={{ marginTop: 48 }}>
+          <h2 style={{ fontFamily: 'var(--fh)', fontSize: 20, fontWeight: 800, margin: '0 0 16px' }}>
+            Вопросы про {brandName}
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {faq.map((item, i) => {
+              const isOpen = openFaq === i
+              return (
+                <div
+                  key={i}
+                  style={{
+                    background: 'var(--surface)',
+                    border: `1.5px solid ${isOpen ? 'rgba(126,204,154,.4)' : 'var(--border)'}`,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    transition: 'border-color .2s',
+                  }}
+                >
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : i)}
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'center',
+                      justifyContent: 'space-between', gap: 12,
+                      padding: '16px 20px', background: 'none', border: 'none',
+                      cursor: 'pointer', textAlign: 'left',
+                    }}
+                  >
+                    <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', lineHeight: 1.4, flex: 1 }}>
+                      {item.q}
+                    </span>
+                    <span style={{
+                      fontSize: 18, color: isOpen ? '#7ecc9a' : 'var(--muted)',
+                      transition: 'transform .25s, color .2s',
+                      transform: isOpen ? 'rotate(45deg)' : 'rotate(0deg)',
+                      flexShrink: 0, lineHeight: 1,
+                    }}>+</span>
+                  </button>
+                  <div style={{ maxHeight: isOpen ? 400 : 0, overflow: 'hidden', transition: 'max-height .3s cubic-bezier(0.4,0,0.2,1)' }}>
+                    <div style={{
+                      padding: '0 20px 18px', fontSize: 14.5, lineHeight: 1.75, color: 'var(--muted)',
+                      borderTop: '1px solid var(--border)', paddingTop: 14, marginTop: 0,
+                    }}>
+                      {item.a}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <div style={{
+            marginTop: 16, padding: '16px 20px', background: 'rgba(126,204,154,.08)',
+            border: '1px solid rgba(126,204,154,.25)', borderRadius: 14,
+            display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap',
+          }}>
+            <span style={{ fontSize: 26 }}>🛠️</span>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 3 }}>Гарантийный случай по {brandName}?</div>
+              <div style={{ fontSize: 14, color: 'var(--muted)' }}>Поможем оформить обращение к производителю — позвоните.</div>
+            </div>
+            <a
+              href={`tel:${PHONE_NUMBER.replace(/[^\d+]/g, '')}`}
+              style={{
+                padding: '11px 20px', background: 'linear-gradient(135deg, #7ecc9a, #4caf70)',
+                borderRadius: 10, color: '#0d1f14', fontWeight: 800, fontSize: 14.5,
+                textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
+              }}
+            >
+              📞 {PHONE_NUMBER}
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
