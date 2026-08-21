@@ -1244,13 +1244,63 @@ html, body { height: 100%; }
 body { display: flex; flex-direction: column; min-height: 100vh; }
 body > * { flex-shrink: 0; }
 
+/* ══ МОБИЛЬНОЕ МЕНЮ (бургер) ═══════════════════════════════════════════════ */
+.mmenu-toggle { display: none; }
+
+.mmenu-overlay {
+  position: fixed; inset: 0; z-index: 610;
+  background: rgba(0,0,0,.45);
+  animation: fadeIn .15s ease;
+}
+.mmenu-panel {
+  position: fixed; right: 0; top: 0; bottom: 0; z-index: 611;
+  width: min(300px, 84vw); background: var(--dark); color: #fff;
+  display: flex; flex-direction: column;
+  box-shadow: -12px 0 48px rgba(0,0,0,.3);
+  animation: sldIn .22s ease;
+  padding: 16px;
+  overflow-y: auto;
+}
+.mmenu-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.mmenu-close {
+  background: rgba(255,255,255,.1); border: none; color: #fff;
+  width: 32px; height: 32px; border-radius: 50%; font-size: 15px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  flex-shrink: 0;
+}
+.mmenu-close:hover { background: rgba(255,255,255,.2); }
+
+.mmenu-nav { display: flex; flex-direction: column; gap: 2px; }
+.mmenu-nav a {
+  padding: 12px 10px; border-radius: 8px; font-size: 15px; font-weight: 500;
+  color: rgba(255,255,255,.85); transition: background .15s;
+}
+.mmenu-nav a:hover, .mmenu-nav a:active { background: rgba(255,255,255,.08); color: #fff; }
+
+.mmenu-divider { height: 1px; background: rgba(255,255,255,.1); margin: 14px 0; }
+
+.mmenu-actions { display: flex; flex-direction: column; gap: 2px; }
+.mmenu-actions button, .mmenu-actions a {
+  display: flex; align-items: center; gap: 8px; text-align: left;
+  padding: 12px 10px; border-radius: 8px; font-size: 14.5px; font-weight: 500;
+  color: rgba(255,255,255,.85); background: none; border: none; cursor: pointer;
+  font-family: var(--fb); transition: background .15s;
+}
+.mmenu-actions button:hover, .mmenu-actions a:hover { background: rgba(255,255,255,.08); color: #fff; }
+
+.mmenu-phone {
+  margin-top: auto; padding-top: 16px; text-align: center;
+  color: #7ECC9A; font-weight: 700; font-size: 18px;
+}
+
 /* ══ МОБИЛЬНАЯ ШАПКА ════════════════════════════════════════════════════════ */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   #hdr { padding: 0 12px; gap: 8px; }
   #hdr nav { display: none; }
   .hbts { gap: 4px; }
-  /* скрываем лишние кнопки на совсем маленьких экранах */
-  .hbts a[href*="yandex"], .hbts a[href*="t.me"] { display: none; }
+  /* лишние кнопки уезжают в бургер-меню, чтобы шапка не переполнялась */
+  .hbt-quick, .hdr-phone { display: none; }
+  .mmenu-toggle { display: flex; }
 }
 
 /* ══ TOAST АНИМАЦИЯ ══════════════════════════════════════════════════════════ */

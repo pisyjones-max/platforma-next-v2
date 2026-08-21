@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
@@ -20,12 +21,13 @@ const YANDEX_MAPS_URL = 'https://yandex.ru/maps/?text=Новохаритонов
 export function Header() {
   const { count } = useCart()
   const { openCart, openLoyalty, openConsult } = useUI()
+  const [mmOpen, setMmOpen] = useState(false)
 
   return (
     <header id="hdr">
       <Link href="/" className="logo">PLAT<em>FORMA</em></Link>
 
-      <nav style={{ display: 'flex', gap: 4, marginLeft: 16 }}>
+      <nav style={{ display: 'flex', gap: 4, marginLeft: 16 }} className="hdr-nav">
         {NAV.map(n => (
           <Link key={n.href} href={n.href} style={{
             padding: '0 12px', height: 34, display: 'flex', alignItems: 'center',
@@ -43,8 +45,8 @@ export function Header() {
       <SearchBox />
 
       <div className="hbts">
-        {/* Карта лояльности */}
-        <button onClick={openLoyalty} style={{
+        {/* Карта лояльности — на мобиле уезжает в бургер-меню */}
+        <button onClick={openLoyalty} className="hbt-quick" style={{
           display: 'flex', alignItems: 'center', gap: 6, padding: '0 11px', height: 34,
           borderRadius: 8, background: 'rgba(200,150,12,.15)', border: '1px solid rgba(200,150,12,.3)',
           color: '#C8960C', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .15s',
@@ -57,7 +59,7 @@ export function Header() {
         </button>
 
         {/* Вызов специалиста */}
-        <button onClick={openConsult} style={{
+        <button onClick={openConsult} className="hbt-quick" style={{
           display: 'flex', alignItems: 'center', gap: 6, padding: '0 11px', height: 34,
           borderRadius: 8, background: 'rgba(255,255,255,.1)', border: 'none',
           color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all .15s',
@@ -70,7 +72,7 @@ export function Header() {
         </button>
 
         {/* Яндекс Карты */}
-        <a href={YANDEX_MAPS_URL} target="_blank" rel="noopener noreferrer" style={{
+        <a href={YANDEX_MAPS_URL} target="_blank" rel="noopener noreferrer" className="hbt-quick" style={{
           display: 'flex', alignItems: 'center', gap: 5, padding: '0 11px', height: 34,
           borderRadius: 8, background: 'rgba(255,255,255,.1)',
           color: '#fff', fontSize: 13, fontWeight: 500, textDecoration: 'none', transition: 'background .15s',
@@ -83,7 +85,7 @@ export function Header() {
         </a>
 
         {/* Telegram */}
-        <a href="https://t.me/platforma_roof" target="_blank" rel="noopener noreferrer" style={{
+        <a href="https://t.me/platforma_roof" target="_blank" rel="noopener noreferrer" className="hbt-quick" style={{
           display: 'flex', alignItems: 'center', gap: 6, padding: '0 11px', height: 34,
           borderRadius: 8, background: 'rgba(255,255,255,.1)', color: '#fff',
           fontSize: 13, fontWeight: 500, textDecoration: 'none', transition: 'background .15s',
@@ -95,7 +97,7 @@ export function Header() {
           💬 TG
         </a>
 
-        <a href={`tel:${PHONE_NUMBER}`} style={{
+        <a href={`tel:${PHONE_NUMBER}`} className="hdr-phone" style={{
           color: '#7ECC9A', fontWeight: 700, fontSize: 15,
           textDecoration: 'none', whiteSpace: 'nowrap', padding: '0 8px',
         }}>
@@ -110,7 +112,58 @@ export function Header() {
           </svg>
           {count > 0 && <span className="cbadge">{count}</span>}
         </button>
+
+        {/* Бургер — виден только на мобильных */}
+        <button className="hbt mmenu-toggle" onClick={() => setMmOpen(true)} aria-label="Меню">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
       </div>
+
+      {/* Мобильное меню (бургер) */}
+      {mmOpen && (
+        <>
+          <div className="mmenu-overlay" onClick={() => setMmOpen(false)} />
+          <div className="mmenu-panel" role="dialog" aria-modal="true">
+            <div className="mmenu-hdr">
+              <span className="logo">PLAT<em>FORMA</em></span>
+              <button className="mmenu-close" onClick={() => setMmOpen(false)} aria-label="Закрыть">✕</button>
+            </div>
+
+            <nav className="mmenu-nav">
+              {NAV.map(n => (
+                <Link key={n.href} href={n.href} onClick={() => setMmOpen(false)}>
+                  {n.label}
+                </Link>
+              ))}
+            </nav>
+
+            <div className="mmenu-divider" />
+
+            <div className="mmenu-actions">
+              <button onClick={() => { setMmOpen(false); openLoyalty() }}>
+                💳 Карта лояльности
+              </button>
+              <button onClick={() => { setMmOpen(false); openConsult() }}>
+                🔧 Вызвать замерщика
+              </button>
+              <a href={YANDEX_MAPS_URL} target="_blank" rel="noopener noreferrer" onClick={() => setMmOpen(false)}>
+                📍 Адрес на карте
+              </a>
+              <a href="https://t.me/platforma_roof" target="_blank" rel="noopener noreferrer" onClick={() => setMmOpen(false)}>
+                💬 Написать в Telegram
+              </a>
+            </div>
+
+            <a href={`tel:${PHONE_NUMBER}`} className="mmenu-phone" onClick={() => setMmOpen(false)}>
+              {PHONE_NUMBER}
+            </a>
+          </div>
+        </>
+      )}
     </header>
   )
 }
