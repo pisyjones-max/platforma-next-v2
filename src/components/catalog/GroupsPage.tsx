@@ -7,12 +7,28 @@ import { DesignPromoBanner } from '@/components/design/DesignPromoBanner'
 import { PriceMatchBanner } from '@/components/pricematch/PriceMatchBanner'
 
 const GROUP_ICONS: Record<string, string> = {
-  krovlya:       '🏠',
-  izolyatsiya:   '🧱',
-  fasad:         '🏗️',
-  vodostoki:     '🌧️',
-  krepezhnyye:   '🔩',
-  aksessuary:    '🛠️',
+  'krovlya':                 '🏠',
+  'sayding':                 '🧩',
+  'fasadnye-materialy':      '🏗️',
+  'vodostoki':               '🌧️',
+  'drenazh':                 '💧',
+  'terrasnaya-doska-dpk':    '🪵',
+  'izolyatsiya':             '🧱',
+  'mansardnye-okna':         '🪟',
+  'cherdachnye-lestnitsy':   '🪜',
+  'ventilyatsiya-krovli':    '💨',
+  'krovli':                  '🔧',
+  'drevesno-plitnye-materialy': '📐',
+  'snegozaderzhateli':       '❄️',
+  'bezopasnost-krovli':      '🦺',
+  'zabory':                  '🚧',
+  'krepezh':                 '🔩',
+  'dymohody':                '🏭',
+  'himiya':                  '🧪',
+  'floor':                   '🟫',
+  'kozyrek-iz-polikarbonata': '☂️',
+  'blagoustroystvo':         '🌳',
+  'suhie-smesi':             '🪣',
 }
 
 type GroupSummary = { name: string; categoriesCount: number }

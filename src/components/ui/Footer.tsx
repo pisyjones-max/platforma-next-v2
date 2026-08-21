@@ -74,10 +74,10 @@ export function Footer() {
               { href: '/catalog', label: 'Все категории' },
               { href: '/fasad/fasad-doma', label: 'Фасад дома' },
               { href: '/fasad/sajding', label: 'Сайдинг' },
+              { href: '/catalog/group/krovlya', label: 'Кровля' },
               { href: '/catalog/brand', label: 'Бренды' },
-              { href: '/catalog/metallocherepica', label: 'Металлочерепица' },
+              { href: '/catalog/metallocherepitsa', label: 'Металлочерепица' },
               { href: '/catalog/profnastil', label: 'Профнастил' },
-              { href: '/catalog/krovelnye-materialy', label: 'Кровельные материалы' },
             ].map(l => (
               <Link key={l.href} href={l.href} style={{ display: 'block', fontSize: 13, marginBottom: 6, color: 'rgba(255,255,255,.6)', textDecoration: 'none' }}>
                 {l.label}
