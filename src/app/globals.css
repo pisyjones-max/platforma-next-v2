@@ -1299,7 +1299,7 @@ body > * { flex-shrink: 0; }
 /* ══ МОБИЛЬНАЯ ШАПКА ════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
   #hdr { padding: 0 12px; gap: 8px; }
-  #hdr nav { display: none; }
+  #hdr .hdr-nav { display: none; }
   .hbts { gap: 4px; }
   /* лишние кнопки уезжают в бургер-меню, чтобы шапка не переполнялась */
   .hbt-quick, .hdr-phone { display: none; }
