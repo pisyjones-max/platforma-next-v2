@@ -1,6 +1,6 @@
 import { SITE_URL } from '@/lib/site'
 import { organizationSchema, websiteSchema, jsonLdScriptProps } from '@/lib/schema'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import { Unbounded, Geologica } from 'next/font/google'
 import { CartProvider } from '@/context/CartContext'
@@ -89,6 +89,11 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
