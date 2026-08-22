@@ -56,6 +56,8 @@ input, select, textarea { font-family: var(--fb); }
 .logo { font-family: var(--fh); font-size: 17px; font-weight: 700; color: #fff; white-space: nowrap; flex-shrink: 0; }
 .logo em { color: #7ECC9A; font-style: normal; }
 
+.hdr-nav { display: flex; }
+
 /* Поиск */
 #srchwrap { flex: 1; max-width: 480px; position: relative; }
 #srch {

@@ -27,7 +27,7 @@ export function Header() {
     <header id="hdr">
       <Link href="/" className="logo">PLAT<em>FORMA</em></Link>
 
-      <nav style={{ display: 'flex', gap: 4, marginLeft: 16 }} className="hdr-nav">
+      <nav style={{ gap: 4, marginLeft: 16 }} className="hdr-nav">
         {NAV.map(n => (
           <Link key={n.href} href={n.href} style={{
             padding: '0 12px', height: 34, display: 'flex', alignItems: 'center',
