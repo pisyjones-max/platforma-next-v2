@@ -8,7 +8,7 @@ import { findProduct } from '@/lib/catalog'
 import { DISC_LABEL } from '@/lib/constants'
 import { getBrandFacets } from '@/lib/brandAliases'
 import { productSlug } from '@/lib/slug'
-import type { Category } from '@/types/catalog'
+import type { Category, Product } from '@/types/catalog'
 
 interface Props {
   category: Category
@@ -20,11 +20,42 @@ interface Props {
 }
 
 export function CategoryPage({ category, parentGroup, totalCount, page = 1, totalPages = 1, catSlug }: Props) {
-  const { filters, setFilters, search, setSearch, filtered, reset } = useFilters(category.products)
+  // Товары накапливаются в state по мере "Загрузить ещё" — первая порция
+  // приходит с сервера (SSR, для краулера и первого отображения), следующие
+  // подгружаются через /api/catalog/[catSlug]/page/[page] без перезагрузки.
+  // Инициализируется из серверных props только один раз при монтировании.
+  // При переходе на другую категорию или напрямую на другой ?page=N родитель
+  // (src/app/catalog/[catSlug]/page.tsx) монтирует CategoryPage заново с
+  // key={`${catSlug}-${page}`} — так state гарантированно пересоздаётся под
+  // новый URL, без лишнего useEffect с синхронным setState.
+  const [products, setProducts] = useState<Product[]>(category.products)
+  const [loadedPage, setLoadedPage] = useState(page)
+  const [hasMore, setHasMore] = useState(page < totalPages)
+  const [loadingMore, setLoadingMore] = useState(false)
+
+  const loadMore = async () => {
+    if (loadingMore || !hasMore || !catSlug) return
+    setLoadingMore(true)
+    try {
+      const nextPage = loadedPage + 1
+      const res = await fetch(`/api/catalog/${catSlug}/page/${nextPage}`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data: { products: Product[]; hasMore: boolean } = await res.json()
+      setProducts(prev => [...prev, ...data.products])
+      setLoadedPage(nextPage)
+      setHasMore(data.hasMore)
+    } catch (e) {
+      console.error('[CategoryPage] Не удалось подгрузить товары:', e)
+    } finally {
+      setLoadingMore(false)
+    }
+  }
+
+  const { filters, setFilters, search, setSearch, filtered, reset } = useFilters(products)
   const [brandModalOpen, setBrandModalOpen] = useState(false)
 
-  // Счётчики по брендам считаются только по товарам текущей категории
-  const brandFacets = useMemo(() => getBrandFacets(category.products), [category.products])
+  // Счётчики по брендам считаются по уже подгруженным товарам категории
+  const brandFacets = useMemo(() => getBrandFacets(products), [products])
 
   const toggleBrand = (name: string) => {
     setFilters(f => ({
@@ -148,33 +179,33 @@ export function CategoryPage({ category, parentGroup, totalCount, page = 1, tota
             )}
           </div>
           )}
-          {/* Настоящие ссылки ?page=N (не onClick/state) — краулер должен
-              дойти до всех страниц пагинации и увидеть их как отдельные
+          {/* "Загрузить ещё" — прогрессивное улучшение поверх обычной
+              постраничной ссылки ?page=N. Ссылка настоящая (href на реальный
+              /catalog/[catSlug]?page=N), поэтому краулер без JS просто перейдёт
+              по ней на следующую SSR-страницу и увидит её как самостоятельный
               200 OK URL с уникальным title/description (см. generateMetadata
-              в src/app/catalog/[catSlug]/page.tsx). */}
+              в src/app/catalog/[catSlug]/page.tsx) — это и есть та самая
+              цепочка canonical/пагинации, которая нужна для индексации.
+              У пользователя с включённым JS клик перехватывается и товары
+              подгружаются на этой же странице без перезагрузки. */}
           {totalPages > 1 && catSlug && (
-            <nav aria-label="Пагинация" style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 28, flexWrap: 'wrap' }}>
-              {page > 1 && (
-                <Link className="btn-sm" href={page - 1 === 1 ? `/catalog/${catSlug}` : `/catalog/${catSlug}?page=${page - 1}`}>
-                  ← Назад
-                </Link>
-              )}
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginTop: 28 }}>
+              {hasMore ? (
                 <Link
-                  key={n}
-                  className={`btn-sm ${n === page ? 'active' : ''}`}
-                  href={n === 1 ? `/catalog/${catSlug}` : `/catalog/${catSlug}?page=${n}`}
-                  aria-current={n === page ? 'page' : undefined}
+                  href={`/catalog/${catSlug}?page=${loadedPage + 1}`}
+                  className="btn-sm primary"
+                  style={{ padding: '11px 28px', opacity: loadingMore ? 0.6 : 1, pointerEvents: loadingMore ? 'none' : undefined }}
+                  onClick={e => { e.preventDefault(); loadMore() }}
+                  aria-busy={loadingMore}
                 >
-                  {n}
+                  {loadingMore ? 'Загружаем…' : 'Загрузить ещё'}
                 </Link>
-              ))}
-              {page < totalPages && (
-                <Link className="btn-sm" href={`/catalog/${catSlug}?page=${page + 1}`}>
-                  Вперёд →
-                </Link>
+              ) : (
+                <span style={{ color: 'var(--muted)', fontSize: 13.5 }}>
+                  Показаны все {totalCount ?? products.length} товаров
+                </span>
               )}
-            </nav>
+            </div>
           )}
         </div>
       </div>

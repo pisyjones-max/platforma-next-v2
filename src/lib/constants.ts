@@ -1,3 +1,4 @@
+export const PAGE_SIZE       = 24           // товаров на странице категории (SSR-пагинация и "Загрузить ещё")
 export const SALE_RATE      = 0.99          // наша цена = цена конкурента × 0.99
 export const DISC_LABEL     = '−17%'        // маркетинговая скидка на бейдже
 export const CASHBACK_RATE  = 0.005

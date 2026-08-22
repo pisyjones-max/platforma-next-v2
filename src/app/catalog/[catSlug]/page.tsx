@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getCatalog, findCategory, getParentGroup } from '@/lib/catalog'
 import { breadcrumbSchema, jsonLdScriptProps } from '@/lib/schema'
-import { SALE_RATE } from '@/lib/constants'
+import { SALE_RATE, PAGE_SIZE } from '@/lib/constants'
 import { CategoryPage } from '@/components/catalog/CategoryPage'
 import type { Metadata } from 'next'
 
@@ -9,8 +9,6 @@ import type { Metadata } from 'next'
 // эта настройка даёт странице подхватывать свежие цены раз в 10 минут без
 // пересборки и рестарта сайта.
 export const revalidate = 600
-
-export const PAGE_SIZE = 24
 
 interface Props {
   params: Promise<{ catSlug: string }>
@@ -102,6 +100,10 @@ export default async function CatalogCategoryPage({ params, searchParams }: Prop
     <>
       <script {...jsonLdScriptProps(breadcrumbs)} />
       <CategoryPage
+        // key заставляет React пересоздать состояние "Загрузить ещё" при
+        // переходе на другую категорию или на другой ?page=N напрямую по
+        // ссылке — иначе накопленные ранее товары остались бы в state.
+        key={`${catSlug}-${page}`}
         category={{ ...cat, products: pageProducts }}
         parentGroup={parent}
         totalCount={cat.products.length}
