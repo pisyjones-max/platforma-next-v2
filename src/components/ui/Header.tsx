@@ -47,7 +47,7 @@ export function Header() {
       <div className="hbts">
         {/* Карта лояльности — на мобиле уезжает в бургер-меню */}
         <button onClick={openLoyalty} className="hbt-quick" style={{
-          display: 'flex', alignItems: 'center', gap: 6, padding: '0 11px', height: 34,
+          gap: 6, padding: '0 11px', height: 34,
           borderRadius: 8, background: 'rgba(200,150,12,.15)', border: '1px solid rgba(200,150,12,.3)',
           color: '#C8960C', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .15s',
           whiteSpace: 'nowrap',
@@ -60,7 +60,7 @@ export function Header() {
 
         {/* Вызов специалиста */}
         <button onClick={openConsult} className="hbt-quick" style={{
-          display: 'flex', alignItems: 'center', gap: 6, padding: '0 11px', height: 34,
+          gap: 6, padding: '0 11px', height: 34,
           borderRadius: 8, background: 'rgba(255,255,255,.1)', border: 'none',
           color: '#fff', fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all .15s',
           whiteSpace: 'nowrap',
@@ -73,7 +73,7 @@ export function Header() {
 
         {/* Яндекс Карты */}
         <a href={YANDEX_MAPS_URL} target="_blank" rel="noopener noreferrer" className="hbt-quick" style={{
-          display: 'flex', alignItems: 'center', gap: 5, padding: '0 11px', height: 34,
+          gap: 5, padding: '0 11px', height: 34,
           borderRadius: 8, background: 'rgba(255,255,255,.1)',
           color: '#fff', fontSize: 13, fontWeight: 500, textDecoration: 'none', transition: 'background .15s',
           whiteSpace: 'nowrap',
@@ -86,7 +86,7 @@ export function Header() {
 
         {/* Telegram */}
         <a href="https://t.me/platforma_roof" target="_blank" rel="noopener noreferrer" className="hbt-quick" style={{
-          display: 'flex', alignItems: 'center', gap: 6, padding: '0 11px', height: 34,
+          gap: 6, padding: '0 11px', height: 34,
           borderRadius: 8, background: 'rgba(255,255,255,.1)', color: '#fff',
           fontSize: 13, fontWeight: 500, textDecoration: 'none', transition: 'background .15s',
           whiteSpace: 'nowrap',
