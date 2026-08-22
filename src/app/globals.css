@@ -57,6 +57,7 @@ input, select, textarea { font-family: var(--fb); }
 .logo em { color: #7ECC9A; font-style: normal; }
 
 .hdr-nav { display: flex; }
+.hbt-quick { display: flex; align-items: center; }
 
 /* Поиск */
 #srchwrap { flex: 1; max-width: 480px; position: relative; }
