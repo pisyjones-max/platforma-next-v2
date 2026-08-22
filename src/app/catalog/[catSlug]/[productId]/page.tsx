@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getCatalog, findCategory } from '@/lib/catalog'
+import { getCatalog, findCategory, getCanonicalCategorySlug } from '@/lib/catalog'
 import { findProductBySlug } from '@/lib/slug'
 import { getCrossSellProducts } from '@/lib/crossSell'
 import { imgUrl } from '@/lib/image'
@@ -54,7 +54,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${product.title}${titleSuffix ? ` (${titleSuffix})` : ''} — купить, цена ${priceStr}`,
     description: desc,
-    alternates: { canonical: `/catalog/${catSlug}/${productId}` },
+    // Товар может лежать сразу в нескольких категориях каталога (см.
+    // getCanonicalCategorySlug) — canonical всегда указывает на единственную
+    // "истинную" версию страницы, даже если открыта дублирующая категория.
+    alternates: {
+      canonical: `/catalog/${getCanonicalCategorySlug(catalog, product, catSlug)}/${productId}`,
+    },
     openGraph: {
       title: `${product.title} — PLATFORMA`,
       description: `Цена ${priceStr}. Скидка −17%. Доставка по Московской области.`,

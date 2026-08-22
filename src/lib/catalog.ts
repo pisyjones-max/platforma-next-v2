@@ -86,3 +86,72 @@ export function getParentGroup(cat: Catalog, catSlug: string) {
   )
   return entry ? { slug: entry[0], group: entry[1] } : null
 }
+
+// ~19% товаров (917 из 4918 на момент диагностики) присутствуют сразу в
+// нескольких категориях каталога (например, профнастил лежит и в
+// "profnastil", и в "profnastil-dlya-zabora") — это следствие того, как
+// парсер раскладывает товары по SUBCATEGORY_MAP на mk4s.ru. Каждая такая
+// категория раньше рендерила ПОЛНОСТЬЮ идентичную карточку товара по
+// собственному URL с self-referencing canonical (canonical = сам на себя).
+// Для Яндекса это чистый дубль контента: 21.08.2026 Вебмастер массово
+// исключил 154 такие страницы с вердиктом "малоценная страница", потому что
+// не мог понять, какая из копий главная.
+//
+// Решение: у каждого id товара считаем ЕДИНУЮ каноническую категорию и
+// используем её в canonical на ВСЕХ дублирующих URL — сами страницы
+// остаются доступны (это ок для навигации по каждой категории), но
+// поисковику явно говорим, какая версия основная.
+//
+// Правило выбора канонической категории:
+// 1. Если второй сегмент id (id вида "группа--категория--бренд--слаг")
+//    совпадает с одной из категорий, где встречается товар — это и есть
+//    исходная категория парсера, берём её (покрывает 797 из 917 случаев).
+// 2. Иначе — берём первую категорию по порядку в catalog.json (стабильно,
+//    т.к. порядок задаётся ночным парсером и не меняется хаотично).
+let canonicalCategoryCache: Map<string, string> | null = null
+let canonicalCategoryCacheMtimeMs = -1
+
+function buildCanonicalCategoryMap(cat: Catalog): Map<string, string> {
+  const idToSlugs = new Map<string, string[]>()
+  for (const c of cat.categories) {
+    for (const p of c.products) {
+      const slugs = idToSlugs.get(p.id)
+      if (slugs) slugs.push(c.slug)
+      else idToSlugs.set(p.id, [c.slug])
+    }
+  }
+
+  const result = new Map<string, string>()
+  for (const [id, slugs] of idToSlugs) {
+    if (slugs.length === 1) {
+      result.set(id, slugs[0])
+      continue
+    }
+    const idCategorySegment = id.split('--')[1]
+    const canonical =
+      idCategorySegment && slugs.includes(idCategorySegment) ? idCategorySegment : slugs[0]
+    result.set(id, canonical)
+  }
+  return result
+}
+
+/**
+ * Возвращает slug единственной "канонической" категории для товара —
+ * используется для <link rel="canonical"> на странице товара, чтобы
+ * задублированные по нескольким категориям товары не считались поисковиком
+ * дублями контента. См. комментарий выше.
+ *
+ * fallbackCatSlug используется только если товар почему-то не нашёлся в
+ * карте (не должно происходить в норме) — тогда просто не меняем текущий URL.
+ */
+export function getCanonicalCategorySlug(
+  cat: Catalog,
+  product: Product,
+  fallbackCatSlug: string
+): string {
+  if (!canonicalCategoryCache || canonicalCategoryCacheMtimeMs !== cachedMtimeMs) {
+    canonicalCategoryCache = buildCanonicalCategoryMap(cat)
+    canonicalCategoryCacheMtimeMs = cachedMtimeMs
+  }
+  return canonicalCategoryCache.get(product.id) ?? fallbackCatSlug
+}
