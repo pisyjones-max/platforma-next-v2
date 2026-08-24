@@ -109,6 +109,9 @@ export function Footer() {
             <Link href="/delivery" style={{ display: 'block', fontSize: 13, marginBottom: 6, color: 'rgba(255,255,255,.6)', textDecoration: 'none' }}>
               🚚 Доставка и оплата
             </Link>
+            <Link href="/blog" style={{ display: 'block', fontSize: 13, marginBottom: 6, color: 'rgba(255,255,255,.6)', textDecoration: 'none' }}>
+              📰 Блог
+            </Link>
             <Link href="/privacy" style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,.6)', textDecoration: 'none' }}>
               🔒 Политика данных (ФЗ-152)
             </Link>

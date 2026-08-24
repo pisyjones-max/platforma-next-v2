@@ -11,6 +11,7 @@ const NAV = [
   { href: '/fasad/fasad-doma', label: 'Фасад дома' },
   { href: '/fasad/sajding', label: 'Сайдинг' },
   { href: '/catalog/group/krovlya', label: 'Кровля' },
+  { href: '/blog', label: 'Блог' },
   { href: '/delivery', label: 'Доставка' },
   { href: '/deshevle-konkurentov', label: 'Дешевле' },
   { href: '/about', label: 'О компании' },
