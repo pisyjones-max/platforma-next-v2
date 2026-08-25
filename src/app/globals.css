@@ -1579,8 +1579,9 @@ main { flex: 1; }
   border: 1px solid rgba(255,255,255,.08);
 }
 .price-promo-badge {
-  position: absolute; top: 14px; right: 18px; font-size: 12px; font-weight: 700;
+  display: inline-block; font-size: 12px; font-weight: 700;
   background: rgba(255,255,255,.14); padding: 4px 10px; border-radius: 20px;
+  margin-bottom: 10px;
 }
 .price-promo-body { flex: 1; min-width: 0; }
 .price-promo-title { font-family: var(--fh); font-size: 17px; font-weight: 800; margin-bottom: 6px; }
@@ -1591,7 +1592,6 @@ main { flex: 1; }
 }
 @media (max-width: 720px) {
   .price-promo { flex-direction: column; align-items: flex-start; padding: 20px; }
-  .price-promo-badge { top: 16px; right: 16px; }
   .price-promo-cta { width: 100%; text-align: center; }
 }
 

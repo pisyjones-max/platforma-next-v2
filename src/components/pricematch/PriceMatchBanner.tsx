@@ -5,8 +5,8 @@ import Link from 'next/link'
 export function PriceMatchBanner() {
   return (
     <Link href="/deshevle-konkurentov" className="price-promo">
-      <div className="price-promo-badge">💰 Предложим цену ниже</div>
       <div className="price-promo-body">
+        <div className="price-promo-badge">💰 Предложим цену ниже</div>
         <div className="price-promo-title">
           Нашли дешевле у другого поставщика? Посмотрим и предложим цену ниже
         </div>
