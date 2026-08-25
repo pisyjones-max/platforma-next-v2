@@ -373,6 +373,28 @@ input, select, textarea { font-family: var(--fb); }
 }
 .gcard:hover .gcard-arrow { transform: translateX(4px); color: var(--accent); }
 
+/* Карточка бренда — логотип сверху вместо декоративного фона */
+.gcard-brand-logo {
+  height: 72px;
+  padding: 16px 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+}
+img.gcard-brand-logo {
+  object-fit: contain;
+  width: auto;
+}
+.gcard-brand-logo-fallback {
+  font-family: var(--fh);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--dark);
+  text-align: center;
+  padding: 16px 12px 0;
+}
+
 /* ══ МОДАЛКА ТОВАРА ════════════════════════════════════════════════════════ */
 .moverlay {
   position: fixed; inset: 0; z-index: 200;

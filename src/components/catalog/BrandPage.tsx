@@ -20,9 +20,10 @@ interface Props {
   categoryFacets: CategoryFacet[]
   stats?: BrandStats
   faq?: BrandFaqItem[]
+  logoUrl?: string
 }
 
-export function BrandPage({ brandName, seo, items, categoryFacets, stats, faq = [] }: Props) {
+export function BrandPage({ brandName, seo, items, categoryFacets, stats, faq = [], logoUrl }: Props) {
   const [selectedCats, setSelectedCats] = useState<string[]>([])
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<'default' | 'price_asc' | 'price_desc' | 'name'>('default')
@@ -67,6 +68,10 @@ export function BrandPage({ brandName, seo, items, categoryFacets, stats, faq = 
 
       <div className="hero">
         <div>
+          {logoUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt={brandName} style={{ maxHeight: 48, maxWidth: 180, objectFit: 'contain', marginBottom: 12 }} />
+          )}
           <h1>{seo.title.replace(' — купить в Московской области', '')}</h1>
           <p>{seo.intro}</p>
         </div>

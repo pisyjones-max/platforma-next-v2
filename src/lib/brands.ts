@@ -1,6 +1,8 @@
 import type { Catalog, Product, Category } from '@/types/catalog'
 import { normalizeBrand } from '@/lib/brandAliases'
 import { slugify } from '@/lib/slug'
+import { existsSync } from 'fs'
+import path from 'path'
 
 /**
  * Бренд-страницы (/catalog/brand/[slug]) агрегируют товары ОДНОГО бренда
@@ -171,6 +173,19 @@ export interface BrandListing {
   count: number
   /** Категории (slug), где встречается бренд, с числом товаров бренда в каждой */
   categories: { slug: string; name: string; count: number }[]
+  /** Путь к файлу логотипа в /public/logos, если он есть у бренда */
+  logoUrl?: string
+}
+
+const LOGO_EXTENSIONS = ['svg', 'png', 'jpg', 'webp']
+
+function findLogoUrl(slug: string): string | undefined {
+  for (const ext of LOGO_EXTENSIONS) {
+    if (existsSync(path.join(process.cwd(), 'public', 'logos', `${slug}.${ext}`))) {
+      return `/logos/${slug}.${ext}`
+    }
+  }
+  return undefined
 }
 
 function collectBrandCounts(catalog: Catalog): Map<string, { count: number; byCategory: Map<string, number> }> {
@@ -202,7 +217,7 @@ export function getAllBrands(catalog: Catalog): BrandListing[] {
     const categories = Array.from(byCategory.entries())
       .map(([slug, n]) => ({ slug, name: catBySlug.get(slug)?.name ?? slug, count: n }))
       .sort((a, b) => b.count - a.count)
-    listings.push({ slug: slugify(name), name, count, categories })
+    listings.push({ slug: slugify(name), name, count, categories, logoUrl: findLogoUrl(slugify(name)) })
   }
   return listings.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'ru'))
 }

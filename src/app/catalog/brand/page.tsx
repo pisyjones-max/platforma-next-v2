@@ -34,7 +34,13 @@ export default function BrandHubPage() {
 
       <div className="ggrid">
         {brands.map(brand => (
-          <Link key={brand.slug} href={`/catalog/brand/${brand.slug}`} className="gcard">
+          <Link key={brand.slug} href={`/catalog/brand/${brand.slug}`} className="gcard gcard-brand">
+            {brand.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={brand.logoUrl} alt={brand.name} className="gcard-brand-logo" loading="lazy" />
+            ) : (
+              <div className="gcard-brand-logo gcard-brand-logo-fallback">{brand.name}</div>
+            )}
             <div className="gcard-info">
               <div className="gcard-title">{brand.name}</div>
               <div className="gcard-sub">{brand.count} товаров · {brand.categories.length} категорий</div>

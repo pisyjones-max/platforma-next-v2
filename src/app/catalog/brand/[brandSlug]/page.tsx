@@ -52,7 +52,7 @@ export default async function BrandRoutePage({ params }: Props) {
     <>
       <script {...jsonLdScriptProps(breadcrumbs)} />
       <script {...jsonLdScriptProps(faqSchema(faq))} />
-      <BrandPage brandName={brand.name} seo={seo} items={items} categoryFacets={brand.categories} stats={stats} faq={faq} />
+      <BrandPage brandName={brand.name} seo={seo} items={items} categoryFacets={brand.categories} stats={stats} faq={faq} logoUrl={brand.logoUrl} />
     </>
   )
 }
