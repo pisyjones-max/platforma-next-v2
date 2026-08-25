@@ -1,4 +1,5 @@
 import { getCatalog } from '@/lib/catalog'
+import { getAllBrands } from '@/lib/brands'
 import { GroupsPage } from '@/components/catalog/GroupsPage'
 import { faqSchema, jsonLdScriptProps } from '@/lib/schema'
 import { HOME_FAQS } from '@/lib/faq'
@@ -21,12 +22,18 @@ export default function Home() {
       { name: g.name, categoriesCount: g.categories.length },
     ])
   )
+  // Топ-16 брендов по числу товаров, только с логотипом — для бегущей строки
+  // на главной. getAllBrands() уже отсортирован по убыванию count.
+  const topBrands = getAllBrands(catalog)
+    .filter(b => b.logoUrl)
+    .slice(0, 16)
+    .map(b => ({ slug: b.slug, name: b.name, logoUrl: b.logoUrl! }))
   return (
     <>
       {/* FAQPage разметка — вопросы дословно совпадают с тем, что рендерит
           HomeFAQ (src/lib/faq.ts — общий источник), как требуют Google/Яндекс */}
       <script {...jsonLdScriptProps(faqSchema(HOME_FAQS))} />
-      <GroupsPage groups={groups} totalProducts={catalog.meta?.total_products ?? 0} />
+      <GroupsPage groups={groups} totalProducts={catalog.meta?.total_products ?? 0} topBrands={topBrands} />
     </>
   )
 }

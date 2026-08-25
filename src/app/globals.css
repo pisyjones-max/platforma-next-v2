@@ -395,6 +395,65 @@ img.gcard-brand-logo {
   padding: 16px 12px 0;
 }
 
+/* ══ БЕГУЩАЯ СТРОКА БРЕНДОВ (главная) ══════════════════════════════════ */
+.brand-marquee {
+  position: relative;
+  overflow: hidden;
+  margin-top: 20px;
+  padding: 20px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--rl);
+  /* Затухание по краям вместо жёсткого обреза */
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+.brand-marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  gap: 48px;
+  animation: brand-marquee-scroll 32s linear infinite;
+}
+.brand-marquee:hover .brand-marquee-track {
+  animation-play-state: paused;
+}
+.brand-marquee-item {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+}
+.brand-marquee-item img {
+  height: 100%;
+  max-width: 120px;
+  object-fit: contain;
+  opacity: .7;
+  filter: grayscale(1);
+  transition: opacity .2s, filter .2s;
+}
+.brand-marquee-item:hover img {
+  opacity: 1;
+  filter: grayscale(0);
+}
+@keyframes brand-marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+/* На узком экране лента длиннее собственной ширины — не даём анимации
+   тормозить рендер и не растягиваем логотипы */
+@media (max-width: 640px) {
+  .brand-marquee { padding: 16px 0; border-radius: 12px; }
+  .brand-marquee-track { gap: 32px; animation-duration: 22s; }
+  .brand-marquee-item { height: 30px; }
+  .brand-marquee-item img { max-width: 84px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-marquee-track { animation: none; }
+  .brand-marquee { overflow-x: auto; }
+}
+
 /* ══ МОДАЛКА ТОВАРА ════════════════════════════════════════════════════════ */
 .moverlay {
   position: fixed; inset: 0; z-index: 200;

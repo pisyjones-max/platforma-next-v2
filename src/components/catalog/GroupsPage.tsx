@@ -5,6 +5,7 @@ import { HomeCalculator } from '@/components/ui/HomeCalculator'
 import { HomeFAQ } from '@/components/ui/HomeFAQ'
 import { DesignPromoBanner } from '@/components/design/DesignPromoBanner'
 import { PriceMatchBanner } from '@/components/pricematch/PriceMatchBanner'
+import { BrandsMarquee } from '@/components/catalog/BrandsMarquee'
 
 const GROUP_ICONS: Record<string, string> = {
   'krovlya':                 '🏠',
@@ -32,13 +33,16 @@ const GROUP_ICONS: Record<string, string> = {
 }
 
 type GroupSummary = { name: string; categoriesCount: number }
+type TopBrand = { slug: string; name: string; logoUrl: string }
 
 export function GroupsPage({
   groups,
   totalProducts,
+  topBrands,
 }: {
   groups: Record<string, GroupSummary>
   totalProducts: number
+  topBrands: TopBrand[]
 }) {
   return (
     <div id="main">
@@ -84,6 +88,9 @@ export function GroupsPage({
           </div>
         ))}
       </div>
+
+      {/* Бренды — бегущая строка */}
+      <BrandsMarquee brands={topBrands} />
 
       {/* Бесплатный дизайн-проект дома */}
       <DesignPromoBanner />
