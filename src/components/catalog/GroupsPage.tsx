@@ -6,6 +6,7 @@ import { HomeFAQ } from '@/components/ui/HomeFAQ'
 import { DesignPromoBanner } from '@/components/design/DesignPromoBanner'
 import { PriceMatchBanner } from '@/components/pricematch/PriceMatchBanner'
 import { BrandsMarquee } from '@/components/catalog/BrandsMarquee'
+import { WalkingMascot } from '@/components/ui/WalkingMascot'
 
 const GROUP_ICONS: Record<string, string> = {
   'krovlya':                 '🏠',
@@ -184,6 +185,7 @@ export function GroupsPage({
           </a>
         </div>
       </div>
+      <WalkingMascot />
     </div>
   )
 }

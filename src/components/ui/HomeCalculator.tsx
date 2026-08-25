@@ -30,7 +30,7 @@ export function HomeCalculator() {
   const [mode, setMode] = useState<Mode>('roofing')
 
   return (
-    <div style={{
+    <div id="home-calculator" style={{
       background: 'linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%)',
       borderRadius: 20,
       border: '1px solid var(--border)',

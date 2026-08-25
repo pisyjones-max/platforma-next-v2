@@ -4,7 +4,7 @@ import Link from 'next/link'
 // ведёт на посадочную страницу /deshevle-konkurentov с формой.
 export function PriceMatchBanner() {
   return (
-    <Link href="/deshevle-konkurentov" className="price-promo">
+    <Link href="/deshevle-konkurentov" className="price-promo" id="price-match-banner">
       <div className="price-promo-body">
         <div className="price-promo-badge">💰 Предложим цену ниже</div>
         <div className="price-promo-title">
