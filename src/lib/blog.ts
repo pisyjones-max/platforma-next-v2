@@ -39,3 +39,11 @@ export function getAllArticles(): BlogArticle[] {
 export function getArticleBySlug(slug: string): BlogArticle | undefined {
   return getAllArticles().find(a => a.slug === slug)
 }
+
+/**
+ * Обратная перелинковка: каталог -> блог. Ищет статьи, у которых
+ * relatedLinks ссылается на конкретный URL категории/страницы каталога.
+ */
+export function getArticlesForHref(href: string): BlogArticle[] {
+  return getAllArticles().filter(a => a.relatedLinks?.some(l => l.href === href))
+}

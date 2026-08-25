@@ -2,6 +2,7 @@ import { getCatalog } from '@/lib/catalog'
 import { getSidingOptions, SIDING_FAQ } from '@/lib/sidingHub'
 import { breadcrumbSchema, faqSchema, jsonLdScriptProps } from '@/lib/schema'
 import { SidingHubPage } from '@/components/catalog/SidingHubPage'
+import { RelatedBlogArticles } from '@/components/catalog/RelatedBlogArticles'
 import type { Metadata } from 'next'
 
 // См. комментарий в src/lib/catalog.ts — каталог читается с диска в рантайме,
@@ -33,6 +34,7 @@ export default function SajdingPage() {
       <script {...jsonLdScriptProps(breadcrumbs)} />
       <script {...jsonLdScriptProps(faqSchema(SIDING_FAQ))} />
       <SidingHubPage options={options} faq={SIDING_FAQ} />
+      <RelatedBlogArticles href="/fasad/sajding" />
     </>
   )
 }

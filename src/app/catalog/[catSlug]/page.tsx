@@ -3,6 +3,7 @@ import { getCatalog, findCategory, getParentGroup } from '@/lib/catalog'
 import { breadcrumbSchema, jsonLdScriptProps } from '@/lib/schema'
 import { SALE_RATE, PAGE_SIZE } from '@/lib/constants'
 import { CategoryPage } from '@/components/catalog/CategoryPage'
+import { RelatedBlogArticles } from '@/components/catalog/RelatedBlogArticles'
 import type { Metadata } from 'next'
 
 // См. комментарий в src/lib/catalog.ts — каталог читается с диска в рантайме,
@@ -111,6 +112,7 @@ export default async function CatalogCategoryPage({ params, searchParams }: Prop
         totalPages={totalPages}
         catSlug={catSlug}
       />
+      <RelatedBlogArticles href={`/catalog/${catSlug}`} />
     </>
   )
 }
