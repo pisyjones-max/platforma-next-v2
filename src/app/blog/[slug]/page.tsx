@@ -34,6 +34,9 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
   if (!article) return notFound()
 
   const html = marked.parse(article.bodyMarkdown, { async: false }) as string
+  const related = (article.relatedArticles ?? [])
+    .map(slug => getArticleBySlug(slug))
+    .filter((a): a is NonNullable<typeof a> => !!a)
 
   const bcSchema = breadcrumbSchema([
     { name: 'Главная', url: '/' },
@@ -73,6 +76,21 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
         style={{ fontSize: 15.5, lineHeight: 1.7, color: 'var(--fg)' }}
         dangerouslySetInnerHTML={{ __html: html }}
       />
+
+      {related.length > 0 && (
+        <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--muted)', marginBottom: 12 }}>
+            ПОХОЖИЕ СТАТЬИ
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {related.map(a => (
+              <Link key={a.slug} href={`/blog/${a.slug}`} style={{ fontSize: 14.5, color: 'var(--accent)', textDecoration: 'none' }}>
+                {a.title} →
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {article.relatedLinks && article.relatedLinks.length > 0 && (
         <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
