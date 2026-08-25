@@ -14,13 +14,11 @@ const TARGETS: Record<TargetKey, { anchorId: string; bubble: string }> = {
   },
 }
 
-const DISMISS_KEY = 'platforma_mascot_dismissed'
-// Пауза между визитами к разным блокам — достаточно редко, чтобы не раздражать.
 const CYCLE_MS = 16000
 const WALK_MS = 1400
 
 export function WalkingMascot() {
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(true)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [x, setX] = useState(24) // px от левого края
   const [facing, setFacing] = useState<'right' | 'left'>('right')
@@ -29,8 +27,6 @@ export function WalkingMascot() {
   const nextTargetRef = useRef<TargetKey>('calculator')
 
   useEffect(() => {
-    if (sessionStorage.getItem(DISMISS_KEY) === '1') return
-    setVisible(true)
     setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   }, [])
 
@@ -103,7 +99,6 @@ export function WalkingMascot() {
   }
 
   const dismiss = () => {
-    sessionStorage.setItem(DISMISS_KEY, '1')
     setVisible(false)
   }
 
