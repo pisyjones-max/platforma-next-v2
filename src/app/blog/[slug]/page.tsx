@@ -73,6 +73,25 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
         style={{ fontSize: 15.5, lineHeight: 1.7, color: 'var(--fg)' }}
         dangerouslySetInnerHTML={{ __html: html }}
       />
+
+      {article.relatedLinks && article.relatedLinks.length > 0 && (
+        <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--muted)', marginBottom: 12 }}>
+            МАТЕРИАЛЫ ПО ТЕМЕ
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            {article.relatedLinks.map(l => (
+              <Link
+                key={l.href}
+                href={l.href}
+                style={{ padding: '10px 16px', borderRadius: 8, background: 'var(--surface2)', border: '1px solid var(--border)', fontSize: 14, textDecoration: 'none', color: 'var(--fg)' }}
+              >
+                {l.label} →
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
