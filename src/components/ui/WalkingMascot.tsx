@@ -116,24 +116,30 @@ export function WalkingMascot() {
         ×
       </button>
       <div className={`mascot-figure ${walking && !reducedMotion ? 'is-walking' : ''}`} style={{ transform: facing === 'left' ? 'scaleX(-1)' : undefined }} aria-hidden="true">
-        <svg width="64" height="34" viewBox="0 0 64 34" fill="none">
+        <svg width="92" height="48" viewBox="0 0 92 48" fill="none">
           {/* кузов */}
-          <rect x="2" y="6" width="34" height="16" rx="2" fill="#F2B705" />
-          <rect x="2" y="6" width="34" height="4" fill="#D89A00" />
+          <rect x="3" y="8" width="48" height="22" rx="3" fill="#F2B705" />
+          <rect x="3" y="8" width="48" height="5" fill="#D89A00" />
           {/* кабина */}
-          <path d="M36 10h14a3 3 0 0 1 3 2l3 6v4H36V10Z" fill="#F2B705" />
-          <path d="M40 12h9a2 2 0 0 1 1.8 1.1l1.6 3.2a1 1 0 0 1-.9 1.4H40v-5.7Z" fill="#BFE3F0" />
-          <rect x="36" y="19" width="20" height="3" fill="#D89A00" />
+          <path d="M51 14h20a4 4 0 0 1 3.6 2.2l4.2 8.4v5.4H51V14Z" fill="#F2B705" />
+          {/* окно кабины */}
+          <path d="M56 17h13a2.6 2.6 0 0 1 2.3 1.4l2.2 4.4a1.3 1.3 0 0 1-1.2 1.9H56v-7.7Z" fill="#BFE3F0" />
+          {/* водитель за рулём */}
+          <circle cx="63" cy="20.5" r="3.4" fill="#6E4B3A" />
+          <circle cx="61.7" cy="19.6" r="0.5" fill="#2a1c14" />
+          <circle cx="64.3" cy="19.6" r="0.5" fill="#2a1c14" />
+          <path d="M61.4 21.6c.6.6 2 .6 2.6 0" stroke="#2a1c14" strokeWidth="0.6" strokeLinecap="round" fill="none" />
+          <rect x="51" y="28" width="27" height="4" fill="#D89A00" />
           {/* бампер */}
-          <rect x="54" y="20" width="4" height="4" rx="1" fill="#3a3a3a" />
+          <rect x="75" y="29" width="5" height="5" rx="1" fill="#3a3a3a" />
           {/* колёса */}
-          <g className="mascot-wheel" style={{ transformOrigin: '12px 26px' }}>
-            <circle cx="12" cy="26" r="6" fill="#232323" />
-            <circle cx="12" cy="26" r="2.4" fill="#8a8a8a" />
+          <g className="mascot-wheel" style={{ transformOrigin: '17px 37px' }}>
+            <circle cx="17" cy="37" r="8" fill="#232323" />
+            <circle cx="17" cy="37" r="3.2" fill="#8a8a8a" />
           </g>
-          <g className="mascot-wheel" style={{ transformOrigin: '46px 26px' }}>
-            <circle cx="46" cy="26" r="6" fill="#232323" />
-            <circle cx="46" cy="26" r="2.4" fill="#8a8a8a" />
+          <g className="mascot-wheel" style={{ transformOrigin: '64px 37px' }}>
+            <circle cx="64" cy="37" r="8" fill="#232323" />
+            <circle cx="64" cy="37" r="3.2" fill="#8a8a8a" />
           </g>
         </svg>
       </div>
