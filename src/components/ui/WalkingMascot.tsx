@@ -116,19 +116,25 @@ export function WalkingMascot() {
         ×
       </button>
       <div className={`mascot-figure ${walking && !reducedMotion ? 'is-walking' : ''}`} style={{ transform: facing === 'left' ? 'scaleX(-1)' : undefined }} aria-hidden="true">
-        <svg width="44" height="52" viewBox="0 0 44 52" fill="none">
-          {/* каска */}
-          <path d="M10 20a12 12 0 0 1 24 0v2H10v-2Z" fill="var(--gold)" />
-          <rect x="8" y="21" width="28" height="4" rx="2" fill="var(--gold)" />
-          {/* голова */}
-          <circle cx="22" cy="16" r="8" fill="#E8B98C" />
-          {/* тело */}
-          <rect x="13" y="26" width="18" height="16" rx="4" fill="var(--dark)" />
-          {/* жилет-полоса */}
-          <rect x="13" y="30" width="18" height="4" fill="var(--gold)" />
-          {/* ноги */}
-          <rect className="mascot-leg mascot-leg-l" x="14" y="41" width="6" height="11" rx="2" fill="#3a4a3f" />
-          <rect className="mascot-leg mascot-leg-r" x="24" y="41" width="6" height="11" rx="2" fill="#3a4a3f" />
+        <svg width="64" height="34" viewBox="0 0 64 34" fill="none">
+          {/* кузов */}
+          <rect x="2" y="6" width="34" height="16" rx="2" fill="#F2B705" />
+          <rect x="2" y="6" width="34" height="4" fill="#D89A00" />
+          {/* кабина */}
+          <path d="M36 10h14a3 3 0 0 1 3 2l3 6v4H36V10Z" fill="#F2B705" />
+          <path d="M40 12h9a2 2 0 0 1 1.8 1.1l1.6 3.2a1 1 0 0 1-.9 1.4H40v-5.7Z" fill="#BFE3F0" />
+          <rect x="36" y="19" width="20" height="3" fill="#D89A00" />
+          {/* бампер */}
+          <rect x="54" y="20" width="4" height="4" rx="1" fill="#3a3a3a" />
+          {/* колёса */}
+          <g className="mascot-wheel" style={{ transformOrigin: '12px 26px' }}>
+            <circle cx="12" cy="26" r="6" fill="#232323" />
+            <circle cx="12" cy="26" r="2.4" fill="#8a8a8a" />
+          </g>
+          <g className="mascot-wheel" style={{ transformOrigin: '46px 26px' }}>
+            <circle cx="46" cy="26" r="6" fill="#232323" />
+            <circle cx="46" cy="26" r="2.4" fill="#8a8a8a" />
+          </g>
         </svg>
       </div>
     </div>
