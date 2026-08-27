@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { getCatalog, findCategory, getCanonicalCategorySlug } from '@/lib/catalog'
 import { findProductBySlug } from '@/lib/slug'
 import { getCrossSellProducts } from '@/lib/crossSell'
@@ -81,6 +81,13 @@ export default async function ProductRoute({ params }: Props) {
   // 404. Лучше отдать 404: он не бьёт индексацию так, как повторяющиеся
   // 500-ошибки, и страница переиндексируется сама на следующий обход,
   // как только парсер досыплет данные обратно.
+  // Товар пропал у парсера (снят с mk4s.ru), но категория жива — редиректим
+  // на категорию вместо 404, чтобы не терять переходы/индексацию по старым
+  // ссылкам на удалённые товары.
+  if (cat && !product) {
+    redirect(`/catalog/${catSlug}`)
+  }
+
   if (!product || !cat || !product.variants?.length) {
     notFound()
   }
