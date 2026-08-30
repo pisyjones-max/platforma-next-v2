@@ -4,6 +4,7 @@ import { getKrovlyaComparison, KROVLYA_FAQ } from '@/lib/krovlyaHub'
 import { breadcrumbSchema, faqSchema, jsonLdScriptProps } from '@/lib/schema'
 import { GroupDetailPage } from '@/components/catalog/GroupDetailPage'
 import { RelatedBlogArticles } from '@/components/catalog/RelatedBlogArticles'
+import { DistrictLinksBlock } from '@/components/catalog/DistrictLinksBlock'
 import type { Metadata } from 'next'
 
 // Каталог теперь читается с диска в рантайме (см. src/lib/catalog.ts), а не
@@ -80,6 +81,7 @@ export default async function GroupPage({ params }: Props) {
       <script {...jsonLdScriptProps(breadcrumbs)} />
       {isKrovlya && <script {...jsonLdScriptProps(faqSchema(KROVLYA_FAQ))} />}
       <GroupDetailPage groupSlug={groupSlug} group={group} categories={categories} comparison={comparison} faq={faq} />
+      <DistrictLinksBlock groupSlug={groupSlug} groupName={group.name} />
       <RelatedBlogArticles href={`/catalog/group/${groupSlug}`} />
     </>
   )

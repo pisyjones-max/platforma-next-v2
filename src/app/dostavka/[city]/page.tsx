@@ -6,6 +6,7 @@ import { getCatalog } from '@/lib/catalog'
 import { SITE_URL } from '@/lib/site'
 import { breadcrumbSchema } from '@/lib/schema'
 import { CityConsultButton } from '@/components/ui/CityConsultButton'
+import { DISTRICT_COMMERCE_GROUPS } from '@/lib/districtCommerce'
 
 export function generateStaticParams() {
   return CITIES.map(c => ({ city: c.slug }))
@@ -42,6 +43,9 @@ export default async function CityDeliveryPage({ params }: { params: Promise<{ c
 
   const catalog = getCatalog()
   const groups = Object.entries(catalog.groups).slice(0, 8)
+  const commerceGroups = DISTRICT_COMMERCE_GROUPS
+    .map(slug => ({ slug, group: catalog.groups[slug] }))
+    .filter((g): g is { slug: typeof g.slug; group: NonNullable<typeof g.group> } => Boolean(g.group))
 
   const bcSchema = breadcrumbSchema([
     { name: 'Главная', url: '/' },
@@ -80,6 +84,35 @@ export default async function CityDeliveryPage({ params }: { params: Promise<{ c
           <div style={{ fontSize: 15, color: 'var(--muted)' }}>{city.landmarks.join(', ')}</div>
         </div>
       </div>
+
+      {commerceGroups.length > 0 && (
+        <div style={{ marginBottom: 40 }}>
+          <h2 style={{ fontFamily: 'var(--fh)', fontSize: 20, fontWeight: 700, marginBottom: 16 }}>
+            Цены и доставка по категориям в {city.nameGenitive}
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
+            {commerceGroups.map(({ slug, group }) => (
+              <Link
+                key={slug}
+                href={`/dostavka/${city.slug}/${slug}`}
+                style={{
+                  display: 'block',
+                  fontSize: 15,
+                  fontWeight: 600,
+                  padding: '14px 16px',
+                  background: 'var(--surface2)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 10,
+                  color: 'var(--dark, #1a1a1a)',
+                  textDecoration: 'none',
+                }}
+              >
+                {group.name} в {city.nameGenitive} →
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div style={{ marginBottom: 40 }}>
         <h2 style={{ fontFamily: 'var(--fh)', fontSize: 20, fontWeight: 700, marginBottom: 16 }}>

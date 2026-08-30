@@ -5,6 +5,7 @@ import { productSlug } from '@/lib/slug'
 import { CITIES } from '@/lib/cities'
 import { getAllArticles } from '@/lib/blog'
 import { getAllBrands } from '@/lib/brands'
+import { DISTRICT_COMMERCE_GROUPS } from '@/lib/districtCommerce'
 
 // См. комментарий в src/lib/catalog.ts — каталог читается с диска в рантайме,
 // эта настройка даёт sitemap.xml подхватывать новые товары раз в 10 минут
@@ -27,6 +28,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   for (const city of CITIES) {
     urls.push({ url: `${SITE_URL}/dostavka/${city.slug}`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 })
+    for (const groupSlug of DISTRICT_COMMERCE_GROUPS) {
+      if (!catalog.groups[groupSlug]) continue
+      urls.push({
+        url: `${SITE_URL}/dostavka/${city.slug}/${groupSlug}`,
+        lastModified: now,
+        changeFrequency: 'weekly',
+        priority: 0.75,
+      })
+    }
   }
 
   urls.push({ url: `${SITE_URL}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 })
