@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation'
 import { getCatalog, findCategory, getParentGroup } from '@/lib/catalog'
-import { breadcrumbSchema, jsonLdScriptProps } from '@/lib/schema'
+import { breadcrumbSchema, faqSchema, jsonLdScriptProps } from '@/lib/schema'
 import { SALE_RATE, PAGE_SIZE } from '@/lib/constants'
 import { CategoryPage } from '@/components/catalog/CategoryPage'
 import { RelatedBlogArticles } from '@/components/catalog/RelatedBlogArticles'
+import { GermetikiIntro } from '@/components/catalog/GermetikiIntro'
+import { GERMETIKI_FAQ } from '@/lib/germetikiHub'
 import type { Metadata } from 'next'
 
 // См. комментарий в src/lib/catalog.ts — каталог читается с диска в рантайме,
@@ -63,6 +65,21 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     return price > 0 && price < min ? price : min
   }, 999999)
   const priceStr = minPrice < 999999 ? ` от ${minPrice.toLocaleString('ru-RU')} ₽` : ''
+
+  // Герметики и мастики — P1 по SEO_ARCHITECTURE.md (24 085/мес), даём
+  // отдельный title/description под сравнение типов, см. germetikiHub.ts
+  if (catSlug === 'germetiki' && page === 1) {
+    return {
+      title: 'Герметики и мастики — какой выбрать, цены',
+      description: `Силиконовый, акриловый, полиуретановый герметик и битумные мастики для кровли — сравнение и цены${priceStr}. Скидка −17%. Доставка по Московской области.`,
+      alternates: { canonical: `/catalog/${catSlug}` },
+      openGraph: {
+        title: 'Герметики и мастики — какой выбрать',
+        description: 'Сравнение герметиков и мастик: силиконовый, акриловый, полиуретановый, битумный.',
+      },
+    }
+  }
+
   return {
     title: `${cat.name} — купить в Московской области${priceStr}${pageSuffix}`,
     description: page > 1
@@ -100,6 +117,12 @@ export default async function CatalogCategoryPage({ params, searchParams }: Prop
   return (
     <>
       <script {...jsonLdScriptProps(breadcrumbs)} />
+      {catSlug === 'germetiki' && page === 1 && (
+        <>
+          <script {...jsonLdScriptProps(faqSchema(GERMETIKI_FAQ))} />
+          <GermetikiIntro />
+        </>
+      )}
       <CategoryPage
         // key заставляет React пересоздать состояние "Загрузить ещё" при
         // переходе на другую категорию или на другой ?page=N напрямую по
