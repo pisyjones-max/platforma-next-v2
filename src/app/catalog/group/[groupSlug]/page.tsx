@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: 'Кровля для крыши дома — материалы, цены, как выбрать',
       description:
-        'Металлочерепица, мягкая кровля, профнастил, фальцевая кровля, композитная и керамическая черепица — сравнение материалов и цены. Скидка −17%. Доставка по Московской области.',
+        'Металлочерепица, мягкая кровля, профнастил, фальцевая кровля, композитная и керамическая черепица — сравнение материалов и цены. Доставка по Московской области.',
       alternates: { canonical: `/catalog/group/${groupSlug}` },
       openGraph: {
         title: 'Кровля для крыши дома — материалы, цены, как выбрать',
@@ -45,11 +45,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `${group.name} — купить в Московской области`,
-    description: `${group.name} — ${catCount} категорий в наличии. Доставка по Московской области. Скидка −17% на всё. Самовывоз из Новохаритонова. Звоните: +7 (933) 203-30-05.`,
+    description: `${group.name} — ${catCount} категорий в наличии. Доставка по Московской области. Самовывоз из Новохаритонова. Звоните: +7 (933) 203-30-05.`,
     alternates: { canonical: `/catalog/group/${groupSlug}` },
     openGraph: {
       title: `${group.name} — PLATFORMA`,
-      description: `Купить ${group.name.toLowerCase()} в МО. Скидка −17%. Доставка и самовывоз.`,
+      description: `Купить ${group.name.toLowerCase()} в МО. Доставка и самовывоз.`,
     },
   }
 }

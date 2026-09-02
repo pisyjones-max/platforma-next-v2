@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { fmt } from '@/lib/price'
-import { DISC_LABEL, PHONE_NUMBER } from '@/lib/constants'
+import { PHONE_NUMBER } from '@/lib/constants'
 
 interface SidingOptionView {
   slug: string
@@ -55,11 +55,8 @@ export function SidingHubPage({ options, faq }: Props) {
           <p>
             Виниловый, металлический, фиброцементный, цокольный сайдинг и панели под дерево —
             сравните варианты и перейдите в нужный раздел каталога. Доставка по Московской
-            области, скидка {DISC_LABEL}.
+            области.
           </p>
-        </div>
-        <div className="hero-right">
-          <div className="hero-badge"><div className="hero-badge-val">{DISC_LABEL}</div><div className="hero-badge-lbl">скидка</div></div>
         </div>
       </div>
 

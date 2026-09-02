@@ -2,8 +2,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { imgUrl } from '@/lib/image'
-import { fmt } from '@/lib/price'
-import { SALE_RATE, DISC_LABEL } from '@/lib/constants'
+import { fmt, salePrice } from '@/lib/price'
 import { productSlug } from '@/lib/slug'
 import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
@@ -18,8 +17,8 @@ interface Props {
  *
  * Строится на тех же правилах, что и раньше (src/lib/crossSell.ts), но теперь
  * каждая позиция — чекбокс с количеством, а не просто карточка-ссылка.
- * По умолчанию отмечены все позиции (это рекомендованный комплект), пользователь
- * может убрать лишнее и добавить всё разом одной кнопкой.
+ * По умолчанию ничего не отмечено — пользователь сам выбирает нужные позиции
+ * и добавляет их в корзину одной кнопкой.
  *
  * Ничего не рендерит, если рекомендаций нет — как и раньше.
  */
@@ -27,9 +26,7 @@ export function CrossSellSection({ products }: Props) {
   const { add } = useCart()
   const { openCart } = useUI()
 
-  const [selected, setSelected] = useState<Record<string, boolean>>(
-    () => Object.fromEntries(products.map(p => [p.id, true])),
-  )
+  const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [qty, setQty] = useState<Record<string, number>>(
     () => Object.fromEntries(products.map(p => [p.id, 1])),
   )
@@ -38,7 +35,7 @@ export function CrossSellSection({ products }: Props) {
   const rows = useMemo(
     () => products.map(p => ({
       product: p,
-      price: Math.round((p.variants[0]?.price ?? 0) * SALE_RATE),
+      price: salePrice(p.variants[0]?.price ?? 0),
     })),
     [products],
   )
@@ -87,7 +84,6 @@ export function CrossSellSection({ products }: Props) {
                 <input type="checkbox" checked={isSelected} onChange={() => toggle(p.id)} />
               </label>
               <Link href={`/catalog/${p.catSlug}/${pid}`} className="kit-card-link">
-                {price > 0 && <div className="pcard-discount-tag">{DISC_LABEL}</div>}
                 <div className="pthumb">
                   {v.images?.[0]
                     ? <img src={imgUrl(v.images[0])} alt={p.title} loading="lazy" />

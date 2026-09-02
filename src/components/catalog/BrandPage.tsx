@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
 import { productSlug } from '@/lib/slug'
-import { DISC_LABEL, PHONE_NUMBER } from '@/lib/constants'
+import { PHONE_NUMBER } from '@/lib/constants'
 import type { Product, Category } from '@/types/catalog'
 import type { BrandSeo, BrandStats, BrandFaqItem } from '@/lib/brands'
 
@@ -77,7 +77,6 @@ export function BrandPage({ brandName, seo, items, categoryFacets, stats, faq = 
         </div>
         <div className="hero-right">
           <div className="hero-stat"><span>{items.length}</span><small>товаров</small></div>
-          <div className="hero-badge"><div className="hero-badge-val">{DISC_LABEL}</div><div className="hero-badge-lbl">скидка</div></div>
         </div>
       </div>
 

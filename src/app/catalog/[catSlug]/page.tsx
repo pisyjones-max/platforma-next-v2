@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation'
 import { getCatalog, findCategory, getParentGroup } from '@/lib/catalog'
 import { breadcrumbSchema, faqSchema, jsonLdScriptProps } from '@/lib/schema'
-import { SALE_RATE, PAGE_SIZE } from '@/lib/constants'
+import { PAGE_SIZE } from '@/lib/constants'
+import { salePrice } from '@/lib/price'
 import { CategoryPage } from '@/components/catalog/CategoryPage'
 import { RelatedBlogArticles } from '@/components/catalog/RelatedBlogArticles'
 import { GermetikiIntro } from '@/components/catalog/GermetikiIntro'
@@ -61,7 +62,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   }
 
   const minPrice = cat.products.reduce((min, p) => {
-    const price = Math.round((p.variants[0]?.price ?? 0) * SALE_RATE)
+    const price = salePrice(p.variants[0]?.price ?? 0)
     return price > 0 && price < min ? price : min
   }, 999999)
   const priceStr = minPrice < 999999 ? ` от ${minPrice.toLocaleString('ru-RU')} ₽` : ''
@@ -71,7 +72,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   if (catSlug === 'germetiki' && page === 1) {
     return {
       title: 'Герметики и мастики — какой выбрать, цены',
-      description: `Силиконовый, акриловый, полиуретановый герметик и битумные мастики для кровли — сравнение и цены${priceStr}. Скидка −17%. Доставка по Московской области.`,
+      description: `Силиконовый, акриловый, полиуретановый герметик и битумные мастики для кровли — сравнение и цены${priceStr}. Доставка по Московской области.`,
       alternates: { canonical: `/catalog/${catSlug}` },
       openGraph: {
         title: 'Герметики и мастики — какой выбрать',
@@ -83,13 +84,13 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   return {
     title: `${cat.name} — купить в Московской области${priceStr}${pageSuffix}`,
     description: page > 1
-      ? `${cat.name}: товары ${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, count)} из ${count}. Цены${priceStr}. Доставка по МО. Скидка −17%.`
-      : `${cat.name} — ${count} товаров в наличии. Цены${priceStr}. Доставка по МО. Скидка −17%. Самовывоз из Новохаритонова. Звоните: +7 (933) 203-30-05.`,
+      ? `${cat.name}: товары ${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, count)} из ${count}. Цены${priceStr}. Доставка по МО.`
+      : `${cat.name} — ${count} товаров в наличии. Цены${priceStr}. Доставка по МО. Самовывоз из Новохаритонова. Звоните: +7 (933) 203-30-05.`,
     alternates: { canonical },
     robots: page > 1 ? { index: true, follow: true } : undefined,
     openGraph: {
       title: `${cat.name} — PLATFORMA${pageSuffix}`,
-      description: `Купить ${cat.name.toLowerCase()} в Московской области. ${count} позиций. Скидка −17%.`,
+      description: `Купить ${cat.name.toLowerCase()} в Московской области. ${count} позиций.`,
     },
   }
 }

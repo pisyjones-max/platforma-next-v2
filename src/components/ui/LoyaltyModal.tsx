@@ -65,8 +65,8 @@ export function LoyaltyModal() {
               <div className="lc-bottom">
                 <div>
                   <div className="lc-balance-lbl">Начальный бонус</div>
-                  <div className="lc-balance">5 000 ₽</div>
-                  <div className="lc-balance-sub">бонусных рублей</div>
+                  <div className="lc-balance">15 000</div>
+                  <div className="lc-balance-sub">баллов на карту</div>
                 </div>
                 <div className="lc-stats">
                   <div className="lc-stat-item">
@@ -74,8 +74,8 @@ export function LoyaltyModal() {
                     <div className="lc-stat-lbl">Кэшбэк</div>
                   </div>
                   <div className="lc-stat-item">
-                    <div className="lc-stat-val">−17%</div>
-                    <div className="lc-stat-lbl">Скидка</div>
+                    <div className="lc-stat-val">−1%</div>
+                    <div className="lc-stat-lbl">Доп. скидка</div>
                   </div>
                 </div>
               </div>
@@ -88,9 +88,9 @@ export function LoyaltyModal() {
               <div className="lc-section-title">Что вы получаете</div>
               <div className="lc-perks">
                 {[
-                  { icon: '🎁', title: '5 000 ₽ бонусами', text: 'Сразу при оформлении карты' },
+                  { icon: '🎁', title: '15 000 баллов', text: 'Сразу при оформлении карты' },
                   { icon: '💰', title: 'Кэшбэк 0.5%', text: 'С каждой покупки на карту' },
-                  { icon: '🏷️', title: 'Скидка −17%', text: 'На весь ассортимент магазина' },
+                  { icon: '🏷️', title: 'Доп. скидка −1%', text: 'На весь ассортимент магазина' },
                   { icon: '🚀', title: 'Приоритет', text: 'Первыми узнаёте об акциях' },
                 ].map((p, i) => (
                   <div key={i} style={{
@@ -114,7 +114,7 @@ export function LoyaltyModal() {
                 </div>
                 <div style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.6 }}>
                   Менеджер свяжется с вами и оформит карту.<br />
-                  Бонус 5 000 ₽ будет начислен сразу!
+                  Бонус 15 000 баллов будет начислен сразу!
                 </div>
                 <button className="co-submit" style={{ marginTop: 20 }} onClick={closeLoyalty}>Отлично!</button>
               </div>
@@ -133,7 +133,7 @@ export function LoyaltyModal() {
                   </div>
                   <button className="co-submit" onClick={handleSubmit} disabled={loading}
                     style={{ background: 'var(--dark)' }}>
-                    {loading ? 'Отправка...' : '🎁 Получить карту + 5 000 ₽'}
+                    {loading ? 'Отправка...' : '🎁 Получить карту + 15 000 баллов'}
                   </button>
                   <p className="privacy-note" style={{ textAlign: 'center' }}>
                     Нажимая кнопку, вы соглашаетесь с{' '}

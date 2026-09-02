@@ -6,7 +6,7 @@ import { imgUrl } from '@/lib/image'
 import { breadcrumbSchema, faqSchema, jsonLdScriptProps } from '@/lib/schema'
 import { normalizeBrand } from '@/lib/brandAliases'
 import { getProductFaq } from '@/lib/productFaq'
-import { SALE_RATE } from '@/lib/constants'
+import { salePrice } from '@/lib/price'
 import { ProductPage } from '@/components/product/ProductPage'
 import { ProductJsonLd } from '@/components/product/ProductJsonLd'
 import type { Metadata } from 'next'
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product || !cat || !product.variants?.length) return {}
 
   const v = product.variants[0]
-  const price = Math.round(v.price * SALE_RATE)
+  const price = salePrice(v.price)
   const priceStr = price > 0 ? `${price.toLocaleString('ru-RU')} ₽` : 'по запросу'
   const brand = normalizeBrand(product.features?.['Производитель'])
   // Артикул — самый надёжный якорь уникальности: у одинаковых по названию
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const desc = product.description?.trim()
     ? `${product.description.trim().slice(0, 120)}. ${brand ? `Бренд ${brand}. ` : ''}${sku ? `Артикул ${sku}. ` : ''}Цена ${priceStr}. Доставка по МО.`
-    : `${product.title}${featureSnippet ? '. ' + featureSnippet : ''}. ${brand ? `Бренд ${brand}. ` : ''}${sku ? `Артикул ${sku}. ` : ''}Цена ${priceStr}. Скидка −17%. Доставка по Московской области. Звоните: +7 (933) 203-30-05.`
+    : `${product.title}${featureSnippet ? '. ' + featureSnippet : ''}. ${brand ? `Бренд ${brand}. ` : ''}${sku ? `Артикул ${sku}. ` : ''}Цена ${priceStr}. Доставка по Московской области. Звоните: +7 (933) 203-30-05.`
 
   return {
     title: `${product.title}${titleSuffix ? ` (${titleSuffix})` : ''} — купить, цена ${priceStr}`,
@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     openGraph: {
       title: `${product.title} — PLATFORMA`,
-      description: `Цена ${priceStr}. Скидка −17%. Доставка по Московской области.`,
+      description: `Цена ${priceStr}. Доставка по Московской области.`,
       images: v.images?.[0] ? [{ url: imgUrl(v.images[0]), alt: product.title }] : [],
     },
   }
@@ -119,7 +119,7 @@ export default async function ProductRoute({ params }: Props) {
     { name: product.title, url: `/catalog/${catSlug}/${productId}` },
   ])
 
-  const price = Math.round((product.variants[0]?.price ?? 0) * SALE_RATE)
+  const price = salePrice(product.variants[0]?.price ?? 0)
   const faq = getProductFaq(product, cat, price)
 
   return (

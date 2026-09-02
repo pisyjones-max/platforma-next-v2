@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
 import { imgUrl } from '@/lib/image'
-import { fmt } from '@/lib/price'
-import { SALE_RATE, DISC_LABEL, CARD_DISCOUNT } from '@/lib/constants'
+import { fmt, salePrice } from '@/lib/price'
+import { CARD_DISCOUNT } from '@/lib/constants'
 import { getCalcType } from '@/lib/calculator'
 import { productSlug } from '@/lib/slug'
 import { Calculator } from '@/components/calculator/Calculator'
@@ -52,7 +52,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   const v = product.variants[varIdx]
-  const fp = Math.round(v.price * SALE_RATE)
+  const fp = salePrice(v.price)
   const cardPrice = Math.round(fp * (1 - CARD_DISCOUNT))
   const imgs = v.images ?? []
 
@@ -211,7 +211,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
 
           {v.pack_quantity && v.pack_quantity > 1 && (
             <div className="prod-pack-note">
-              Упаковка: {v.pack_quantity} шт · {fmt(Math.round(v.price * SALE_RATE * v.pack_quantity))} ₽/уп
+              Упаковка: {v.pack_quantity} шт · {fmt(fp * v.pack_quantity)} ₽/уп
             </div>
           )}
 
@@ -388,7 +388,6 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
             const pid = productSlug(p.id)
             return (
               <Link key={p.id} href={`/catalog/${categorySlug}/${pid}`} className="pcard">
-                {p.price > 0 && <div className="pcard-discount-tag">{DISC_LABEL}</div>}
                 <div className="pthumb">
                   {p.image
                     ? <img src={imgUrl(p.image)} alt={p.title} loading="lazy" />
@@ -399,7 +398,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
                   <div className="ptitle">{p.title}</div>
                   {p.price > 0 ? (
                     <div className="pprow">
-                      <span className="pp">{fmt(Math.round(p.price * SALE_RATE))} ₽</span>
+                      <span className="pp">{fmt(salePrice(p.price))} ₽</span>
                       <span className="pop">{fmt(p.price)} ₽</span>
                     </div>
                   ) : (

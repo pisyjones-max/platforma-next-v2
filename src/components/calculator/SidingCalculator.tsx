@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react'
 import { calcSiding, type WallItem, type OpeningItem, type CornerItem } from '@/lib/calculator'
 import { useCart } from '@/context/CartContext'
 import { imgUrl } from '@/lib/image'
-import { SALE_RATE } from '@/lib/constants'
+import { salePrice } from '@/lib/price'
 import type { Product } from '@/types/catalog'
 import { CalcRowList, nextCalcId } from './CalcRowList'
 
@@ -32,7 +32,7 @@ export function SidingCalculator({ product }: Props) {
 
   const handleAdd = () => {
     if (!product || !variant) return
-    const fp = Math.round(variant.price * SALE_RATE)
+    const fp = salePrice(variant.price)
     add({
       sku: variant.sku,
       title: `${product.title} × ${result.qty} шт.`,

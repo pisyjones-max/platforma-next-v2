@@ -4,7 +4,6 @@ import { useCard } from '@/context/CardContext'
 import { useUI } from '@/context/UIContext'
 import { fmt } from '@/lib/price'
 import { formatPhone } from '@/lib/phone'
-import { DISC_LABEL } from '@/lib/constants'
 
 interface Props {
   fullPrice: number   // v.price — зачёркнутая цена
@@ -51,7 +50,6 @@ export function CardPriceBlock({ fullPrice, regularPrice, cardPrice }: Props) {
       <div className="prod-price-sub-row">
         <span className="prod-price">{fmt(regularPrice)} ₽</span>
         <span className="prod-oldprice">{fmt(fullPrice)} ₽</span>
-        <span className="prod-disc">{DISC_LABEL}</span>
       </div>
 
       {!verified && (

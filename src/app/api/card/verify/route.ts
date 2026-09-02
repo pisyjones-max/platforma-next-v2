@@ -7,6 +7,7 @@ interface CardRecord {
   issuedAt?: number
   bonus?: number
   bonusReason?: string
+  points?: number
 }
 
 export async function POST(req: NextRequest) {
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const rec = await kvGet<CardRecord>(`card:${p}`)
-    return NextResponse.json({ valid: !!rec, name: rec?.name, bonus: rec?.bonus ?? 0 })
+    return NextResponse.json({ valid: !!rec, name: rec?.name, bonus: rec?.bonus ?? 0, points: rec?.points ?? 0 })
   } catch (e) {
     console.error('[CARD] verify error:', e)
     return NextResponse.json({ valid: false }, { status: 500 })

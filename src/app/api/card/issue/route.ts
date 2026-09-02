@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { kvSet, kvGet, isKvConfigured } from '@/lib/kv'
 import { normalizePhone } from '@/lib/phone'
-import { DESIGN_PROJECT_PRICE } from '@/lib/constants'
+import { DESIGN_PROJECT_PRICE, CARD_WELCOME_BONUS } from '@/lib/constants'
 
 interface DesignLead {
   name?: string
@@ -40,9 +40,13 @@ export async function POST(req: NextRequest) {
       name: String(name ?? '').slice(0, 200),
       issuedAt: Date.now(),
       source: 'site',
+      // Приветственный баланс баллов — начисляется на каждую карту при выпуске.
+      // Списание баллов НЕ автоматическое: менеджер решает сумму списания
+      // при оформлении конкретного заказа (см. /admin/cards).
+      points: CARD_WELCOME_BONUS,
       ...(bonus ? { bonus, bonusReason } : {}),
     })
-    return NextResponse.json({ ok: true, persisted: true, bonus })
+    return NextResponse.json({ ok: true, persisted: true, bonus, points: CARD_WELCOME_BONUS })
   } catch (e) {
     console.error('[CARD] issue error:', e)
     return NextResponse.json({ ok: false }, { status: 500 })

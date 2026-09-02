@@ -36,7 +36,7 @@ export default async function SearchPage({ searchParams }: Props) {
       <div className="hero">
         <div>
           <h1>{query ? `Результаты по запросу «${query}»` : 'Поиск по каталогу'}</h1>
-          <p>Доставка по Московской области · Скидка −17% на всё</p>
+          <p>Доставка по Московской области</p>
         </div>
         <div className="hero-right">
           <div className="hero-stat"><span>{total}</span><small>найдено</small></div>

@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { imgUrl } from '@/lib/image'
 import { useCart } from '@/context/CartContext'
 import { useCard } from '@/context/CardContext'
-import { fmt } from '@/lib/price'
-import { SALE_RATE, DISC_LABEL, CARD_DISCOUNT } from '@/lib/constants'
+import { fmt, salePrice as computeSalePrice } from '@/lib/price'
+import { CARD_DISCOUNT } from '@/lib/constants'
 
 interface Props {
   id: string
@@ -36,7 +36,7 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
   const { add } = useCart()
   const { verified } = useCard()
   const [qty, setQty] = useState(1)
-  const salePrice = Math.round(price * SALE_RATE)
+  const salePrice = computeSalePrice(price)
   const cardPrice = Math.round(salePrice * (1 - CARD_DISCOUNT))
   const desc = buildDesc(description, features)
 
@@ -53,7 +53,6 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
 
   const inner = (
     <>
-      {price > 0 && <div className="pcard-discount-tag">{DISC_LABEL}</div>}
       <div className="pthumb">
         {img
           ? <img src={imgUrl(img)} alt={title} loading="lazy" />

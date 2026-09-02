@@ -1,8 +1,12 @@
 export const PAGE_SIZE       = 24           // товаров на странице категории (SSR-пагинация и "Загрузить ещё")
-export const SALE_RATE      = 0.99          // наша цена = цена конкурента × 0.99
-export const DISC_LABEL     = '−17%'        // маркетинговая скидка на бейдже
+export const SITE_DISCOUNT_RUB = 1          // наша цена = цена mk4s.ru − 1 ₽ (фиксированная сумма, не процент)
 export const CASHBACK_RATE  = 0.005
-export const CARD_DISCOUNT  = 0.05          // доп. скидка по карте PLATFORMA поверх обычной цены (как "цена с картой Ozon")
+export const CARD_DISCOUNT  = 0.01          // доп. скидка по карте PLATFORMA поверх обычной цены (как "цена с картой Ozon")
+
+// Приветственный бонус на карту лояльности — начисляется баллами при оформлении
+// карты (любой источник). Списание баллов происходит не автоматически по правилу,
+// а на усмотрение менеджера при оформлении заказа (см. /admin/cards).
+export const CARD_WELCOME_BONUS = 15000
 export const ADMIN_KEY      = process.env.ADMIN_KEY ?? ''   // секретный ключ для /admin/cards
 export const PHONE_NUMBER   = '+7 (933) 203-30-05'
 

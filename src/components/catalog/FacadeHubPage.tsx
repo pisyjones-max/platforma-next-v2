@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { fmt } from '@/lib/price'
-import { DISC_LABEL, PHONE_NUMBER } from '@/lib/constants'
+import { PHONE_NUMBER } from '@/lib/constants'
 
 interface FacadeOptionView {
   slug: string
@@ -38,11 +38,8 @@ export function FacadeHubPage({ options, faq }: Props) {
           <h1>Отделка фасада дома — материалы и цены</h1>
           <p>
             Сайдинг, фасадная плитка, термопанели или утепление — сравните варианты и перейдите
-            в нужный раздел каталога. Доставка по Московской области, скидка {DISC_LABEL}.
+            в нужный раздел каталога. Доставка по Московской области.
           </p>
-        </div>
-        <div className="hero-right">
-          <div className="hero-badge"><div className="hero-badge-val">{DISC_LABEL}</div><div className="hero-badge-lbl">скидка</div></div>
         </div>
       </div>
 

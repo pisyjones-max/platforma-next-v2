@@ -5,7 +5,6 @@ import { ProductCard } from './ProductCard'
 import { BrandFilter } from './BrandFilter'
 import { useFilters } from '@/hooks/useFilters'
 import { findProduct } from '@/lib/catalog'
-import { DISC_LABEL } from '@/lib/constants'
 import { getBrandFacets } from '@/lib/brandAliases'
 import { productSlug } from '@/lib/slug'
 import type { Category, Product } from '@/types/catalog'
@@ -85,11 +84,10 @@ export function CategoryPage({ category, parentGroup, totalCount, page = 1, tota
       <div className="hero">
         <div>
           <h1>{category.name}</h1>
-          <p>Доставка по Московской области · Скидка −17% на всё</p>
+          <p>Доставка по Московской области · Цены ниже конкурентов</p>
         </div>
         <div className="hero-right">
           <div className="hero-stat"><span>{totalCount ?? category.products.length}</span><small>товаров</small></div>
-          <div className="hero-badge"><div className="hero-badge-val">{DISC_LABEL}</div><div className="hero-badge-lbl">скидка</div></div>
         </div>
       </div>
 

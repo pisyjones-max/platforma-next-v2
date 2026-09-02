@@ -56,7 +56,7 @@ export function GroupsPage({
             <span style={{ color: '#7ECC9A' }}>с доставкой по МО</span>
           </h1>
           <p className="home-hero-sub">
-            {totalProducts} товаров в наличии · Скидка −17% на всё · Доставка от 1 дня
+            {totalProducts} товаров в наличии · Цены ниже конкурентов · Доставка от 1 дня
           </p>
           <div className="home-hero-actions">
             <a href={`tel:${PHONE_NUMBER}`} className="home-hero-phone">
@@ -69,7 +69,6 @@ export function GroupsPage({
         </div>
         <div className="home-hero-right">
           <div className="hero-stat"><span>{totalProducts}</span><small>товаров</small></div>
-          <div className="hero-badge"><div className="hero-badge-val">−17%</div><div className="hero-badge-lbl">скидка</div></div>
           <div className="hero-stat"><span>1</span><small>день доставка</small></div>
         </div>
       </div>
@@ -78,7 +77,7 @@ export function GroupsPage({
       <div className="home-features">
         {[
           { icon: '🚚', title: 'Быстрая доставка', sub: 'По Московской области от 1 дня' },
-          { icon: '💰', title: 'Скидка −17%', sub: 'На весь ассортимент сайта' },
+          { icon: '💰', title: 'Цены ниже рынка', sub: 'На весь ассортимент сайта' },
           { icon: '📞', title: 'Консультация', sub: 'Бесплатно по телефону' },
           { icon: '✅', title: 'Гарантия', sub: 'Официальная от производителей' },
         ].map(f => (

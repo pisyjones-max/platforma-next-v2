@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react'
 import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
 import { imgUrl } from '@/lib/image'
-import { fmt } from '@/lib/price'
-import { SALE_RATE, DISC_LABEL } from '@/lib/constants'
+import { fmt, salePrice } from '@/lib/price'
 import type { Product } from '@/types/catalog'
 
 interface Props { product: Product | null; onClose: () => void }
@@ -21,7 +20,7 @@ export function ProductModal({ product, onClose }: Props) {
   if (!product) return null
 
   const v = product.variants[varIdx]
-  const fp = Math.round(v.price * SALE_RATE)
+  const fp = salePrice(v.price)
   const imgs = v.images ?? []
 
   const handleAdd = () => {
@@ -83,7 +82,6 @@ export function ProductModal({ product, onClose }: Props) {
               <>
                 <span className="mprice">{fmt(fp)} ₽</span>
                 <span className="mop">{fmt(v.price)} ₽</span>
-                <span className="m-disc-tag">{DISC_LABEL}</span>
               </>
             ) : (
               <span className="mprice" style={{ fontSize: 16, color: 'var(--muted)' }}>Цена по запросу</span>

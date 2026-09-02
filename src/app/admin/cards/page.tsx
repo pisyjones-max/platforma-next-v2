@@ -9,6 +9,7 @@ interface CardRow {
   source?: string
   bonus?: number
   bonusReason?: string
+  points?: number
 }
 
 const LS_ADMIN_KEY = 'platforma_admin_key'
@@ -96,6 +97,33 @@ export default function AdminCardsPage() {
     }
   }
 
+  // Списание баллов — сумму каждый раз определяет менеджер сам (по категории
+  // товара, условиям поставки и т.п.), формулы нет — поэтому просто спрашиваем число.
+  const handleRedeem = async (c: CardRow) => {
+    const input = prompt(
+      `Списать баллов с карты ${formatPhone(c.phone)} (текущий баланс: ${c.points ?? 0}):`,
+      '',
+    )
+    if (input === null) return
+    const amount = Number(input.replace(',', '.').trim())
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setError('Введите положительное число баллов')
+      return
+    }
+    try {
+      const res = await fetch('/api/admin/cards', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+        body: JSON.stringify({ phone: c.phone, amount }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error || 'Не удалось списать баллы'); return }
+      loadCards(key)
+    } catch {
+      setError('Ошибка сети')
+    }
+  }
+
   if (!key) {
     return (
       <div style={{ maxWidth: 380, margin: '80px auto', padding: '0 16px', fontFamily: 'var(--fb, sans-serif)' }}>
@@ -159,6 +187,7 @@ export default function AdminCardsPage() {
               <th style={{ padding: '6px 4px' }}>Телефон</th>
               <th style={{ padding: '6px 4px' }}>Имя</th>
               <th style={{ padding: '6px 4px' }}>Источник</th>
+              <th style={{ padding: '6px 4px' }}>Баллы</th>
               <th style={{ padding: '6px 4px' }}>Бонус</th>
               <th style={{ padding: '6px 4px' }}>Выдана</th>
               <th style={{ padding: '6px 4px' }}></th>
@@ -170,6 +199,7 @@ export default function AdminCardsPage() {
                 <td style={{ padding: '6px 4px' }}>{formatPhone(c.phone)}</td>
                 <td style={{ padding: '6px 4px' }}>{c.name || '—'}</td>
                 <td style={{ padding: '6px 4px' }}>{c.source === 'admin' ? 'вручную' : 'сайт'}</td>
+                <td style={{ padding: '6px 4px', fontWeight: 700 }}>{c.points ?? 0}</td>
                 <td style={{ padding: '6px 4px' }}>
                   {c.bonus ? (
                     <span style={{ color: '#1a7a3d', fontWeight: 700 }}>+{c.bonus} ₽</span>
@@ -181,7 +211,13 @@ export default function AdminCardsPage() {
                   ) : null}
                 </td>
                 <td style={{ padding: '6px 4px' }}>{c.issuedAt ? new Date(c.issuedAt).toLocaleDateString('ru-RU') : '—'}</td>
-                <td style={{ padding: '6px 4px' }}>
+                <td style={{ padding: '6px 4px', whiteSpace: 'nowrap' }}>
+                  <button
+                    onClick={() => handleRedeem(c)}
+                    style={{ background: 'none', border: 'none', color: '#C8960C', cursor: 'pointer', textDecoration: 'underline', marginRight: 10 }}
+                  >
+                    списать
+                  </button>
                   <button
                     onClick={() => handleRemove(c.phone)}
                     style={{ background: 'none', border: 'none', color: '#BF3E22', cursor: 'pointer', textDecoration: 'underline' }}
