@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { Group } from '@/types/catalog'
 import { fmt } from '@/lib/price'
 import { PHONE_NUMBER } from '@/lib/constants'
+import { getServicesForGroup } from '@/lib/services'
 
 type CategorySummary = { slug: string; name: string; productsCount: number }
 
@@ -69,6 +70,16 @@ export function GroupDetailPage({ groupSlug, group, categories: cats, comparison
           <div className="design-strip-cta">Примерить бесплатно →</div>
         </Link>
       )}
+
+      {getServicesForGroup(groupSlug).map(service => (
+        <Link key={service.slug} href={service.urlPath} className="design-strip montazh-strip">
+          <div className="design-strip-text">
+            {service.ctaLabel}
+            <small>{service.ctaSubLabel}</small>
+          </div>
+          <div className="design-strip-cta">Оставить заявку →</div>
+        </Link>
+      ))}
 
       {comparison && comparison.length > 0 && (
         <>

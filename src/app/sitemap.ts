@@ -6,6 +6,7 @@ import { CITIES } from '@/lib/cities'
 import { getAllArticles } from '@/lib/blog'
 import { getAllBrands } from '@/lib/brands'
 import { DISTRICT_COMMERCE_GROUPS } from '@/lib/districtCommerce'
+import { SERVICES } from '@/lib/services'
 
 // См. комментарий в src/lib/catalog.ts — каталог читается с диска в рантайме,
 // эта настройка даёт sitemap.xml подхватывать новые товары раз в 10 минут
@@ -25,6 +26,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/fasad/fasad-doma`, lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
     { url: `${SITE_URL}/fasad/sajding`, lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
   ]
+
+  for (const service of SERVICES) {
+    urls.push({ url: `${SITE_URL}${service.urlPath}`, lastModified: now, changeFrequency: 'monthly', priority: 0.75 })
+  }
 
   for (const city of CITIES) {
     urls.push({ url: `${SITE_URL}/dostavka/${city.slug}`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 })

@@ -1680,3 +1680,6 @@ main { flex: 1; }
   flex-shrink: 0; padding: 9px 16px; border-radius: 10px; background: var(--dark);
   color: #fff; font-weight: 700; font-size: 13.5px; white-space: nowrap;
 }
+/* Вариант плашки для партнёрских услуг (монтаж) — тот же макет, акцент теплее */
+.montazh-strip { background: #fdf3e7; border-color: #f0dfc4; }
+.montazh-strip .design-strip-cta { background: #c9822a; }

@@ -5,7 +5,6 @@ import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
 import { imgUrl } from '@/lib/image'
 import { fmt, salePrice } from '@/lib/price'
-import { CARD_DISCOUNT } from '@/lib/constants'
 import { getCalcType } from '@/lib/calculator'
 import { productSlug } from '@/lib/slug'
 import { Calculator } from '@/components/calculator/Calculator'
@@ -14,6 +13,7 @@ import { CardPriceBlock } from '@/components/product/CardPriceBlock'
 import { CrossSellSection } from '@/components/product/CrossSellSection'
 import { DeliveryCountdown } from '@/components/product/DeliveryCountdown'
 import { AskKevPresets } from '@/components/product/AskKevPresets'
+import { getServicesForGroup } from '@/lib/services'
 import type { Product } from '@/types/catalog'
 import type { CrossSellProduct } from '@/lib/crossSell'
 import type { FaqItem } from '@/lib/productFaq'
@@ -53,7 +53,6 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
 
   const v = product.variants[varIdx]
   const fp = salePrice(v.price)
-  const cardPrice = Math.round(fp * (1 - CARD_DISCOUNT))
   const imgs = v.images ?? []
 
   const handleZoomMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -202,7 +201,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
 
           {/* Цена */}
           {v.price > 0 ? (
-            <CardPriceBlock fullPrice={v.price} regularPrice={fp} cardPrice={cardPrice} />
+            <CardPriceBlock fullPrice={v.price} regularPrice={fp} />
           ) : (
             <div className="prod-price-block">
               <span className="prod-price-req">Цена по запросу</span>
@@ -377,6 +376,16 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
 
       {/* С этим товаром покупают */}
       <CrossSellSection products={crossSellProducts} />
+
+      {getServicesForGroup(groupSlug).map(service => (
+        <Link key={service.slug} href={service.urlPath} className="design-strip montazh-strip">
+          <div className="design-strip-text">
+            {service.ctaLabel}
+            <small>{service.ctaSubLabel}</small>
+          </div>
+          <div className="design-strip-cta">Оставить заявку →</div>
+        </Link>
+      ))}
 
       {/* Похожие товары */}
       <div className="prod-related">

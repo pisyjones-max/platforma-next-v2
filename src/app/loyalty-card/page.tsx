@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import { CardIssueForm } from '@/components/loyalty/CardIssueForm'
-import { CARD_DISCOUNT, CARD_WELCOME_BONUS, CASHBACK_RATE, DESIGN_PROJECT_PRICE, PHONE_NUMBER } from '@/lib/constants'
+import { CARD_WELCOME_BONUS, CASHBACK_RATE, DESIGN_PROJECT_PRICE, PHONE_NUMBER } from '@/lib/constants'
 
 export const metadata: Metadata = {
-  title: 'Карта лояльности PLATFORMA — 15 000 баллов и доп. скидка на кровлю и материалы',
+  title: 'Карта лояльности PLATFORMA — 15 000 баллов на карту',
   description:
-    'Оформите бесплатную карту лояльности PLATFORMA: 15 000 баллов сразу на карту, дополнительная скидка на все товары, кэшбэк с покупок и бонус за дизайн-проект дома. Оформление по имени и телефону — без визита в офис.',
+    'Оформите бесплатную карту лояльности PLATFORMA: 15 000 баллов сразу на карту, кэшбэк с покупок и бонус за дизайн-проект дома. Оформление по имени и телефону — без визита в офис.',
 }
 
 const BENEFITS = [
@@ -13,11 +13,6 @@ const BENEFITS = [
     icon: '🎁',
     title: `${CARD_WELCOME_BONUS.toLocaleString('ru-RU')} баллов на карту`,
     text: 'Начисляются автоматически сразу при оформлении карты — независимо от суммы и истории покупок.',
-  },
-  {
-    icon: '💳',
-    title: `Скидка ${Math.round(CARD_DISCOUNT * 100)}% на весь каталог`,
-    text: 'Действует поверх обычной цены сайта при любой покупке — как карта постоянного покупателя в крупных магазинах.',
   },
   {
     icon: '💰',
@@ -56,7 +51,7 @@ export default function LoyaltyCardPage() {
         </h1>
         <p style={{ fontSize: 15.5, color: 'var(--muted)', maxWidth: 620, margin: '0 auto' }}>
           Оформите карту лояльности по имени и телефону — {CARD_WELCOME_BONUS.toLocaleString('ru-RU')}{' '}
-          баллов и дополнительная скидка {Math.round(CARD_DISCOUNT * 100)}% начнут действовать сразу же.
+          баллов и кэшбэк {(CASHBACK_RATE * 100).toFixed(1)}% с каждой покупки начнут действовать сразу же.
         </p>
       </div>
 

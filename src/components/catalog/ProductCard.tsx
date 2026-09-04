@@ -5,7 +5,6 @@ import { imgUrl } from '@/lib/image'
 import { useCart } from '@/context/CartContext'
 import { useCard } from '@/context/CardContext'
 import { fmt, salePrice as computeSalePrice } from '@/lib/price'
-import { CARD_DISCOUNT } from '@/lib/constants'
 
 interface Props {
   id: string
@@ -37,7 +36,6 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
   const { verified } = useCard()
   const [qty, setQty] = useState(1)
   const salePrice = computeSalePrice(price)
-  const cardPrice = Math.round(salePrice * (1 - CARD_DISCOUNT))
   const desc = buildDesc(description, features)
 
   const stop = (e: React.MouseEvent) => {
@@ -82,7 +80,7 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
               <span className="pop">{fmt(price)} ₽</span>
             </div>
             <div className="pcard-cardprice">
-              {verified ? `💳 ${fmt(cardPrice)} ₽ с картой PLATFORMA` : '💳 Есть цена с картой PLATFORMA'}
+              {verified ? '💳 Бонусы по карте PLATFORMA начислятся на этот заказ' : '💳 Есть карта лояльности PLATFORMA'}
             </div>
           </>
         ) : (
