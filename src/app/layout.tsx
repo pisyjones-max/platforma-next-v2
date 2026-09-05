@@ -127,6 +127,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <img src="https://mc.yandex.ru/watch/109166481" style={{ position: 'absolute', left: -9999 }} alt="" />
           </div>
         </noscript>
+
+        {/* Top.Mail.Ru counter */}
+        <Script id="tmr-init" strategy="afterInteractive">{`
+          var _tmr = window._tmr || (window._tmr = []);
+          _tmr.push({id: "3792073", type: "pageView", start: (new Date()).getTime()});
+          (function (d, w, id) {
+            if (d.getElementById(id)) return;
+            var ts = d.createElement("script"); ts.type = "text/javascript"; ts.async = true; ts.id = id;
+            ts.src = "https://top-fwz1.mail.ru/js/code.js";
+            var f = function () {var s = d.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ts, s);};
+            if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); }
+          })(document, window, "tmr-code");
+        `}</Script>
+        <noscript>
+          <div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="https://top-fwz1.mail.ru/counter?id=3792073;js=na" style={{ position: 'absolute', left: -9999 }} alt="Top.Mail.Ru" />
+          </div>
+        </noscript>
+        {/* /Top.Mail.Ru counter */}
       </head>
       <body style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <CartProvider>
