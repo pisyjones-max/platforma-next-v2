@@ -36,12 +36,18 @@ interface Props {
    */
   comparison?: ComparisonOption[]
   faq?: FaqItem[]
+  /**
+   * Ссылка на SEO-лендинг калькулятора для этой группы (см. /kalkulyator/*),
+   * если он существует — сейчас только для "Кровля". Рендерится как
+   * вторая кнопка в CTA-блоке ниже сравнения материалов.
+   */
+  calculatorHref?: string
 }
 
 // Группы, для которых имеет смысл предложить "примерить" материал на дом
 // через бесплатный дизайн-проект (визуальные, "фасадные" материалы).
 
-export function GroupDetailPage({ groupSlug, group, categories: cats, comparison, faq }: Props) {
+export function GroupDetailPage({ groupSlug, group, categories: cats, comparison, faq, calculatorHref }: Props) {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const telHref = `tel:${PHONE_NUMBER.replace(/[^\d+]/g, '')}`
 
@@ -222,6 +228,18 @@ export function GroupDetailPage({ groupSlug, group, categories: cats, comparison
               Расскажите нам о доме — подберём материал под бюджет и посчитаем стоимость с монтажом.
             </div>
           </div>
+          {calculatorHref && (
+            <Link
+              href={calculatorHref}
+              style={{
+                padding: '12px 20px', background: 'var(--surface)', border: '1.5px solid var(--border)',
+                borderRadius: 10, color: 'var(--text)', fontWeight: 700, fontSize: 14.5,
+                textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
+              }}
+            >
+              🧮 Посчитать самому
+            </Link>
+          )}
           <a
             href={telHref}
             style={{

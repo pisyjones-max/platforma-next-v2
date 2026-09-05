@@ -227,6 +227,16 @@ export function SidingHubPage({ options, faq }: Props) {
             Расскажите нам о доме — подберём материал под бюджет и посчитаем стоимость с монтажом.
           </div>
         </div>
+        <Link
+          href="/kalkulyator/sajdinga"
+          style={{
+            padding: '12px 20px', background: 'var(--surface)', border: '1.5px solid var(--border)',
+            borderRadius: 10, color: 'var(--text)', fontWeight: 700, fontSize: 14.5,
+            textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
+          }}
+        >
+          🧮 Посчитать самому
+        </Link>
         <a
           href={telHref}
           style={{

@@ -80,7 +80,14 @@ export default async function GroupPage({ params }: Props) {
     <>
       <script {...jsonLdScriptProps(breadcrumbs)} />
       {isKrovlya && <script {...jsonLdScriptProps(faqSchema(KROVLYA_FAQ))} />}
-      <GroupDetailPage groupSlug={groupSlug} group={group} categories={categories} comparison={comparison} faq={faq} />
+      <GroupDetailPage
+        groupSlug={groupSlug}
+        group={group}
+        categories={categories}
+        comparison={comparison}
+        faq={faq}
+        calculatorHref={isKrovlya ? '/kalkulyator/krovli' : undefined}
+      />
       <DistrictLinksBlock groupSlug={groupSlug} groupName={group.name} />
       <RelatedBlogArticles href={`/catalog/group/${groupSlug}`} />
     </>

@@ -85,6 +85,21 @@ export function Footer() {
             ))}
           </div>
 
+          {/* Калькуляторы */}
+          <div>
+            <div style={{ color: '#fff', fontWeight: 600, fontSize: 13, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '1px' }}>Калькуляторы</div>
+            {[
+              { href: '/kalkulyator/krovli', label: 'Калькулятор кровли' },
+              { href: '/kalkulyator/sajdinga', label: 'Калькулятор сайдинга' },
+              { href: '/kalkulyator/vodostoka', label: 'Калькулятор водостока' },
+              { href: '/kalkulyator/uteplitelya', label: 'Калькулятор утеплителя' },
+            ].map(l => (
+              <Link key={l.href} href={l.href} style={{ display: 'block', fontSize: 13, marginBottom: 6, color: 'rgba(255,255,255,.6)', textDecoration: 'none' }}>
+                {l.label}
+              </Link>
+            ))}
+          </div>
+
           {/* Города */}
           <div>
             <div style={{ color: '#fff', fontWeight: 600, fontSize: 13, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '1px' }}>Доставка по городам</div>
