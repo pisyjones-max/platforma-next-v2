@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 import { CardIssueForm } from '@/components/loyalty/CardIssueForm'
-import { CARD_WELCOME_BONUS, CASHBACK_RATE, DESIGN_PROJECT_PRICE, PHONE_NUMBER } from '@/lib/constants'
+import { CARD_WELCOME_BONUS, DESIGN_PROJECT_PRICE, PHONE_NUMBER } from '@/lib/constants'
+import { CASHBACK_TIERS, POINTS_EXPIRY_DAYS, REFERRAL_BONUS_POINTS } from '@/lib/loyaltyFeatures'
 
 export const metadata: Metadata = {
   title: 'Карта лояльности PLATFORMA — 15 000 баллов на карту',
   description:
-    'Оформите бесплатную карту лояльности PLATFORMA: 15 000 баллов сразу на карту, кэшбэк с покупок и бонус за дизайн-проект дома. Оформление по имени и телефону — без визита в офис.',
+    'Оформите бесплатную карту лояльности PLATFORMA: 15 000 баллов сразу на карту, растущий кэшбэк с покупок и бонус за дизайн-проект дома. Оформление по имени и телефону — без визита в офис.',
 }
 
 const BENEFITS = [
@@ -16,8 +17,8 @@ const BENEFITS = [
   },
   {
     icon: '💰',
-    title: `Кэшбэк ${(CASHBACK_RATE * 100).toFixed(1)}% с каждой покупки`,
-    text: 'Начисляется на карту и списывается при следующем заказе материалов.',
+    title: `Кэшбэк растёт до ${(CASHBACK_TIERS[CASHBACK_TIERS.length - 1] * 100).toFixed(1)}%`,
+    text: `${(CASHBACK_TIERS[0] * 100).toFixed(1)}% с первой покупки, дальше выше с каждым следующим заказом — списывается на следующую покупку материалов.`,
   },
   {
     icon: '🏗️',
@@ -51,7 +52,7 @@ export default function LoyaltyCardPage() {
         </h1>
         <p style={{ fontSize: 15.5, color: 'var(--muted)', maxWidth: 620, margin: '0 auto' }}>
           Оформите карту лояльности по имени и телефону — {CARD_WELCOME_BONUS.toLocaleString('ru-RU')}{' '}
-          баллов и кэшбэк {(CASHBACK_RATE * 100).toFixed(1)}% с каждой покупки начнут действовать сразу же.
+          баллов начислятся сразу же, а кэшбэк растёт с каждой следующей покупкой.
         </p>
       </div>
 
@@ -109,6 +110,11 @@ export default function LoyaltyCardPage() {
               title="Списание баллов — через менеджера"
               text={`Баллами не получится расплатиться автоматически на сайте: сумму списания на конкретный заказ определяет менеджер (${PHONE_NUMBER}), в зависимости от категории товара и условий поставки.`}
             />
+            <ConditionRow
+              icon="🤝"
+              title={`+${REFERRAL_BONUS_POINTS.toLocaleString('ru-RU')} баллов за приглашённого соседа`}
+              text="После оформления карты вы получите свою ссылку — по ней сосед оформит карту, а вы оба получите бонусные баллы."
+            />
           </div>
 
           <h2 className="prod-section-title" style={{ margin: '32px 0 14px' }}>Частые вопросы</h2>
@@ -132,6 +138,10 @@ export default function LoyaltyCardPage() {
             <FaqItem
               q="Как узнать баланс баллов и скидку?"
               a="Уточните на кассе или у менеджера по телефону — достаточно назвать номер, привязанный к карте."
+            />
+            <FaqItem
+              q="Баллы сгорают?"
+              a={`Да, если по карте нет новых покупок дольше ${POINTS_EXPIRY_DAYS} дней. Любая новая покупка снова обнуляет этот срок.`}
             />
           </div>
         </div>

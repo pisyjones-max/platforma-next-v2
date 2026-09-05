@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import { useUI } from '@/context/UIContext'
 import { useCard } from '@/context/CardContext'
-import { PHONE_NUMBER } from '@/lib/constants'
 import { formatPhone } from '@/lib/phone'
 
 export function LoyaltyModal() {
@@ -12,13 +11,17 @@ export function LoyaltyModal() {
   const [phone, setPhone] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [ref] = useState<string | null>(() =>
+    typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('ref')
+  )
+  const [referralBonus, setReferralBonus] = useState(0)
 
   if (!loyaltyOpen) return null
 
   const handleSubmit = async () => {
     if (!name || !phone) { alert('Заполните имя и телефон'); return }
     setLoading(true)
-    await Promise.all([
+    const [, issueRes] = await Promise.all([
       fetch('/api/order/callback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -27,9 +30,15 @@ export function LoyaltyModal() {
       fetch('/api/card/issue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone }),
+        body: JSON.stringify({ name, phone, ref }),
       }),
     ])
+    try {
+      const data = await issueRes.json()
+      if (data?.referralBonus) setReferralBonus(data.referralBonus)
+    } catch {
+      // не критично для UX выпуска карты
+    }
     markVerified(phone)
     setLoading(false)
     setSent(true)
@@ -48,7 +57,7 @@ export function LoyaltyModal() {
           <div className="lc-hdr">
             <button className="lc-hdr-close" onClick={closeLoyalty}>✕</button>
             <div className="lc-hdr-title">Карта лояльности PLATFORMA</div>
-            <div className="lc-hdr-sub">Кэшбэк до 5% • Скидки постоянным клиентам</div>
+            <div className="lc-hdr-sub">Кэшбэк растёт с каждой покупкой • До 1.5%</div>
           </div>
 
           {/* Визуализация карты */}
@@ -74,8 +83,8 @@ export function LoyaltyModal() {
                     <div className="lc-stat-lbl">Кэшбэк</div>
                   </div>
                   <div className="lc-stat-item">
-                    <div className="lc-stat-val">−1%</div>
-                    <div className="lc-stat-lbl">Доп. скидка</div>
+                    <div className="lc-stat-val">0 ₽</div>
+                    <div className="lc-stat-lbl">Выезд замерщика</div>
                   </div>
                 </div>
               </div>
@@ -90,7 +99,7 @@ export function LoyaltyModal() {
                 {[
                   { icon: '🎁', title: '15 000 баллов', text: 'Сразу при оформлении карты' },
                   { icon: '💰', title: 'Кэшбэк 0.5%', text: 'С каждой покупки на карту' },
-                  { icon: '🏷️', title: 'Доп. скидка −1%', text: 'На весь ассортимент магазина' },
+                  { icon: '🔧', title: 'Выезд замерщика', text: 'Бесплатно для держателей карты' },
                   { icon: '🚀', title: 'Приоритет', text: 'Первыми узнаёте об акциях' },
                 ].map((p, i) => (
                   <div key={i} style={{
@@ -114,7 +123,8 @@ export function LoyaltyModal() {
                 </div>
                 <div style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.6 }}>
                   Менеджер свяжется с вами и оформит карту.<br />
-                  Бонус 15 000 баллов будет начислен сразу!
+                  Бонус {referralBonus ? `${(15000 + referralBonus).toLocaleString('ru-RU')}` : '15 000'} баллов будет начислен сразу!
+                  {referralBonus ? <><br /><span style={{ color: 'var(--accent)' }}>+{referralBonus.toLocaleString('ru-RU')} за приглашение от соседа</span></> : null}
                 </div>
                 <button className="co-submit" style={{ marginTop: 20 }} onClick={closeLoyalty}>Отлично!</button>
               </div>
