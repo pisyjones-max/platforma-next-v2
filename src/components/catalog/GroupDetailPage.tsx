@@ -40,7 +40,6 @@ interface Props {
 
 // Группы, для которых имеет смысл предложить "примерить" материал на дом
 // через бесплатный дизайн-проект (визуальные, "фасадные" материалы).
-const DESIGN_PROMO_GROUPS = new Set(['sayding', 'krovlya', 'fasadnye-materialy'])
 
 export function GroupDetailPage({ groupSlug, group, categories: cats, comparison, faq }: Props) {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
@@ -60,16 +59,6 @@ export function GroupDetailPage({ groupSlug, group, categories: cats, comparison
           <p>{cats.length} категорий · Доставка по Московской области</p>
         </div>
       </div>
-
-      {DESIGN_PROMO_GROUPS.has(groupSlug) && (
-        <Link href="/dizayn-proekt" className="design-strip">
-          <div className="design-strip-text">
-            Не уверены, что материал впишется в ваш дом?
-            <small>Пришлите фото — покажем результат бесплатно</small>
-          </div>
-          <div className="design-strip-cta">Примерить бесплатно →</div>
-        </Link>
-      )}
 
       {getServicesForGroup(groupSlug).map(service => (
         <Link key={service.slug} href={service.urlPath} className="design-strip montazh-strip">

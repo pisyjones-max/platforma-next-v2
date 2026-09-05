@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { PHONE_NUMBER } from '@/lib/constants'
 import { HomeCalculator } from '@/components/ui/HomeCalculator'
 import { HomeFAQ } from '@/components/ui/HomeFAQ'
-import { DesignPromoBanner } from '@/components/design/DesignPromoBanner'
 import { PriceMatchBanner } from '@/components/pricematch/PriceMatchBanner'
 import { BrandsMarquee } from '@/components/catalog/BrandsMarquee'
 import { WalkingMascot } from '@/components/ui/WalkingMascot'
@@ -91,9 +90,6 @@ export function GroupsPage({
 
       {/* Бренды — бегущая строка */}
       <BrandsMarquee brands={topBrands} />
-
-      {/* Бесплатный дизайн-проект дома */}
-      <DesignPromoBanner />
 
       {/* Перебьём цену конкурента */}
       <PriceMatchBanner />
