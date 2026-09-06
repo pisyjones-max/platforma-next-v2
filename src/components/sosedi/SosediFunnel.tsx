@@ -69,10 +69,10 @@ export function SosediFunnel() {
 
         {step === 1 ? (
           <>
-            <h1 style={{ fontFamily: 'var(--fh)', fontSize: 'clamp(22px, 4.5vw, 32px)', fontWeight: 800, maxWidth: 520, marginBottom: 10 }}>
+            <h1 style={{ fontFamily: 'var(--fh)', fontSize: 'clamp(30px, 5.5vw, 52px)', fontWeight: 800, lineHeight: 1.08, maxWidth: 620, marginBottom: 14 }}>
               Строите дом или делаете ремонт?
             </h1>
-            <p style={{ fontSize: 14.5, color: 'rgba(255,255,255,0.6)', maxWidth: 440, marginBottom: 26, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', maxWidth: 460, marginBottom: 30, lineHeight: 1.5 }}>
               Карта PLATFORMA — помощник на весь проект: от материалов и бригады
               на монтаж до скидок на каждом этапе. Ответьте на 2 вопроса — покажем,
               чем можем помочь именно вам.
