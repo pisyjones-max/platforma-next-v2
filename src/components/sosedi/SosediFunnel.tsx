@@ -72,12 +72,12 @@ export function SosediFunnel() {
             <h1 style={{ fontFamily: 'var(--fh)', fontSize: 'clamp(34px, 7.5vw, 68px)', fontWeight: 800, lineHeight: 1.04, maxWidth: 700, marginBottom: 16 }}>
               Строите дом или делаете ремонт?
             </h1>
-            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', maxWidth: 460, marginBottom: 30, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)', maxWidth: 560, marginBottom: 34, lineHeight: 1.55 }}>
               Карта PLATFORMA — помощник на весь проект: от материалов и бригады
               на монтаж до скидок на каждом этапе. Ответьте на 2 вопроса — покажем,
               чем можем помочь именно вам.
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 380 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 460 }}>
               {STAGE_OPTIONS.map(o => (
                 <button
                   key={o.id}
@@ -95,7 +95,7 @@ export function SosediFunnel() {
             <h1 style={{ fontFamily: 'var(--fh)', fontSize: 'clamp(22px, 4.5vw, 32px)', fontWeight: 800, maxWidth: 520, marginBottom: 28 }}>
               Что нужно в первую очередь?
             </h1>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 380 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 460 }}>
               {NEED_OPTIONS.map(o => (
                 <button
                   key={o.id}
@@ -290,9 +290,9 @@ export function SosediFunnel() {
 }
 
 const quizButtonStyle: React.CSSProperties = {
-  padding: '15px 18px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.15)',
-  background: 'rgba(255,255,255,0.06)', color: '#fff', fontSize: 15, fontWeight: 700,
-  cursor: 'pointer', textAlign: 'left',
+  padding: '20px 22px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.15)',
+  background: 'rgba(255,255,255,0.06)', color: '#fff', fontSize: 19, fontWeight: 700,
+  cursor: 'pointer', textAlign: 'left', lineHeight: 1.35,
 }
 
 const pillLinkStyle: React.CSSProperties = {
