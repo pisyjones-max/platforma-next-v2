@@ -266,7 +266,7 @@ export function SosediFunnel() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: '48px 20px 80px', textAlign: 'center' }}>
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: '48px 20px 100px', textAlign: 'center' }}>
         <a href="#form" style={{ display: 'inline-block', width: '100%', padding: '16px 24px', borderRadius: 14, background: 'var(--gold)', color: '#1a1408', fontFamily: 'var(--fh)', fontWeight: 800, fontSize: 16, textDecoration: 'none' }}>
           Забрать {CARD_WELCOME_BONUS.toLocaleString('ru-RU')} баллов →
         </a>
@@ -275,8 +275,13 @@ export function SosediFunnel() {
         </p>
       </div>
 
-      <div style={{ position: 'sticky', bottom: 0, left: 0, right: 0, padding: '10px 16px', background: 'rgba(15,31,20,0.95)', backdropFilter: 'blur(6px)', borderTop: '1px solid rgba(255,255,255,0.1)', zIndex: 50 }} className="sosedi-sticky-cta">
-        <a href="#form" style={{ display: 'block', textAlign: 'center', padding: '13px', borderRadius: 12, background: 'var(--gold)', color: '#1a1408', fontWeight: 800, fontSize: 14.5, textDecoration: 'none' }}>
+      <div style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0,
+        padding: '10px 16px calc(10px + env(safe-area-inset-bottom, 0px))',
+        background: 'rgba(10,20,14,0.98)', backdropFilter: 'blur(6px)',
+        borderTop: '1px solid rgba(255,255,255,0.12)', zIndex: 50,
+      }} className="sosedi-sticky-cta">
+        <a href="#form" style={{ display: 'block', textAlign: 'center', padding: '13px', borderRadius: 12, background: 'var(--gold)', color: '#1a1408', fontWeight: 800, fontSize: 14.5, textDecoration: 'none', whiteSpace: 'nowrap' }}>
           Забрать {CARD_WELCOME_BONUS.toLocaleString('ru-RU')} баллов
         </a>
       </div>
