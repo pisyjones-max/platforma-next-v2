@@ -222,9 +222,14 @@ export function SosediFunnel() {
             { val: `${REVIEW_BONUS_MIN}–${REVIEW_BONUS_MAX}`, unit: 'баллов', label: 'за фото-отзыв о вашей стройке' },
           ].map((s, i) => (
             <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '22px 16px', textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--fh)', fontSize: 28, fontWeight: 800, color: 'var(--gold)' }}>
-                {s.val}{s.unit && <span style={{ fontSize: 15, marginLeft: 4 }}>{s.unit}</span>}
+              <div style={{ fontFamily: 'var(--fh)', fontSize: 'clamp(22px, 6vw, 28px)', fontWeight: 800, color: 'var(--gold)', lineHeight: 1.15, wordBreak: 'break-word' }}>
+                {s.val}
               </div>
+              {s.unit && (
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--gold)', marginTop: 2 }}>
+                  {s.unit}
+                </div>
+              )}
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 6 }}>{s.label}</div>
             </div>
           ))}
