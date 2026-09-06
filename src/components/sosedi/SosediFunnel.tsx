@@ -64,14 +64,19 @@ export function SosediFunnel() {
           background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
           fontSize: 12.5, fontWeight: 700, color: 'var(--gold)', marginBottom: 18,
         }}>
-          Клуб соседей PLATFORMA
+          Помощник на всё время стройки
         </span>
 
         {step === 1 ? (
           <>
-            <h1 style={{ fontFamily: 'var(--fh)', fontSize: 'clamp(22px, 4.5vw, 32px)', fontWeight: 800, maxWidth: 520, marginBottom: 28 }}>
-              Что сейчас происходит у вас на участке?
+            <h1 style={{ fontFamily: 'var(--fh)', fontSize: 'clamp(22px, 4.5vw, 32px)', fontWeight: 800, maxWidth: 520, marginBottom: 10 }}>
+              Строите дом или делаете ремонт?
             </h1>
+            <p style={{ fontSize: 14.5, color: 'rgba(255,255,255,0.6)', maxWidth: 440, marginBottom: 26, lineHeight: 1.5 }}>
+              Карта PLATFORMA — помощник на весь проект: от материалов и бригады
+              на монтаж до скидок на каждом этапе. Ответьте на 2 вопроса — покажем,
+              чем можем помочь именно вам.
+            </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 380 }}>
               {STAGE_OPTIONS.map(o => (
                 <button
