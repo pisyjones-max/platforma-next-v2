@@ -69,7 +69,7 @@ export function SosediFunnel() {
 
         {step === 1 ? (
           <>
-            <h1 style={{ fontFamily: 'var(--fh)', fontSize: 'clamp(30px, 5.5vw, 52px)', fontWeight: 800, lineHeight: 1.08, maxWidth: 620, marginBottom: 14 }}>
+            <h1 style={{ fontFamily: 'var(--fh)', fontSize: 'clamp(34px, 7.5vw, 68px)', fontWeight: 800, lineHeight: 1.04, maxWidth: 700, marginBottom: 16 }}>
               Строите дом или делаете ремонт?
             </h1>
             <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', maxWidth: 460, marginBottom: 30, lineHeight: 1.5 }}>
