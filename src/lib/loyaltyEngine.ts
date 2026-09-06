@@ -13,6 +13,7 @@ export interface CardRecord {
   referredBy?: string      // телефон того, кто пригласил (нормализованный)
   referralCount?: number   // сколько людей привёл сам
   email?: string           // необязательно, для рассылок/письма с картой
+  intent?: string          // что ответил в квизе на /sosedi — видно менеджеру сразу
 }
 
 // Ставка кэшбэка для N-й (1-indexed) покупки по карте

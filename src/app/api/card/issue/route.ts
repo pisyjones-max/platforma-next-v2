@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { kvSet, kvGet, isKvConfigured } from '@/lib/kv'
-import { normalizePhone } from '@/lib/phone'
+import { normalizePhone, formatPhone } from '@/lib/phone'
 import { DESIGN_PROJECT_PRICE, CARD_WELCOME_BONUS } from '@/lib/constants'
 import { LOYALTY_FEATURES, REFERRAL_BONUS_POINTS } from '@/lib/loyaltyFeatures'
 import type { CardRecord } from '@/lib/loyaltyEngine'
+import { sendTG, tgEsc } from '@/lib/telegram'
 
 interface DesignLead {
   name?: string
@@ -11,12 +12,13 @@ interface DesignLead {
 }
 
 export async function POST(req: NextRequest) {
-  const { name, phone, ref, email } = await req.json()
+  const { name, phone, ref, email, intent } = await req.json()
   const p = normalizePhone(phone)
   if (!p) return NextResponse.json({ ok: false, error: 'bad_phone' }, { status: 400 })
   const cleanEmail = typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
     ? email.trim().slice(0, 200)
     : undefined
+  const cleanIntent = typeof intent === 'string' ? intent.slice(0, 200) : undefined
 
   if (!isKvConfigured()) {
     // База карт ещё не подключена в Vercel (KV_REST_API_URL / KV_REST_API_TOKEN) —
@@ -80,9 +82,27 @@ export async function POST(req: NextRequest) {
       // при оформлении конкретного заказа (см. /admin/cards).
       points,
       ...(cleanEmail ? { email: cleanEmail } : {}),
+      ...(cleanIntent ? { intent: cleanIntent } : {}),
       ...(bonus ? { bonus, bonusReason } : {}),
       ...(referredBy ? { referredBy } : {}),
     })
+
+    // Уведомление менеджеру — раньше карта тихо оседала в KV, менеджер об этом не узнавал.
+    try {
+      const lines = [
+        `🎁 Новая карта лояльности`,
+        `Имя: ${tgEsc(String(name ?? '').slice(0, 200))}`,
+        `Телефон: ${tgEsc(formatPhone(p))}`,
+        cleanEmail ? `Email: ${tgEsc(cleanEmail)}` : null,
+        cleanIntent ? `Запрос клиента: ${tgEsc(cleanIntent)}` : null,
+        `Баллы: ${points}${referralBonus ? ` (из них ${referralBonus} — за реферала)` : ''}`,
+        bonus ? `Бонус за дизайн-проект: ${bonus} ₽` : null,
+      ].filter(Boolean)
+      await sendTG(lines.join('\n'))
+    } catch (e) {
+      console.error('[CARD] issue TG notify error:', e) // не блокируем выпуск карты
+    }
+
     return NextResponse.json({ ok: true, persisted: true, bonus, referralBonus, points })
   } catch (e) {
     console.error('[CARD] issue error:', e)

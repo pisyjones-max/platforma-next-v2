@@ -2,7 +2,10 @@
 import { useState } from 'react'
 import { formatPhone, normalizePhone } from '@/lib/phone'
 
-export function CardIssueForm({ ctaLabel = 'Оформить карту бесплатно' }: { ctaLabel?: string }) {
+export function CardIssueForm({
+  ctaLabel = 'Оформить карту бесплатно',
+  intent,
+}: { ctaLabel?: string; intent?: string }) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
@@ -27,7 +30,7 @@ export function CardIssueForm({ ctaLabel = 'Оформить карту бесп
       const res = await fetch('/api/card/issue', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), phone, ref, email: email.trim() || undefined }),
+        body: JSON.stringify({ name: name.trim(), phone, ref, email: email.trim() || undefined, intent }),
       })
       const data = await res.json()
       if (!res.ok || !data.ok) throw new Error(data.error || 'issue_failed')
