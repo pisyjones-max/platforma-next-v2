@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { formatPhone, normalizePhone } from '@/lib/phone'
 
-export function CardIssueForm() {
+export function CardIssueForm({ ctaLabel = 'Оформить карту бесплатно' }: { ctaLabel?: string }) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
@@ -156,7 +156,7 @@ export function CardIssueForm() {
           opacity: status === 'sending' ? 0.7 : 1,
         }}
       >
-        {status === 'sending' ? 'Оформляем…' : 'Оформить карту бесплатно'}
+        {status === 'sending' ? 'Оформляем…' : ctaLabel}
       </button>
       <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>
         Оформление бесплатно и занимает 10 секунд. Если ранее вы оставляли заявку на

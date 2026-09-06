@@ -17,6 +17,7 @@ import { ExitIntentTrigger } from '@/components/ui/ExitIntentTrigger'
 import { PromoBanner } from '@/components/ui/PromoBanner'
 import { PromosBanner } from '@/components/ui/PromosBanner'
 import { TelegramChat } from '@/components/ui/TelegramChat'
+import { ChromeVisible } from '@/components/ui/ChromeVisible'
 import './globals.css'
 
 // Раньше шрифты подключались через @import url("https://fonts.googleapis.com/...")
@@ -152,20 +153,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CartProvider>
           <UIProvider>
             <CardProvider>
-            <Header />
+            <ChromeVisible><Header /></ChromeVisible>
             <main style={{ flex: 1 }}>
               {children}
             </main>
-            <Footer />
+            <ChromeVisible><Footer /></ChromeVisible>
             <CartPanel />
             <CheckoutModal />
             <LoyaltyModal />
             <ConsultModal />
-            <ExitIntentModal />
-            <ExitIntentTrigger />
-            <PromoBanner />
-            <PromosBanner />
-            <TelegramChat />
+            <ChromeVisible><ExitIntentModal /></ChromeVisible>
+            <ChromeVisible><ExitIntentTrigger /></ChromeVisible>
+            <ChromeVisible><PromoBanner /></ChromeVisible>
+            <ChromeVisible><PromosBanner /></ChromeVisible>
+            <ChromeVisible><TelegramChat /></ChromeVisible>
             </CardProvider>
           </UIProvider>
         </CartProvider>
