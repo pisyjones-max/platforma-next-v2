@@ -160,7 +160,7 @@ export function SosediFunnel() {
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28 }}>
             {needOpt.catalogHref && (
               <Link href={needOpt.catalogHref} style={pillLinkStyle}>
-                🧱 Материалы «{needOpt.label}» в каталоге →
+                🧱 {needOpt.id === 'unsure' ? 'Посмотреть каталог' : `Материалы «${needOpt.label}» в каталоге`} →
               </Link>
             )}
             {needOpt.serviceHref && (
