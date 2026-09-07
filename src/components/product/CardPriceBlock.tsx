@@ -5,11 +5,10 @@ import { fmt } from '@/lib/price'
 import { CARD_WELCOME_BONUS, CASHBACK_RATE } from '@/lib/constants'
 
 interface Props {
-  fullPrice: number   // v.price — зачёркнутая цена
   regularPrice: number // fp — цена сайта (единая для всех, скидка по карте убрана)
 }
 
-export function CardPriceBlock({ fullPrice, regularPrice }: Props) {
+export function CardPriceBlock({ regularPrice }: Props) {
   const { verified } = useCard()
   const { openLoyalty } = useUI()
 
@@ -17,7 +16,6 @@ export function CardPriceBlock({ fullPrice, regularPrice }: Props) {
     <div className="prod-price-block">
       <div className="prod-price-sub-row">
         <span className="prod-price">{fmt(regularPrice)} ₽</span>
-        <span className="prod-oldprice">{fmt(fullPrice)} ₽</span>
       </div>
 
       <div className="prod-cardprice-row">

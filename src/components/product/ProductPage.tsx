@@ -201,7 +201,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
 
           {/* Цена */}
           {v.price > 0 ? (
-            <CardPriceBlock fullPrice={v.price} regularPrice={fp} />
+            <CardPriceBlock regularPrice={fp} />
           ) : (
             <div className="prod-price-block">
               <span className="prod-price-req">Цена по запросу</span>
@@ -408,7 +408,6 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
                   {p.price > 0 ? (
                     <div className="pprow">
                       <span className="pp">{fmt(salePrice(p.price))} ₽</span>
-                      <span className="pop">{fmt(p.price)} ₽</span>
                     </div>
                   ) : (
                     <div className="pprow"><span className="psku">Цена по запросу</span></div>

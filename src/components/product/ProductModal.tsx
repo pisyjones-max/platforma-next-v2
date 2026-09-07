@@ -81,7 +81,6 @@ export function ProductModal({ product, onClose }: Props) {
             {v.price > 0 ? (
               <>
                 <span className="mprice">{fmt(fp)} ₽</span>
-                <span className="mop">{fmt(v.price)} ₽</span>
               </>
             ) : (
               <span className="mprice" style={{ fontSize: 16, color: 'var(--muted)' }}>Цена по запросу</span>

@@ -77,7 +77,6 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
           <>
             <div className="pprow">
               <span className="pp">{fmt(salePrice)} ₽</span>
-              <span className="pop">{fmt(price)} ₽</span>
             </div>
             <div className="pcard-cardprice">
               {verified ? '💳 Бонусы по карте PLATFORMA начислятся на этот заказ' : '💳 Есть карта лояльности PLATFORMA'}

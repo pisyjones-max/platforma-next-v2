@@ -95,7 +95,6 @@ export function CrossSellSection({ products }: Props) {
                   {price > 0 ? (
                     <div className="pprow">
                       <span className="pp">{fmt(price)} ₽</span>
-                      <span className="pop">{fmt(v.price)} ₽</span>
                     </div>
                   ) : (
                     <div className="pprow"><span className="psku">Цена по запросу</span></div>
