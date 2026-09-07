@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { useUI } from '@/context/UIContext'
+import { useCard } from '@/context/CardContext'
 
 const BANNERS = [
   {
@@ -41,6 +42,8 @@ const INTERVAL = 50_000
 
 export function PromoBanner() {
   const { openLoyalty, openConsult } = useUI()
+  const { verified } = useCard()
+  const banners = verified ? BANNERS.filter(b => b.id !== 'loyalty') : BANNERS
   const [bannerIdx, setBannerIdx] = useState(0)
   const [phase, setPhase] = useState<Phase>('hidden')
   const [dismissed, setDismissed] = useState(false)
@@ -82,7 +85,7 @@ export function PromoBanner() {
     const first = setTimeout(() => {
       runCycle()
       const iv = setInterval(() => {
-        setBannerIdx(i => (i + 1) % BANNERS.length)
+        setBannerIdx(i => (i + 1) % banners.length)
         runCycle()
       }, INTERVAL)
       timers.current.push(iv as unknown as ReturnType<typeof setTimeout>)
@@ -92,9 +95,9 @@ export function PromoBanner() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile, dismissed])
 
-  if (isMobile || dismissed) return null
+  if (isMobile || dismissed || banners.length === 0) return null
 
-  const banner = BANNERS[bannerIdx]
+  const banner = banners[bannerIdx]
 
   const dismiss = () => {
     clearTimers()
@@ -247,7 +250,7 @@ export function PromoBanner() {
 
           {/* Точки */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 12 }}>
-            {BANNERS.map((_, i) => (
+            {banners.map((_, i) => (
               <div key={i} onClick={() => setBannerIdx(i)} style={{
                 width: i === bannerIdx ? 20 : 6, height: 6, borderRadius: 3,
                 background: i === bannerIdx ? '#7ecc9a' : 'rgba(255,255,255,.2)',

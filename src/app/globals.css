@@ -1167,14 +1167,14 @@ body { overflow-x: hidden; }
 .prod-cta { display: flex; gap: 10px; flex-wrap: wrap; }
 .prod-add-btn {
   flex: 1; min-width: 160px; height: 50px; border-radius: 12px;
-  background: var(--accent); color: #fff; border: none;
+  background: var(--accent); color: #fff; border: none; cursor: pointer;
   font-size: 15.5px; font-weight: 600; transition: background .15s;
 }
 .prod-add-btn:hover { background: var(--accent-h); }
 .prod-call-btn {
-  height: 50px; padding: 0 18px; border-radius: 12px;
+  height: 50px; padding: 0 18px; border-radius: 12px; cursor: pointer;
   border: 1.5px solid var(--border); background: var(--surface2);
-  font-size: 14px; font-weight: 500; transition: all .15s;
+  font-size: 14px; font-weight: 500; transition: all .15s; white-space: nowrap;
 }
 .prod-call-btn:hover { border-color: var(--dark); background: var(--surface); }
 
@@ -1283,7 +1283,7 @@ body { overflow-x: hidden; }
   .prod-cardprice-val { font-size: 22px; }
   .prod-price { font-size: 17px; }
   .prod-cta { flex-direction: column; }
-  .prod-add-btn, .prod-call-btn { width: 100%; }
+  .prod-add-btn, .prod-call-btn { width: 100%; flex: none; min-width: unset; }
 }
 
 /* ══ ГЛАВНАЯ СТРАНИЦА ══════════════════════════════════════════════════════ */
@@ -1469,23 +1469,6 @@ body > * { flex-shrink: 0; }
 /* ══ ФИКСИМ #main НА СТРАНИЦЕ ТОВАРА ═══════════════════════════════════════ */
 main { flex: 1; }
 
-/* ══ КНОПКИ ПРОДУКТА ════════════════════════════════════════════════════════ */
-.prod-add-btn {
-  flex: 1; min-width: 160px; height: 50px; border-radius: 12px;
-  background: var(--accent); color: #fff; border: none;
-  font-size: 15.5px; font-weight: 600; transition: background .15s; cursor: pointer;
-}
-.prod-add-btn:hover { background: var(--accent-h); }
-
-.prod-call-btn {
-  height: 50px; padding: 0 20px; border-radius: 12px;
-  background: var(--surface2); color: var(--text);
-  border: 1.5px solid var(--border);
-  font-size: 15px; font-weight: 500; transition: all .15s; cursor: pointer;
-  white-space: nowrap;
-}
-.prod-call-btn:hover { border-color: var(--dark); background: var(--tag); }
-
 .prod-callback {
   background: var(--surface2); border-radius: var(--r);
   border: 1px solid var(--border); padding: 14px;
@@ -1501,8 +1484,6 @@ main { flex: 1; }
   .prod-title  { font-size: 17px; }
   .prod-cardprice-val { font-size: 22px; }
   .prod-price  { font-size: 17px; }
-  .prod-cta    { flex-direction: column; }
-  .prod-add-btn { min-width: unset; }
 }
 
 /* ══ CHECKOUT МОБИЛКА ═══════════════════════════════════════════════════════ */

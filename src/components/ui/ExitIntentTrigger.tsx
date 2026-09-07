@@ -1,12 +1,16 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import { useUI } from '@/context/UIContext'
+import { useCard } from '@/context/CardContext'
 
 export function ExitIntentTrigger() {
   const { openExit } = useUI()
+  const { verified } = useCard()
   const triggered = useRef(false)
 
   useEffect(() => {
+    // У кого уже есть карта — этот попап им не нужен, только раздражает.
+    if (verified) return
     if (sessionStorage.getItem('exit_shown')) return
 
     const handleMouseLeave = (e: MouseEvent) => {
@@ -30,7 +34,7 @@ export function ExitIntentTrigger() {
       document.removeEventListener('mouseleave', handleMouseLeave)
       clearTimeout(timer)
     }
-  }, [openExit])
+  }, [openExit, verified])
 
   return null
 }
