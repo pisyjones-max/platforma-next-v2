@@ -40,6 +40,11 @@ export function SosediFunnel() {
   const stageLabel = STAGE_OPTIONS.find(s => s.id === stage)?.label
   const needOpt = NEED_OPTIONS.find(n => n.id === need)
   const intent = stageLabel && needOpt ? `${stageLabel} · ${needOpt.label}` : undefined
+  const nextStep = needOpt?.catalogHref
+    ? { label: needOpt.id === 'unsure' ? 'Посмотреть каталог' : `Перейти к разделу «${needOpt.label}»`, href: needOpt.catalogHref }
+    : needOpt?.serviceHref
+      ? { label: 'Найти бригаду на монтаж', href: needOpt.serviceHref }
+      : undefined
 
   // ===== ШАГ 1/2 — квиз, ничего кроме вопроса не показываем =====
   if (!revealed) {
@@ -193,6 +198,7 @@ export function SosediFunnel() {
               <CardIssueForm
                 ctaLabel={`Забрать ${CARD_WELCOME_BONUS.toLocaleString('ru-RU')} баллов`}
                 intent={intent}
+                nextStep={nextStep}
               />
             </div>
           </div>

@@ -1,11 +1,13 @@
 'use client'
 import { useState } from 'react'
+import Link from 'next/link'
 import { formatPhone, normalizePhone } from '@/lib/phone'
 
 export function CardIssueForm({
   ctaLabel = 'Оформить карту бесплатно',
   intent,
-}: { ctaLabel?: string; intent?: string }) {
+  nextStep,
+}: { ctaLabel?: string; intent?: string; nextStep?: { label: string; href: string } }) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
@@ -116,6 +118,16 @@ export function CardIssueForm({
               </button>
             </div>
           </div>
+        )}
+
+        {nextStep && (
+          <Link href={nextStep.href} style={{
+            display: 'block', marginTop: 14, padding: '14px', borderRadius: 12,
+            background: 'var(--accent)', color: '#fff', fontWeight: 800, fontSize: 14.5,
+            textDecoration: 'none',
+          }}>
+            {nextStep.label} →
+          </Link>
         )}
       </div>
     )
