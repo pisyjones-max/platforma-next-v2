@@ -141,6 +141,10 @@ export function Footer() {
         }}>
           <span>© {new Date().getFullYear()} PLATFORMA. Все права защищены.</span>
           <span style={{ opacity: 0.4 }}>Московская область, Раменский округ</span>
+          <a href="https://ads.msk.ru" target="_blank" rel="noopener noreferrer"
+            style={{ opacity: 0.5, color: 'rgba(255,255,255,.6)', textDecoration: 'none' }}>
+            Сайт разработан: Novation (ads.msk.ru)
+          </a>
         </div>
       </div>
     </footer>
