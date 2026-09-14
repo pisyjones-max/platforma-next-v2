@@ -30,6 +30,7 @@ export function CheckoutModal() {
   const [form, setForm] = useState<CheckoutForm>(EMPTY)
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
+  const [submitError, setSubmitError] = useState(false)
 
   if (!checkoutOpen) return null
 
@@ -41,12 +42,25 @@ export function CheckoutModal() {
   const submit = async () => {
     if (!form.name || !form.phone) { alert('Заполните имя и телефон'); return }
     setLoading(true)
-    await fetch('/api/order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ form, items, total: finalTotal }),
-    })
-    clear(); setDone(true); setLoading(false)
+    setSubmitError(false)
+    try {
+      const res = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ form, items, total: finalTotal }),
+      })
+      if (!res.ok) throw new Error(`order request failed: ${res.status}`)
+      clear(); setDone(true)
+    } catch (e) {
+      // Раньше при сетевом сбое/ошибке сервера этот await падал необработанным
+      // исключением: индикатор "Отправка..." зависал навсегда, экран успеха
+      // не показывался, но и ошибка клиенту тоже — заказ выглядел "потерянным",
+      // хотя менеджер о нём мог вообще не узнать.
+      console.error('[CHECKOUT] submit error:', e)
+      setSubmitError(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleClose = () => { closeCheckout(); setForm(EMPTY); setDone(false) }
@@ -142,6 +156,12 @@ export function CheckoutModal() {
               <button onClick={submit} disabled={loading} className="co-submit">
                 {loading ? 'Отправка...' : 'Отправить заказ'}
               </button>
+              {submitError && (
+                <p style={{ color: 'var(--accent)', fontSize: 13, textAlign: 'center', marginTop: 8 }}>
+                  Не получилось отправить заказ. Проверьте интернет и попробуйте ещё раз —
+                  или позвоните нам по телефону.
+                </p>
+              )}
             </div>
           )}
         </div>

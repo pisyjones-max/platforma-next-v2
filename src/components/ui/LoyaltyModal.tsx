@@ -21,23 +21,32 @@ export function LoyaltyModal() {
   const handleSubmit = async () => {
     if (!name || !phone) { alert('Заполните имя и телефон'); return }
     setLoading(true)
-    const [, issueRes] = await Promise.all([
-      fetch('/api/order/callback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, product: `Карта лояльности PLATFORMA — ${name}`, type: 'loyalty' }),
-      }),
-      fetch('/api/card/issue', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, ref }),
-      }),
-    ])
     try {
-      const data = await issueRes.json()
-      if (data?.referralBonus) setReferralBonus(data.referralBonus)
-    } catch {
-      // не критично для UX выпуска карты
+      const [, issueRes] = await Promise.all([
+        fetch('/api/order/callback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, product: `Карта лояльности PLATFORMA — ${name}`, type: 'loyalty' }),
+        }),
+        fetch('/api/card/issue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, ref }),
+        }),
+      ])
+      try {
+        const data = await issueRes.json()
+        if (data?.referralBonus) setReferralBonus(data.referralBonus)
+      } catch {
+        // не критично для UX выпуска карты
+      }
+    } catch (e) {
+      // Раньше сетевой сбой здесь прерывал функцию необработанным исключением:
+      // карта могла реально создаться на сервере, а клиент так и не узнавал об
+      // этом и не запоминал телефон — при следующем визите выглядело так,
+      // будто "сайт не помнит покупателя". Теперь помечаем как verified
+      // в любом случае — /api/card/verify всё равно сверяет с сервером.
+      console.error('[LOYALTY] submit error:', e)
     }
     markVerified(phone)
     setLoading(false)

@@ -5,7 +5,10 @@ export function tgEsc(s: string) {
 }
 
 async function sendOne(token: string, chatId: string, text: string): Promise<boolean> {
-  if (!token || !chatId) return false
+  if (!token || !chatId) {
+    console.error('[PLATFORMA] TG not configured: token or chat_id missing')
+    return false
+  }
   try {
     const res = await fetch(
       `https://api.telegram.org/bot${token}/sendMessage`,
@@ -15,6 +18,13 @@ async function sendOne(token: string, chatId: string, text: string): Promise<boo
         body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown' }),
       }
     )
+    if (!res.ok) {
+      // Раньше падение на уровне Telegram API (неверный токен, бот не состоит
+      // в чате, ошибка парсинга Markdown и т.д.) молча возвращало false —
+      // в логах ничего не было видно, заказ выглядел "потерянным без следа".
+      const body = await res.text().catch(() => '')
+      console.error(`[PLATFORMA] TG API error ${res.status}:`, body)
+    }
     return res.ok
   } catch (e) {
     console.error('[PLATFORMA] TG error:', e)
