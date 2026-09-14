@@ -5,6 +5,8 @@ import { imgUrl } from '@/lib/image'
 import { useCart } from '@/context/CartContext'
 import { useCard } from '@/context/CardContext'
 import { fmt, salePrice as computeSalePrice } from '@/lib/price'
+import { isHitProduct } from '@/lib/hitProducts'
+import { SITE_ORDER_BONUS_POINTS } from '@/lib/loyaltyFeatures'
 
 interface Props {
   id: string
@@ -37,6 +39,7 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
   const [qty, setQty] = useState(1)
   const salePrice = computeSalePrice(price)
   const desc = buildDesc(description, features)
+  const isHit = isHitProduct(id)
 
   const stop = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -52,6 +55,7 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
   const inner = (
     <>
       <div className="pthumb">
+        {isHit && <div className="pcard-hit-tag">🔥 Хит спроса</div>}
         {img
           ? <img src={imgUrl(img)} alt={title} loading="lazy" />
           : <div className="ph">📦</div>
@@ -79,7 +83,9 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
               <span className="pp">{fmt(salePrice)} ₽</span>
             </div>
             <div className="pcard-cardprice">
-              {verified ? '💳 Бонусы по карте PLATFORMA начислятся на этот заказ' : '💳 Есть карта лояльности PLATFORMA'}
+              {verified
+                ? `💳 Кэшбэк + ${SITE_ORDER_BONUS_POINTS} баллов за заказ на сайте начислятся автоматически`
+                : `💳 Оформите карту — и получайте кэшбэк + ${SITE_ORDER_BONUS_POINTS} баллов за каждый заказ на сайте`}
             </div>
           </>
         ) : (

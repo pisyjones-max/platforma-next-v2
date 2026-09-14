@@ -5,6 +5,7 @@ import type { CartItem, CheckoutForm } from '@/types/cart'
 import { kvGet, kvSet, isKvConfigured } from '@/lib/kv'
 import { normalizePhone } from '@/lib/phone'
 import { cashbackRateFor, type CardRecord } from '@/lib/loyaltyEngine'
+import { LOYALTY_FEATURES, SITE_ORDER_BONUS_POINTS } from '@/lib/loyaltyFeatures'
 
 export async function POST(req: NextRequest) {
   const { form, items, total }: { form: CheckoutForm; items: CartItem[]; total: number } = await req.json()
@@ -52,10 +53,13 @@ export async function POST(req: NextRequest) {
           const purchaseNumber = (rec.purchases ?? 0) + 1
           const rate = cashbackRateFor(purchaseNumber)
           const cashback = Math.round(total * rate)
+          // Доп. бонус за то, что заказ оформлен самостоятельно на сайте (эта форма) —
+          // отдельно от кэшбэка, см. LOYALTY_FEATURES.siteOrderBonus
+          const siteBonus = LOYALTY_FEATURES.siteOrderBonus ? SITE_ORDER_BONUS_POINTS : 0
           await kvSet(`card:${p}`, {
             ...rec,
             purchases: purchaseNumber,
-            points: (rec.points ?? 0) + cashback,
+            points: (rec.points ?? 0) + cashback + siteBonus,
             lastActivityAt: Date.now(), // новая покупка сбрасывает таймер сгорания баллов
           })
         }

@@ -4,6 +4,7 @@ import { PHONE_NUMBER } from '@/lib/constants'
 import { HomeCalculator } from '@/components/ui/HomeCalculator'
 import { HomeFAQ } from '@/components/ui/HomeFAQ'
 import { PriceMatchBanner } from '@/components/pricematch/PriceMatchBanner'
+import { SiteOrderBonusBanner } from '@/components/loyalty/SiteOrderBonusBanner'
 import { BrandsMarquee } from '@/components/catalog/BrandsMarquee'
 import { WalkingMascot } from '@/components/ui/WalkingMascot'
 
@@ -93,6 +94,7 @@ export function GroupsPage({
 
       {/* Перебьём цену конкурента */}
       <PriceMatchBanner />
+      <SiteOrderBonusBanner />
 
       {/* Калькулятор */}
       <HomeCalculator />
