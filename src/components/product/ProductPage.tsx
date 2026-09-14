@@ -103,11 +103,11 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
       {/* Хлебные крошки */}
       <nav className="breadcrumb">
         <span className="bc-item bc-link"><Link href="/">Каталог</Link></span>
-        {groupSlug && <><span className="bc-sep">›</span>
+        {groupSlug && <><span className="bc-sep"> › </span>
           <span className="bc-item bc-link"><Link href={`/catalog/group/${groupSlug}`}>{groupName}</Link></span></>}
-        <span className="bc-sep">›</span>
+        <span className="bc-sep"> › </span>
         <span className="bc-item bc-link"><Link href={`/catalog/${categorySlug}`}>{categoryName}</Link></span>
-        <span className="bc-sep">›</span>
+        <span className="bc-sep"> › </span>
         <span className="bc-item bc-cur">{product.title}</span>
       </nav>
 

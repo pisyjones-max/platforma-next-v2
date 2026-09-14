@@ -55,7 +55,7 @@ export function GroupDetailPage({ groupSlug, group, categories: cats, comparison
     <div id="main">
       <nav className="breadcrumb">
         <span className="bc-item bc-link"><Link href="/">Каталог</Link></span>
-        <span className="bc-sep">›</span>
+        <span className="bc-sep"> › </span>
         <span className="bc-item bc-cur">{group.name}</span>
       </nav>
 

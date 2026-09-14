@@ -10,7 +10,7 @@ export function ServiceLandingPage({ service }: { service: ServiceConfig }) {
     <div style={{ maxWidth: 980, margin: '0 auto', padding: '40px 20px 80px' }}>
       <nav className="breadcrumb">
         <span className="bc-item bc-link"><Link href="/">Каталог</Link></span>
-        <span className="bc-sep">›</span>
+        <span className="bc-sep"> › </span>
         <span className="bc-item bc-cur">{service.title}</span>
       </nav>
 

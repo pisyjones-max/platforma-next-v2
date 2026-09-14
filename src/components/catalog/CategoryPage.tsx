@@ -72,12 +72,12 @@ export function CategoryPage({ category, parentGroup, totalCount, page = 1, tota
       <nav className="breadcrumb">
         <span className="bc-item bc-link"><Link href="/">Каталог</Link></span>
         {parentGroup && (
-          <><span className="bc-sep">›</span>
+          <><span className="bc-sep"> › </span>
           <span className="bc-item bc-link">
             <Link href={`/catalog/group/${parentGroup.slug}`}>{parentGroup.group.name}</Link>
           </span></>
         )}
-        <span className="bc-sep">›</span>
+        <span className="bc-sep"> › </span>
         <span className="bc-item bc-cur">{category.name}</span>
       </nav>
 

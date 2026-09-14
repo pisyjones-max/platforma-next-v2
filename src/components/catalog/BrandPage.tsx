@@ -60,9 +60,9 @@ export function BrandPage({ brandName, seo, items, categoryFacets, stats, faq = 
     <div id="main">
       <nav className="breadcrumb">
         <span className="bc-item bc-link"><Link href="/">Каталог</Link></span>
-        <span className="bc-sep">›</span>
+        <span className="bc-sep"> › </span>
         <span className="bc-item bc-link"><Link href="/catalog/brand">Бренды</Link></span>
-        <span className="bc-sep">›</span>
+        <span className="bc-sep"> › </span>
         <span className="bc-item bc-cur">{brandName}</span>
       </nav>
 

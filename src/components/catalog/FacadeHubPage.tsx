@@ -29,7 +29,7 @@ export function FacadeHubPage({ options, faq }: Props) {
     <div id="main">
       <nav className="breadcrumb">
         <span className="bc-item bc-link"><Link href="/">Каталог</Link></span>
-        <span className="bc-sep">›</span>
+        <span className="bc-sep"> › </span>
         <span className="bc-item bc-cur">Фасад дома</span>
       </nav>
 
