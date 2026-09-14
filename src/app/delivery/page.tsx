@@ -43,6 +43,14 @@ export default function DeliveryPage() {
               'Безналичный расчёт (НДС)',
             ],
           },
+          {
+            icon: '📦',
+            title: 'Любой пункт выдачи',
+            lines: [
+              'Яндекс Маркет, Ozon, Avito и другие — куда вам удобно',
+              'Согласовываем способ отправки индивидуально в чате или по телефону',
+            ],
+          },
         ].map((card, i) => (
           <div key={i} style={{
             background: 'var(--surface2)',
@@ -73,7 +81,7 @@ export default function DeliveryPage() {
         </p>
       </div>
 
-      <div style={{ background: 'linear-gradient(135deg, #192C1E, #253d2b)', borderRadius: 16, padding: '28px 32px', color: '#fff' }}>
+      <div style={{ background: 'linear-gradient(135deg, #192C1E, #253d2b)', borderRadius: 16, padding: '28px 32px', color: '#fff', marginBottom: 32 }}>
         <div style={{ fontFamily: 'var(--fh)', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>
           🚛 Самовывоз со склада
         </div>
@@ -81,6 +89,17 @@ export default function DeliveryPage() {
           Заберите заказ самостоятельно со склада в Новохаритонове.
           Оформите заказ онлайн или по телефону — мы подготовим товар к вашему приезду.
         </div>
+      </div>
+
+      <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 16, padding: '28px 32px' }}>
+        <h2 style={{ fontFamily: 'var(--fh)', fontSize: 20, fontWeight: 700, marginBottom: 12 }}>
+          📦 Отправка в пункт выдачи (Яндекс Маркет, Ozon, Avito и др.)
+        </h2>
+        <p style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.6 }}>
+          Удобно, если вам ближе забрать заказ в привычном ПВЗ, а не ждать курьера или ехать на склад —
+          просто напишите нам в чат или позвоните, какой вариант вам подходит, и мы согласуем отправку
+          именно туда. Каждую такую отправку менеджер оформляет вручную под конкретный заказ.
+        </p>
       </div>
     </div>
   )
