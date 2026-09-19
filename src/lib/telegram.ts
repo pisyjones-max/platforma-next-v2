@@ -4,28 +4,33 @@ export function tgEsc(s: string) {
   return String(s || '').replace(/([_*`\[])/g, '\\$1')
 }
 
+async function tgRequest(token: string, chatId: string, text: string, markdown: boolean) {
+  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text, ...(markdown ? { parse_mode: 'Markdown' } : {}) }),
+    // Без таймаута зависший коннект к api.telegram.org вешал оформление заказа
+    signal: AbortSignal.timeout(8000),
+  })
+  const body = res.ok ? '' : await res.text().catch(() => '')
+  return { ok: res.ok, status: res.status, body }
+}
+
 async function sendOne(token: string, chatId: string, text: string): Promise<boolean> {
   if (!token || !chatId) {
     console.error('[PLATFORMA] TG not configured: token or chat_id missing')
     return false
   }
   try {
-    const res = await fetch(
-      `https://api.telegram.org/bot${token}/sendMessage`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown' }),
-      }
-    )
-    if (!res.ok) {
-      // Раньше падение на уровне Telegram API (неверный токен, бот не состоит
-      // в чате, ошибка парсинга Markdown и т.д.) молча возвращало false —
-      // в логах ничего не было видно, заказ выглядел "потерянным без следа".
-      const body = await res.text().catch(() => '')
-      console.error(`[PLATFORMA] TG API error ${res.status}:`, body)
+    let r = await tgRequest(token, chatId, text, true)
+    // Ошибка разбора Markdown (400 can't parse entities) не должна терять заказ —
+    // повторяем тем же текстом без parse_mode.
+    if (!r.ok && r.status === 400 && /parse entities/i.test(r.body)) {
+      console.error('[PLATFORMA] TG Markdown parse failed, retry as plain text:', r.body)
+      r = await tgRequest(token, chatId, text.replace(/\\([_*`\[])/g, '$1'), false)
     }
-    return res.ok
+    if (!r.ok) console.error(`[PLATFORMA] TG API error ${r.status}:`, r.body)
+    return r.ok
   } catch (e) {
     console.error('[PLATFORMA] TG error:', e)
     return false

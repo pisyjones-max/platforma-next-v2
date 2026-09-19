@@ -36,10 +36,35 @@ export async function POST(req: NextRequest) {
     `🚚 *Тип доставки:* ${form.deliveryMethod === 'pvz' ? 'Самовывоз / ПВЗ' : 'Курьер'}\n` +
     `🕐 ${new Date().toLocaleString('ru-RU')}`
 
-  const [ok] = await Promise.all([
+  // Бэкап заказа в KV до отправки в Telegram: если TG недоступен (токен/чат/сеть),
+  // заказ не теряется и его можно достать по ключам order:*
+  const orderId = `order:${Date.now()}`
+  if (isKvConfigured()) {
+    try {
+      await kvSet(orderId, { form, items, total, createdAt: new Date().toISOString(), tgDelivered: false })
+    } catch (e) {
+      console.error('[ORDER] KV backup error:', e)
+    }
+  }
+
+  const [ok, ok2] = await Promise.all([
     sendTG(textFull),
     sendTG2(textSupplier),
   ])
+  if (!ok2) console.error('[ORDER] supplier TG delivery failed')
+
+  if (!ok) {
+    // Раньше тут возвращался HTTP 200 с ok:false, а клиент проверял только res.ok —
+    // покупателю показывался экран успеха, хотя менеджер заказ не получал.
+    console.error(`[ORDER] main TG delivery FAILED, order saved as ${orderId}:`, form.phone)
+    return NextResponse.json({ ok: false, error: 'tg_delivery_failed' }, { status: 502 })
+  }
+
+  if (isKvConfigured()) {
+    try {
+      await kvSet(orderId, { form, items, total, createdAt: new Date().toISOString(), tgDelivered: true })
+    } catch {}
+  }
 
   // Начисление прогрессивного кэшбэка, если у клиента уже есть карта лояльности.
   // Списание баллов остаётся ручным (менеджер, /admin/cards) — здесь только начисление,
