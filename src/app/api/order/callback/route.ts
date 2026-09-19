@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendTG, tgEsc } from '@/lib/telegram'
+import { saveLead, markDelivered } from '@/lib/orderStore'
 
 export async function POST(req: NextRequest) {
   const { phone, product } = await req.json()
@@ -8,6 +9,8 @@ export async function POST(req: NextRequest) {
     `📱 *Телефон:* ${tgEsc(phone)}\n` +
     `📦 *Товар:* ${tgEsc(product ?? '—')}\n` +
     `🕐 ${new Date().toLocaleString('ru-RU')}`
+  const lead = await saveLead({ kind: 'callback', phone: String(phone ?? ''), note: String(product ?? '') })
   const ok = await sendTG(text)
-  return NextResponse.json({ ok })
+  if (ok) await markDelivered(lead)
+  return NextResponse.json({ ok, saved: true })
 }

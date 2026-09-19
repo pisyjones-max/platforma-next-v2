@@ -6,6 +6,7 @@ import { kvGet, kvSet, isKvConfigured } from '@/lib/kv'
 import { normalizePhone } from '@/lib/phone'
 import { cashbackRateFor, type CardRecord } from '@/lib/loyaltyEngine'
 import { LOYALTY_FEATURES, SITE_ORDER_BONUS_POINTS } from '@/lib/loyaltyFeatures'
+import { saveLead, markDelivered } from '@/lib/orderStore'
 
 export async function POST(req: NextRequest) {
   const { form, items, total }: { form: CheckoutForm; items: CartItem[]; total: number } = await req.json()
@@ -36,16 +37,9 @@ export async function POST(req: NextRequest) {
     `🚚 *Тип доставки:* ${form.deliveryMethod === 'pvz' ? 'Самовывоз / ПВЗ' : 'Курьер'}\n` +
     `🕐 ${new Date().toLocaleString('ru-RU')}`
 
-  // Бэкап заказа в KV до отправки в Telegram: если TG недоступен (токен/чат/сеть),
-  // заказ не теряется и его можно достать по ключам order:*
-  const orderId = `order:${Date.now()}`
-  if (isKvConfigured()) {
-    try {
-      await kvSet(orderId, { form, items, total, createdAt: new Date().toISOString(), tgDelivered: false })
-    } catch (e) {
-      console.error('[ORDER] KV backup error:', e)
-    }
-  }
+  // Сначала сохраняем заказ в собственный журнал (файл + KV), потом шлём в Telegram:
+  // если TG недоступен, заказ всё равно виден в /admin/orders.
+  const lead = await saveLead({ kind: 'order', form, items, total })
 
   const [ok, ok2] = await Promise.all([
     sendTG(textFull),
@@ -56,15 +50,10 @@ export async function POST(req: NextRequest) {
   if (!ok) {
     // Раньше тут возвращался HTTP 200 с ok:false, а клиент проверял только res.ok —
     // покупателю показывался экран успеха, хотя менеджер заказ не получал.
-    console.error(`[ORDER] main TG delivery FAILED, order saved as ${orderId}:`, form.phone)
+    console.error(`[ORDER] main TG delivery FAILED, order saved as ${lead.id}:`, form.phone)
     return NextResponse.json({ ok: false, error: 'tg_delivery_failed' }, { status: 502 })
   }
-
-  if (isKvConfigured()) {
-    try {
-      await kvSet(orderId, { form, items, total, createdAt: new Date().toISOString(), tgDelivered: true })
-    } catch {}
-  }
+  await markDelivered(lead)
 
   // Начисление прогрессивного кэшбэка, если у клиента уже есть карта лояльности.
   // Списание баллов остаётся ручным (менеджер, /admin/cards) — здесь только начисление,
