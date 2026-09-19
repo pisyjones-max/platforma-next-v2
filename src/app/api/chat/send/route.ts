@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { TG_TOKEN, TG_CHAT_ID } from '@/lib/constants'
+import { tgUrl, tgRelayHeaders } from '@/lib/telegram'
 
 function tgEsc(s: string) {
   return String(s || '').replace(/([_*`\[])/g, '\\$1')
@@ -17,10 +18,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const res = await fetch(
-      `https://api.telegram.org/bot${TG_TOKEN}/sendMessage`,
+      tgUrl(TG_TOKEN, 'sendMessage'),
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: tgRelayHeaders({ 'Content-Type': 'application/json' }),
+        signal: AbortSignal.timeout(8000),
         body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'Markdown' }),
       }
     )

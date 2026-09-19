@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { TG_TOKEN } from '@/lib/constants'
+import { tgUrl, tgRelayHeaders } from '@/lib/telegram'
 
 // Extracts sessionId from bot's original message text
 // Format: "🔑 Сессия: `abc123de`\n"
@@ -18,8 +19,8 @@ export async function GET(req: NextRequest) {
   try {
     const offset = lastId > 0 ? lastId : -100
     const res = await fetch(
-      `https://api.telegram.org/bot${TG_TOKEN}/getUpdates?offset=${offset}&limit=100&timeout=0`,
-      { cache: 'no-store' }
+      `${tgUrl(TG_TOKEN, 'getUpdates')}?offset=${offset}&limit=100&timeout=0`,
+      { cache: 'no-store', headers: tgRelayHeaders(), signal: AbortSignal.timeout(8000) }
     )
     const data = await res.json()
 

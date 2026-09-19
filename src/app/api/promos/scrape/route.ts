@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { TG_TOKEN, TG_CHAT_ID } from '@/lib/constants'
+import { tgUrl, tgRelayHeaders } from '@/lib/telegram'
 
 // Cron: runs every 3 days at 09:00 Moscow time (06:00 UTC)
 // Add to vercel.json: { "crons": [{ "path": "/api/promos/scrape", "schedule": "0 6 */3 * *" }] }
@@ -87,9 +88,10 @@ export async function GET(req: NextRequest) {
       `📅 ${new Date().toLocaleString('ru-RU')}\n\n` +
       results.join('\n\n')
 
-    await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+    await fetch(tgUrl(TG_TOKEN, 'sendMessage'), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: tgRelayHeaders({ 'Content-Type': 'application/json' }),
+      signal: AbortSignal.timeout(8000),
       body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'Markdown' }),
     }).catch(console.error)
   }

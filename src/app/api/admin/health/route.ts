@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { tgUrl, tgRelayHeaders } from '@/lib/telegram'
 import { kvSet, kvGet, isKvConfigured } from '@/lib/kv'
 import { ADMIN_KEY, TG_TOKEN, TG_CHAT_ID, TG_TOKEN_2, TG_CHAT_ID_2 } from '@/lib/constants'
 
@@ -16,8 +17,10 @@ async function checkTelegramPair(token: string, chatId: string) {
     return { tokenSet: !!token, chatIdSet: !!chatId, ok: false, error: 'not_configured' as const }
   }
   try {
-    const res = await fetch(`https://api.telegram.org/bot${token}/getChat?chat_id=${encodeURIComponent(chatId)}`, {
+    const res = await fetch(`${tgUrl(token, 'getChat')}?chat_id=${encodeURIComponent(chatId)}`, {
       cache: 'no-store',
+      headers: tgRelayHeaders(),
+      signal: AbortSignal.timeout(8000),
     })
     const data = await res.json()
     if (!res.ok || !data.ok) {

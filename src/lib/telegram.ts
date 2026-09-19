@@ -1,13 +1,26 @@
 import { TG_TOKEN, TG_CHAT_ID, TG_TOKEN_2, TG_CHAT_ID_2 } from './constants'
 
+// Адрес Telegram Bot API. Если сервер не достаёт до api.telegram.org (блокировка у хостера),
+// задай TG_API_BASE=https://<твой-ретранслятор> и TG_RELAY_KEY=<секрет> в .env.local.
+const TG_API_BASE = (process.env.TG_API_BASE || 'https://api.telegram.org').replace(/\/+$/, '')
+const TG_RELAY_KEY = process.env.TG_RELAY_KEY || ''
+
+export function tgUrl(token: string, method: string): string {
+  return `${TG_API_BASE}/bot${token}/${method}`
+}
+
+export function tgRelayHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  return TG_RELAY_KEY ? { ...extra, 'x-relay-key': TG_RELAY_KEY } : extra
+}
+
 export function tgEsc(s: string) {
   return String(s || '').replace(/([_*`\[])/g, '\\$1')
 }
 
 async function tgRequest(token: string, chatId: string, text: string, markdown: boolean) {
-  const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+  const res = await fetch(tgUrl(token, 'sendMessage'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: tgRelayHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ chat_id: chatId, text, ...(markdown ? { parse_mode: 'Markdown' } : {}) }),
     // Без таймаута зависший коннект к api.telegram.org вешал оформление заказа
     signal: AbortSignal.timeout(8000),
@@ -57,9 +70,11 @@ export async function sendTGPhoto(photo: Blob, caption?: string): Promise<boolea
     if (caption) fd.append('caption', caption)
     fd.append('parse_mode', 'Markdown')
     fd.append('photo', photo, 'photo.jpg')
-    const res = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, {
+    const res = await fetch(tgUrl(TG_TOKEN, 'sendPhoto'), {
       method: 'POST',
+      headers: tgRelayHeaders(),
       body: fd,
+      signal: AbortSignal.timeout(15000),
     })
     return res.ok
   } catch (e) {
