@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { kvGet, kvSet } from '@/lib/kv'
+import { webhookSecret } from '@/lib/telegram'
 
 type Stored = { text: string; ts: number; updateId: number }
 
 const sid = (t: string) => t.match(/Сессия:\s*`?([a-z0-9]+)`?/i)?.[1]?.toLowerCase() ?? null
 
 export async function POST(req: NextRequest) {
-  const secret = process.env.TG_WEBHOOK_SECRET || ''
+  const secret = webhookSecret()
   if (!secret || req.headers.get('x-telegram-bot-api-secret-token') !== secret) {
     return NextResponse.json({ ok: false }, { status: 401 })
   }

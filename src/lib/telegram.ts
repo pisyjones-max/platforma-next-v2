@@ -1,3 +1,4 @@
+import { createHash } from 'crypto'
 import { TG_TOKEN, TG_CHAT_ID, TG_TOKEN_2, TG_CHAT_ID_2 } from './constants'
 
 // Адрес Telegram Bot API. Если сервер не достаёт до api.telegram.org (блокировка у хостера),
@@ -11,6 +12,11 @@ export function tgUrl(token: string, method: string): string {
 
 export function tgRelayHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return TG_RELAY_KEY ? { ...extra, 'x-relay-key': TG_RELAY_KEY } : extra
+}
+
+// Секрет webhook: из env, иначе производный от токена бота — отдельно настраивать не нужно
+export function webhookSecret(): string {
+  return process.env.TG_WEBHOOK_SECRET || createHash('sha256').update(`${TG_TOKEN}:chat-webhook`).digest('hex').slice(0, 32)
 }
 
 export function tgEsc(s: string) {
