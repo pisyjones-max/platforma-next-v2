@@ -11,57 +11,50 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fix app, ADMIN_KEY and Telegram webhook
-        id: fix
-        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: 185.197.75.101
           username: root
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           command_timeout: 30m
-          capture_stdout: true
+          envs: GH_TOKEN
           script: |
-            cd /var/www/platforma-next-v2
-            echo "== ps"; ps aux | grep -E "next build|npm ci|npm run" | grep -v grep | cut -c1-150
-            pkill -f "next build"; pkill -f "npm ci"; sleep 2
-            exec 9>/tmp/platforma-deploy.lock
-            flock -w 1800 9
-            echo "== mem/disk"; free -m | sed -n 2p; df -h / | tail -1
-            echo "== git"; git status --short | head -5; git pull origin main 2>&1 | tail -3
-            echo "== deps"
-            if [ ! -d node_modules ] || [ ! -x node_modules/.bin/next ]; then
-              npm ci 2>&1 | tail -3
-            fi
-            sha256sum package-lock.json | cut -c1-64 > .npm-lock-hash
-            echo "== build"
-            NEXT_PUBLIC_SITE_URL="https://platforma-msk.ru" NODE_OPTIONS="--max-old-space-size=1536" npm run build 2>&1 | tail -25
-            echo "== admin key"
-            touch .env.local
-            if ! grep -qE '^ADMIN_KEY=.+' .env.local; then
-              grep -v '^ADMIN_KEY=' .env.local > .env.tmp; mv .env.tmp .env.local
-              echo "ADMIN_KEY=$(openssl rand -hex 24)" >> .env.local
-              echo "created (value hidden)"
-            else
-              echo "exists"
-            fi
-            echo "== pm2"
-            pm2 restart platforma --update-env >/dev/null 2>&1 || pm2 start npm --name platforma -- start >/dev/null 2>&1
-            sleep 15
-            pm2 status | cut -c1-120
-            pm2 logs platforma --lines 40 --nostream 2>&1 | grep -iE "error|cannot find|enoent|eaddr|ready" | tail -8 | cut -c1-200
-            KEY=$(grep -E '^ADMIN_KEY=' .env.local | head -1 | cut -d= -f2-)
-            echo "== site"; curl -s -o /dev/null -w "%{http_code}\n" https://platforma-msk.ru/
-            echo "== webhook"; curl -s "https://platforma-msk.ru/api/admin/tg-webhook?key=$KEY" | cut -c1-600; echo
-
-      - name: Save log to ci-logs branch
-        if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-          LOG: ${{ steps.fix.outputs.stdout }}
-        run: |
-          printf '%s\n' "$LOG" > log.txt
-          SHA=$(curl -s -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/${{ github.repository }}/git/ref/heads/main | jq -r .object.sha)
-          curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/${{ github.repository }}/git/refs -d "{\"ref\":\"refs/heads/ci-logs\",\"sha\":\"$SHA\"}" >/dev/null
-          OLD=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/${{ github.repository }}/contents/server-fix.txt?ref=ci-logs" | jq -r '.sha // empty')
-          jq -n --arg c "$(base64 -w0 log.txt)" --arg s "$OLD" '{message:"server-fix log",branch:"ci-logs",content:$c} + (if $s != "" then {sha:$s} else {} end)' > body.json
-          curl -s -X PUT -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/${{ github.repository }}/contents/server-fix.txt -d @body.json | jq -r '.commit.sha // .message'
+            {
+              cd /var/www/platforma-next-v2
+              echo "== ps"; ps aux | grep -E "next build|npm ci|npm run" | grep -v grep | cut -c1-150
+              pkill -f "next build"; pkill -f "npm ci"; sleep 2
+              exec 9>/tmp/platforma-deploy.lock
+              flock -w 1800 9
+              echo "== mem/disk"; free -m | sed -n 2p; df -h / | tail -1
+              echo "== git"; git status --short | head -5; git pull origin main 2>&1 | tail -3
+              echo "== deps"
+              if [ ! -d node_modules ] || [ ! -x node_modules/.bin/next ]; then
+                npm ci 2>&1 | tail -3
+              fi
+              sha256sum package-lock.json | cut -c1-64 > .npm-lock-hash
+              echo "== build"
+              NEXT_PUBLIC_SITE_URL="https://platforma-msk.ru" NODE_OPTIONS="--max-old-space-size=1536" npm run build 2>&1 | tail -25
+              echo "== admin key"
+              touch .env.local
+              if ! grep -qE '^ADMIN_KEY=.+' .env.local; then
+                grep -v '^ADMIN_KEY=' .env.local > .env.tmp; mv .env.tmp .env.local
+                echo "ADMIN_KEY=$(openssl rand -hex 24)" >> .env.local
+                echo "created (value hidden)"
+              else
+                echo "exists"
+              fi
+              echo "== pm2"
+              pm2 restart platforma --update-env >/dev/null 2>&1 || pm2 start npm --name platforma -- start >/dev/null 2>&1
+              sleep 15
+              pm2 status | cut -c1-120
+              pm2 logs platforma --lines 40 --nostream 2>&1 | grep -iE "error|cannot find|enoent|eaddr|ready" | tail -8 | cut -c1-200
+              KEY=$(grep -E '^ADMIN_KEY=' .env.local | head -1 | cut -d= -f2-)
+              echo "== site"; curl -s -o /dev/null -w "%{http_code}\n" https://platforma-msk.ru/
+              echo "== webhook"; curl -s "https://platforma-msk.ru/api/admin/tg-webhook?key=$KEY" | cut -c1-600; echo
+            } 2>&1 | tee /tmp/fix.log
+            B64=$(base64 -w0 /tmp/fix.log)
+            OLD=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/pisyjones-max/platforma-next-v2/contents/server-fix.txt?ref=ci-logs" | grep -o '"sha": *"[a-f0-9]\{40\}"' | head -1 | grep -o '[a-f0-9]\{40\}')
+            printf '{"message":"server-fix log","branch":"ci-logs","content":"%s"%s}' "$B64" "${OLD:+,\"sha\":\"$OLD\"}" > /tmp/body.json
+            curl -s -X PUT -H "Authorization: Bearer $GH_TOKEN" -d @/tmp/body.json https://api.github.com/repos/pisyjones-max/platforma-next-v2/contents/server-fix.txt | head -c 120
