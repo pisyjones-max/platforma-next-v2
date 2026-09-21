@@ -11,16 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fix app, ADMIN_KEY and Telegram webhook
-        env:
-          GH_TOKEN: ${{ github.token }}
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: 185.197.75.101
           username: root
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           command_timeout: 30m
-          envs: GH_TOKEN
           script: |
+            GH_TOKEN='${{ github.token }}'
             {
               cd /var/www/platforma-next-v2
               echo "== ps"; ps aux | grep -E "next build|npm ci|npm run" | grep -v grep | cut -c1-150
