@@ -1,0 +1,49 @@
+name: Server fix (manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fix app, ADMIN_KEY and Telegram webhook
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 185.197.75.101
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 25m
+          script: |
+            cd /var/www/platforma-next-v2
+            free -m | sed -n 2p; df -h / | tail -1
+
+            # дождаться уже идущей сборки (если запущена вручную)
+            for i in $(seq 1 40); do pgrep -f "next build" >/dev/null || break; echo "waiting for running build..."; sleep 15; done
+
+            git pull origin main
+            [ -d node_modules ] || npm ci
+            if [ ! -f .next/BUILD_ID ]; then
+              NEXT_PUBLIC_SITE_URL="https://platforma-msk.ru" NODE_OPTIONS="--max-old-space-size=1536" npm run build 2>&1 | tail -25
+            fi
+
+            # ADMIN_KEY: создать, если нет
+            touch .env.local
+            if ! grep -qE '^ADMIN_KEY=.+' .env.local; then
+              NEWKEY=$(openssl rand -hex 24)
+              grep -v '^ADMIN_KEY=' .env.local > .env.tmp || true
+              mv .env.tmp .env.local
+              echo "ADMIN_KEY=$NEWKEY" >> .env.local
+              echo "ADMIN_KEY создан заново: $NEWKEY"
+            else
+              echo "ADMIN_KEY уже задан"
+            fi
+
+            pm2 restart platforma --update-env
+            sleep 12
+            pm2 status
+            pm2 logs platforma --lines 15 --nostream
+
+            KEY=$(grep -E '^ADMIN_KEY=' .env.local | head -1 | cut -d= -f2-)
+            echo "--- site:"; curl -s -o /dev/null -w "%{http_code}\n" https://platforma-msk.ru/
+            echo "--- webhook:"; curl -s "https://platforma-msk.ru/api/admin/tg-webhook?key=$KEY"; echo
