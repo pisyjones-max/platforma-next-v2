@@ -11,10 +11,10 @@ export function AskKevPresets({ productTitle }: Props) {
   const { openChat } = useUI()
 
   const presets = [
-    { icon: '📐', label: 'Как использовать?', text: `Подскажите, как правильно использовать «${productTitle}»?` },
-    { icon: '🧮', label: 'Сколько нужно?', text: `Помогите рассчитать, сколько «${productTitle}» мне понадобится?` },
-    { icon: '🚚', label: 'Когда привезёте?', text: `Уточните, пожалуйста, сроки доставки «${productTitle}» в мой город.` },
-    { icon: '💬', label: 'Другой вопрос', text: `Вопрос по товару «${productTitle}»: ` },
+    { icon: '📐', auto: true, label: 'Как использовать?', text: `Подскажите, как правильно использовать «${productTitle}»?` },
+    { icon: '🧮', auto: true, label: 'Сколько нужно?', text: `Помогите рассчитать, сколько «${productTitle}» мне понадобится?` },
+    { icon: '🚚', auto: true, label: 'Когда привезёте?', text: `Уточните, пожалуйста, сроки доставки «${productTitle}» в мой город.` },
+    { icon: '💬', auto: false, label: 'Другой вопрос', text: `Вопрос по товару «${productTitle}»: ` },
   ]
 
   return (
@@ -26,7 +26,7 @@ export function AskKevPresets({ productTitle }: Props) {
             key={p.label}
             type="button"
             className="ask-kev-chip"
-            onClick={() => openChat(p.text)}
+            onClick={() => openChat(p.text, p.auto)}
           >
             <span>{p.icon}</span> {p.label}
           </button>

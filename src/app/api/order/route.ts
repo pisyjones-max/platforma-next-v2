@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     `📋 *Заявка на поставку — PLATFORMA*\n\n` +
     `📦 *Состав:*\n${lines}\n\n` +
     `💰 *Сумма заказа:* ${fmt(total)} ₽\n` +
-    `🚚 *Тип доставки:* ${form.deliveryMethod === 'pvz' ? 'Самовывоз / ПВЗ' : 'Курьер'}\n` +
+    `🚚 *Тип доставки:* ${form.deliveryMethod === 'pvz' ? 'Пункт выдачи (ПВЗ)' : 'Курьер'}\n` +
     `🕐 ${new Date().toLocaleString('ru-RU')}`
 
   // Сначала сохраняем заказ в собственный журнал (файл + KV), потом шлём в Telegram:

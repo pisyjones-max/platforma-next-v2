@@ -15,10 +15,10 @@ const BANNERS = [
   },
   {
     id: 'discount',
-    icon: '🚛',
-    title: 'Самовывоз из Новохаритонова',
-    text: 'Заберите заказ сами — работаем без выходных.',
-    cta: 'Узнать адрес →',
+    icon: '🚚',
+    title: 'Быстрая доставка',
+    text: 'На объект или в пункт выдачи заказов Яндекс Маркета.',
+    cta: 'Условия доставки →',
     action: 'delivery' as const,
     badge: '',
   },
@@ -42,8 +42,8 @@ const INTERVAL = 50_000
 
 export function PromoBanner() {
   const { openLoyalty, openConsult } = useUI()
-  const { verified } = useCard()
-  const banners = verified ? BANNERS.filter(b => b.id !== 'loyalty') : BANNERS
+  const { hasCard } = useCard()
+  const banners = hasCard ? BANNERS.filter(b => b.id !== 'loyalty') : BANNERS
   const [bannerIdx, setBannerIdx] = useState(0)
   const [phase, setPhase] = useState<Phase>('hidden')
   const [dismissed, setDismissed] = useState(false)
@@ -56,6 +56,13 @@ export function PromoBanner() {
     timers.current.push(t)
     return t
   }
+
+  useEffect(() => {
+    try {
+      const t = parseInt(localStorage.getItem('plt_promo_off') || '0')
+      if (t && Date.now() - t < 7 * 24 * 3600 * 1000) setDismissed(true)
+    } catch {}
+  }, [])
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 1024)
@@ -102,6 +109,7 @@ export function PromoBanner() {
   const dismiss = () => {
     clearTimers()
     setPhase('slideOutRight')
+    try { localStorage.setItem('plt_promo_off', String(Date.now())) } catch {}
     after(700, () => setDismissed(true))
   }
 

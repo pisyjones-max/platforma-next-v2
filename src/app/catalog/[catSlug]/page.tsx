@@ -85,7 +85,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     title: `${cat.name} — купить в Московской области${priceStr}${pageSuffix}`,
     description: page > 1
       ? `${cat.name}: товары ${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, count)} из ${count}. Цены${priceStr}. Доставка по МО.`
-      : `${cat.name} — ${count} товаров в наличии. Цены${priceStr}. Доставка по МО. Самовывоз из Новохаритонова. Звоните: +7 (933) 203-30-05.`,
+      : `${cat.name} — ${count} товаров в наличии. Цены${priceStr}. Быстрая доставка на объект или в пункт выдачи Яндекс Маркета. Звоните: +7 (933) 203-30-05.`,
     alternates: { canonical },
     robots: page > 1 ? { index: true, follow: true } : undefined,
     openGraph: {

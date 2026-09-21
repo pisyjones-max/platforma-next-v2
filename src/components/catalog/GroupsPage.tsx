@@ -62,7 +62,7 @@ export function GroupsPage({
             <a href={`tel:${PHONE_NUMBER}`} className="home-hero-phone">
               📞 {PHONE_NUMBER}
             </a>
-            <Link href="/catalog/group/krovlya" className="home-hero-btn">
+            <Link href="/catalog" className="home-hero-btn">
               Смотреть каталог →
             </Link>
           </div>
@@ -73,10 +73,29 @@ export function GroupsPage({
         </div>
       </div>
 
+      {/* Категории */}
+      <div style={{ marginTop: 24 }}>
+        <h2 className="prod-section-title">Категории товаров</h2>
+        <div className="ggrid">
+          {Object.entries(groups).map(([slug, g]) => (
+            <Link key={slug} href={`/catalog/group/${slug}`} className="gcard">
+              <div style={{ fontSize: 24, marginRight: 4, flexShrink: 0 }}>
+                {GROUP_ICONS[slug] ?? '📦'}
+              </div>
+              <div className="gcard-info">
+                <div className="gcard-title">{g.name}</div>
+                <div className="gcard-sub">{g.categoriesCount} категорий</div>
+              </div>
+              <div className="gcard-arrow">›</div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* Преимущества */}
       <div className="home-features">
         {[
-          { icon: '🚚', title: 'Быстрая доставка', sub: 'По Московской области от 1 дня' },
+          { icon: '🚚', title: 'Быстрая доставка', sub: 'На объект или в пункт выдачи Яндекс Маркета' },
           { icon: '💰', title: 'Цены ниже рынка', sub: 'На весь ассортимент сайта' },
           { icon: '📞', title: 'Консультация', sub: 'Бесплатно по телефону' },
           { icon: '✅', title: 'Гарантия', sub: 'Официальная от производителей' },
@@ -98,25 +117,6 @@ export function GroupsPage({
 
       {/* Калькулятор */}
       <HomeCalculator />
-
-      {/* Категории */}
-      <div style={{ marginTop: 40 }}>
-        <h2 className="prod-section-title">Категории товаров</h2>
-        <div className="ggrid">
-          {Object.entries(groups).map(([slug, g]) => (
-            <Link key={slug} href={`/catalog/group/${slug}`} className="gcard">
-              <div style={{ fontSize: 24, marginRight: 4, flexShrink: 0 }}>
-                {GROUP_ICONS[slug] ?? '📦'}
-              </div>
-              <div className="gcard-info">
-                <div className="gcard-title">{g.name}</div>
-                <div className="gcard-sub">{g.categoriesCount} категорий</div>
-              </div>
-              <div className="gcard-arrow">›</div>
-            </Link>
-          ))}
-        </div>
-      </div>
 
       {/* Социальное доказательство */}
       <div style={{

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Доставка и оплата — PLATFORMA',
-  description: 'Доставка кровельных материалов по Москве и Московской области. Самовывоз со склада в Новохаритонове.',
+  description: 'Быстрая доставка кровельных материалов по Москве и Московской области — на объект или в пункт выдачи заказов Яндекс Маркета.',
 }
 
 export default function DeliveryPage() {
@@ -27,8 +27,8 @@ export default function DeliveryPage() {
             ],
           },
           {
-            icon: '🏭',
-            title: 'Самовывоз',
+            icon: '📍',
+            title: 'Адрес',
             lines: [
               'Склад: с. Новохаритоново, д. 220, лит. 1Б, Раменский округ',
               'Пн–Пт 9:00–18:00, Сб 9:00–15:00',
@@ -83,11 +83,11 @@ export default function DeliveryPage() {
 
       <div style={{ background: 'linear-gradient(135deg, #192C1E, #253d2b)', borderRadius: 16, padding: '28px 32px', color: '#fff', marginBottom: 32 }}>
         <div style={{ fontFamily: 'var(--fh)', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>
-          🚛 Самовывоз со склада
+          🚚 Быстрая доставка
         </div>
         <div style={{ fontSize: 15, opacity: 0.75, lineHeight: 1.6 }}>
-          Заберите заказ самостоятельно со склада в Новохаритонове.
-          Оформите заказ онлайн или по телефону — мы подготовим товар к вашему приезду.
+          Привезём на объект или доставим в пункт выдачи заказов Яндекс Маркета — выбирайте удобный вариант.
+          Оформите заказ онлайн или по телефону — остальное берём на себя.
         </div>
       </div>
 

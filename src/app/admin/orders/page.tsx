@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 
 interface Lead {
   id: string
-  kind: 'order' | 'callback'
+  kind: 'order' | 'callback' | 'card'
   createdAt: string
   tgDelivered: boolean
   form?: { name?: string; phone?: string; email?: string; address?: string; pvzAddress?: string; comment?: string; deliveryMethod?: string }
@@ -111,7 +111,7 @@ export default function AdminOrdersPage() {
         return (
           <div key={l.id} style={{ border: '1px solid #e2e2e2', borderLeft: `4px solid ${l.tgDelivered ? '#1a7a3d' : '#BF3E22'}`, borderRadius: 8, padding: '10px 12px', marginBottom: 10, fontSize: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 12.5, color: '#888', marginBottom: 4 }}>
-              <span>{l.kind === 'order' ? '🛒 Заказ' : '📞 Заявка'} · {when(l.createdAt)}</span>
+              <span>{l.kind === 'order' ? '🛒 Заказ' : l.kind === 'card' ? '💳 Карта' : '📞 Заявка'} · {when(l.createdAt)}</span>
               <span style={{ color: l.tgDelivered ? '#1a7a3d' : '#BF3E22', fontWeight: 600 }}>{l.tgDelivered ? 'в TG доставлен' : 'В TG НЕ дошёл'}</span>
             </div>
             {l.kind === 'order' ? (

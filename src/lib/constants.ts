@@ -6,6 +6,8 @@ export const CASHBACK_RATE  = 0.005
 // карты (любой источник). Списание баллов происходит не автоматически по правилу,
 // а на усмотрение менеджера при оформлении заказа (см. /admin/cards).
 export const CARD_WELCOME_BONUS = 15000
+// Единая формулировка про доставку (используется в описаниях и на страницах)
+export const DELIVERY_TAGLINE = 'Быстрая доставка на объект или в пункт выдачи заказов Яндекс Маркета'
 export const ADMIN_KEY      = process.env.ADMIN_KEY ?? ''   // секретный ключ для /admin/cards
 export const PHONE_NUMBER   = '+7 (933) 203-30-05'
 

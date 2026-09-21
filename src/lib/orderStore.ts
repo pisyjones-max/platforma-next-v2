@@ -11,7 +11,7 @@ import type { CartItem, CheckoutForm } from '@/types/cart'
 
 export interface LeadRecord {
   id: string
-  kind: 'order' | 'callback'
+  kind: 'order' | 'callback' | 'card'
   createdAt: string // ISO
   tgDelivered: boolean
   form?: Partial<CheckoutForm>

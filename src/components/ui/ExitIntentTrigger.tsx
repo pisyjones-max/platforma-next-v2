@@ -5,7 +5,7 @@ import { useCard } from '@/context/CardContext'
 
 export function ExitIntentTrigger() {
   const { openExit } = useUI()
-  const { verified } = useCard()
+  const { hasCard: verified } = useCard()
   const triggered = useRef(false)
 
   useEffect(() => {

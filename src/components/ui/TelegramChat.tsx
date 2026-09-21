@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { PHONE_NUMBER } from '@/lib/constants'
+import { formatPhone, normalizePhone } from '@/lib/phone'
 import { useUI } from '@/context/UIContext'
 
 interface Message {
@@ -29,13 +30,14 @@ function CallbackForm({ onClose }: { onClose: () => void }) {
   const [sending, setSending] = useState(false)
 
   const send = async () => {
-    if (!phone.trim()) return
+    const norm = normalizePhone(phone)
+    if (!norm) return
     setSending(true)
     try {
       await fetch('/api/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, product: `Обратный звонок\nИмя: ${name || 'не указано'}`, type: 'callback' }),
+        body: JSON.stringify({ phone: formatPhone(norm), product: `Обратный звонок\nИмя: ${name || 'не указано'}`, type: 'callback' }),
       })
       setSent(true)
     } catch {}
@@ -64,21 +66,22 @@ function CallbackForm({ onClose }: { onClose: () => void }) {
         style={{ width: '100%', border: '1px solid #e4e1da', borderRadius: 10, padding: '10px 12px', fontSize: 14, outline: 'none', marginBottom: 10, boxSizing: 'border-box' }}
       />
       <input
-        value={phone} onChange={e => setPhone(e.target.value)}
+        value={phone} onChange={e => setPhone(formatPhone(e.target.value))}
+        onFocus={() => { if (!phone) setPhone('+7') }}
         placeholder="+7 (___) ___-__-__" inputMode="tel"
         style={{ width: '100%', border: '1px solid #e4e1da', borderRadius: 10, padding: '10px 12px', fontSize: 14, outline: 'none', marginBottom: 14, boxSizing: 'border-box' }}
       />
-      <button onClick={send} disabled={!phone.trim() || sending} style={{
+      <button onClick={send} disabled={!normalizePhone(phone) || sending} style={{
         width: '100%', padding: '12px', background: '#C8102E', color: '#fff',
         border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: 'pointer',
-        opacity: phone.trim() && !sending ? 1 : 0.5,
+        opacity: normalizePhone(phone) && !sending ? 1 : 0.5,
       }}>{sending ? 'Отправляем...' : 'Перезвоните мне'}</button>
     </div>
   )
 }
 
 // ── Chat window ────────────────────────────────────────────────
-function ChatWindow({ prefill, prefillNonce }: { prefill: string; prefillNonce: number }) {
+function ChatWindow({ prefill, prefillNonce, autoSend }: { prefill: string; prefillNonce: number; autoSend: boolean }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
@@ -93,6 +96,11 @@ function ChatWindow({ prefill, prefillNonce }: { prefill: string; prefillNonce: 
     sessionId.current = getOrCreateSession()
     const saved = sessionStorage.getItem('plt_chat_lastId')
     if (saved) lastIdRef.current = parseInt(saved)
+    const n = sessionStorage.getItem('plt_chat_name')
+    if (n && !(prefillNonce > 0 && prefill)) {
+      setName(n); setNameSet(true)
+      setMessages([{ id: 'welcome', text: `Привет, ${n}! 👋 Напишите вопрос — ответим в течение нескольких минут.`, from: 'manager', ts: Date.now() }])
+    }
   }, [])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
@@ -101,7 +109,22 @@ function ChatWindow({ prefill, prefillNonce }: { prefill: string; prefillNonce: 
   // ввода. Если имя ещё не введено, текст просто ждёт в input и появится
   // в поле сообщения сразу после того, как посетитель представится.
   useEffect(() => {
-    if (prefillNonce > 0 && prefill) setInput(prefill)
+    if (!(prefillNonce > 0 && prefill)) return
+    if (!autoSend) { setInput(prefill); return }
+    // Быстрый вопрос — сразу уходит менеджеру в Telegram, имя не спрашиваем
+    const n = sessionStorage.getItem('plt_chat_name') || name.trim() || 'Гость'
+    const sid = sessionId.current || getOrCreateSession()
+    sessionId.current = sid
+    setName(n); setNameSet(true)
+    setMessages(prev => [
+      ...(prev.some(m => m.id === 'welcome') ? [] : [{ id: 'welcome', text: `Привет, ${n}! 👋 Ваш вопрос отправлен — ответим в течение нескольких минут.`, from: 'manager' as const, ts: Date.now() }]),
+      ...prev.filter(m => m.id !== 'welcome'),
+      { id: `vis-${Date.now()}`, text: prefill, from: 'visitor' as const, ts: Date.now() },
+    ])
+    fetch('/api/chat/send', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: prefill, sessionId: sid, name: n }),
+    }).catch(() => {})
   }, [prefillNonce, prefill])
 
   useEffect(() => {
@@ -135,6 +158,7 @@ function ChatWindow({ prefill, prefillNonce }: { prefill: string; prefillNonce: 
 
   const startChat = () => {
     if (!name.trim()) return
+    try { sessionStorage.setItem('plt_chat_name', name.trim()) } catch {}
     setNameSet(true)
     setMessages([{ id: 'welcome', text: `Привет, ${name.trim()}! 👋 Напишите вопрос — ответим в течение нескольких минут.`, from: 'manager', ts: Date.now() }])
   }
@@ -340,7 +364,7 @@ export function TelegramChat() {
           {panel === 'callback' ? (
             <CallbackForm onClose={closeAll} />
           ) : (
-            <ChatWindow prefill={ctx.chatPrefill} prefillNonce={ctx.chatNonce} />
+            <ChatWindow prefill={ctx.chatPrefill} prefillNonce={ctx.chatNonce} autoSend={ctx.chatAutoSend} />
           )}
         </div>
       )}

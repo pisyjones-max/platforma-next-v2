@@ -35,7 +35,7 @@ function buildDesc(description?: string, features?: Record<string, string>): str
 
 export function ProductCard({ id, title, price, img, sku, href, description, features, onClick }: Props) {
   const { add } = useCart()
-  const { verified } = useCard()
+  const { hasCard: verified } = useCard()
   const [qty, setQty] = useState(1)
   const salePrice = computeSalePrice(price)
   const desc = buildDesc(description, features)

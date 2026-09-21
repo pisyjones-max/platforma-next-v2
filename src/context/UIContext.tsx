@@ -20,7 +20,8 @@ interface UICtx {
   chatOpen: boolean
   chatPrefill: string
   chatNonce: number
-  openChat: (prefill?: string) => void
+  chatAutoSend: boolean
+  openChat: (prefill?: string, autoSend?: boolean) => void
   closeChat: () => void
 }
 
@@ -35,6 +36,7 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
   const [chatOpen, setChatOpen] = useState(false)
   const [chatPrefill, setChatPrefill] = useState('')
   const [chatNonce, setChatNonce] = useState(0)
+  const [chatAutoSend, setChatAutoSend] = useState(false)
 
   return (
     <UIContext.Provider value={{
@@ -56,10 +58,12 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
       chatOpen,
       chatPrefill,
       chatNonce,
+      chatAutoSend,
       // prefill необязателен — используется пресетами вопросов на странице товара
       // (нажатие открывает виджет чата и подставляет готовый текст вопроса)
-      openChat: (prefill?: string) => {
+      openChat: (prefill?: string, autoSend?: boolean) => {
         setChatPrefill(prefill ?? '')
+        setChatAutoSend(!!autoSend)
         setChatNonce(n => n + 1)
         setChatOpen(true)
       },

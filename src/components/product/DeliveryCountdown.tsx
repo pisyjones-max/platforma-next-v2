@@ -68,7 +68,7 @@ export function DeliveryCountdown() {
 
   if (state.open) {
     return (
-      <div className="delivery-countdown">
+      <div className="delivery-countdown delivery-countdown-open">
         <span className="delivery-countdown-icon">🕒</span>
         <span>
           Оформите до <b>{state.cutoffLabel}</b> — менеджер обработает заказ сегодня

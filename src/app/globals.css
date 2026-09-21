@@ -1195,6 +1195,19 @@ body { overflow-x: hidden; }
 .delivery-countdown-icon { font-size: 15.5px; flex-shrink: 0; }
 .delivery-countdown-closed { color: var(--muted); }
 
+/* Бегущая рамка вокруг плашки «Оформите до …» (только когда окно открыто) */
+@property --dc-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+.delivery-countdown-open { position: relative; }
+.delivery-countdown-open::before {
+  content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1.5px;
+  background: conic-gradient(from var(--dc-angle), transparent 0 72%, var(--accent) 88%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: dc-spin 3.6s linear infinite; pointer-events: none;
+}
+@keyframes dc-spin { to { --dc-angle: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .delivery-countdown-open::before { animation: none; } }
+
 .ask-kev { margin-top: 14px; }
 .ask-kev-title { font-size: 12.5px; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
 .ask-kev-row { display: flex; gap: 8px; flex-wrap: wrap; }

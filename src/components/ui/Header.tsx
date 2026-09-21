@@ -12,10 +12,8 @@ const NAV = [
   { href: '/fasad/sajding', label: 'Сайдинг' },
   { href: '/catalog/group/krovlya', label: 'Кровля' },
   { href: '/catalog/brand', label: 'Бренды' },
-  { href: '/blog', label: 'Блог' },
   { href: '/delivery', label: 'Доставка' },
   { href: '/deshevle-konkurentov', label: 'Дешевле' },
-  { href: '/about', label: 'О компании' },
 ]
 
 const YANDEX_MAPS_URL = 'https://yandex.ru/maps/?text=Новохаритоново+кровельные+материалы+PLATFORMA'

@@ -13,6 +13,8 @@ import { CardPriceBlock } from '@/components/product/CardPriceBlock'
 import { CrossSellSection } from '@/components/product/CrossSellSection'
 import { DeliveryCountdown } from '@/components/product/DeliveryCountdown'
 import { AskKevPresets } from '@/components/product/AskKevPresets'
+import { formatPhone, normalizePhone } from '@/lib/phone'
+import { DELIVERY_TAGLINE } from '@/lib/constants'
 import { getServicesForGroup } from '@/lib/services'
 import type { Product } from '@/types/catalog'
 import type { CrossSellProduct } from '@/lib/crossSell'
@@ -48,6 +50,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
   const [lbIdx, setLbIdx] = useState(0)
   const [callOpen, setCallOpen] = useState(false)
   const [callPhone, setCallPhone] = useState('')
+  const [callErr, setCallErr] = useState(false)
   const [callSent, setCallSent] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
@@ -89,12 +92,16 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
   }
 
   const handleCall = async () => {
-    if (!callPhone) return
-    await fetch('/api/order/callback', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: callPhone, product: product.title }),
-    })
+    const norm = normalizePhone(callPhone)
+    if (!norm) { setCallErr(true); return }
+    setCallErr(false)
+    try {
+      await fetch('/api/order/callback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: formatPhone(norm), product: product.title }),
+      })
+    } catch {}
     setCallSent(true)
   }
 
@@ -255,6 +262,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
           </div>
 
           <DeliveryCountdown />
+          <div style={{ marginTop: 8, fontSize: 13, color: 'var(--muted)' }}>🚚 {DELIVERY_TAGLINE}</div>
 
           <AskKevPresets productTitle={product.title} />
 
@@ -265,8 +273,10 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
                 <div className="prod-callback-ok">✅ Перезвоним в течение 15 минут!</div>
               ) : (
                 <>
-                  <input className="finp" placeholder="+7 (___) ___-__-__" value={callPhone}
-                    onChange={e => setCallPhone(e.target.value)} style={{ marginBottom: 8 }} />
+                  <input className="finp" placeholder="+7 (___) ___-__-__" value={callPhone} inputMode="tel"
+                    onFocus={() => { if (!callPhone) setCallPhone('+7') }}
+                    onChange={e => { setCallPhone(formatPhone(e.target.value)); setCallErr(false) }}
+                    style={{ marginBottom: 8, ...(callErr ? { borderColor: '#BF3E22' } : {}) }} />
                   <button className="prod-add-btn" onClick={handleCall}>Перезвоните мне</button>
                   <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6 }}>
                     Нажимая кнопку, вы соглашаетесь с{' '}

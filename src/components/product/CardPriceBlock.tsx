@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function CardPriceBlock({ regularPrice }: Props) {
-  const { verified } = useCard()
+  const { hasCard: verified } = useCard()
   const { openLoyalty } = useUI()
 
   return (

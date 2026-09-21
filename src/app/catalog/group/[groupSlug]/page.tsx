@@ -45,11 +45,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `${group.name} — купить в Московской области`,
-    description: `${group.name} — ${catCount} категорий в наличии. Доставка по Московской области. Самовывоз из Новохаритонова. Звоните: +7 (933) 203-30-05.`,
+    description: `${group.name} — ${catCount} категорий в наличии. Быстрая доставка на объект или в пункт выдачи Яндекс Маркета. Звоните: +7 (933) 203-30-05.`,
     alternates: { canonical: `/catalog/group/${groupSlug}` },
     openGraph: {
       title: `${group.name} — PLATFORMA`,
-      description: `Купить ${group.name.toLowerCase()} в МО. Доставка и самовывоз.`,
+      description: `Купить ${group.name.toLowerCase()} в МО. Быстрая доставка на объект или в пункт выдачи Яндекс Маркета.`,
     },
   }
 }

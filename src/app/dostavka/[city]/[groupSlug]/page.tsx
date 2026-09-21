@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
   return {
     title: `${group.name} в ${city.nameGenitive} — цены и доставка`,
-    description: `Купить ${group.name.toLowerCase()} с доставкой в ${city.nameGenitive}: ${city.distanceNote}.${priceNote} Самовывоз со склада в Новохаритонове.`,
+    description: `Купить ${group.name.toLowerCase()} с доставкой в ${city.nameGenitive}: ${city.distanceNote}.${priceNote} Быстрая доставка на объект или в пункт выдачи Яндекс Маркета.`,
     alternates: { canonical: `/dostavka/${city.slug}/${groupSlug}` },
   }
 }

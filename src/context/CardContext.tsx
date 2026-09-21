@@ -4,6 +4,7 @@ import { normalizePhone } from '@/lib/phone'
 
 interface CardContextValue {
   verified: boolean
+  hasCard: boolean       // карта оформлена на этом устройстве (даже если сервер сейчас не подтвердил)
   phone: string          // "7XXXXXXXXXX" в каноничном виде, либо ''
   checking: boolean
   error: string
@@ -31,8 +32,15 @@ export function CardProvider({ children }: { children: ReactNode }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone: saved }),
     })
-      .then(r => r.json())
-      .then(d => setVerified(!!d.valid))
+      .then(async r => {
+        const d = await r.json().catch(() => ({}))
+        if (d.valid) setVerified(true)
+        else if (r.status === 200) {
+          // сервер точно ответил, что карты нет — забываем телефон
+          setPhone('')
+          localStorage.removeItem(LS_KEY)
+        }
+      })
       .catch(() => {})
   }, [])
 
@@ -85,7 +93,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <CardContext.Provider value={{ verified, phone, checking, error, verify, markVerified, reset }}>
+    <CardContext.Provider value={{ verified, hasCard: verified || phone !== '', phone, checking, error, verify, markVerified, reset }}>
       {children}
     </CardContext.Provider>
   )

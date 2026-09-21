@@ -108,7 +108,7 @@ export function CheckoutModal() {
                     <div key={m} onClick={() => set({ deliveryMethod: m })}
                       className={`sub-method ${form.deliveryMethod === m ? 'active' : ''}`}>
                       <div className="sm-icon">{m === 'pvz' ? '📦' : '🚚'}</div>
-                      {m === 'pvz' ? 'Самовывоз / ПВЗ' : 'Доставка курьером'}
+                      {m === 'pvz' ? 'Пункт выдачи Яндекс Маркета' : 'Доставка курьером'}
                     </div>
                   ))}
                 </div>

@@ -5,6 +5,7 @@ import { DESIGN_PROJECT_PRICE, CARD_WELCOME_BONUS } from '@/lib/constants'
 import { LOYALTY_FEATURES, REFERRAL_BONUS_POINTS } from '@/lib/loyaltyFeatures'
 import type { CardRecord } from '@/lib/loyaltyEngine'
 import { sendTG, tgEsc } from '@/lib/telegram'
+import { saveLead, markDelivered } from '@/lib/orderStore'
 
 interface DesignLead {
   name?: string
@@ -20,7 +21,26 @@ export async function POST(req: NextRequest) {
     : undefined
   const cleanIntent = typeof intent === 'string' ? intent.slice(0, 200) : undefined
 
+  // Независимая от KV копия заявки на карту + уведомление в Telegram —
+  // раньше без подключённого KV регистрация карты никуда не уходила.
+  const cardNote = `Карта: ${String(name ?? '').slice(0, 200)}${cleanEmail ? `, ${cleanEmail}` : ''}${cleanIntent ? `, ${cleanIntent}` : ''}`
+  const lead = await saveLead({ kind: 'card', phone: formatPhone(p), note: cardNote })
+  const notifyNoKv = async () => {
+    try {
+      const ok = await sendTG([
+        '💳 Новая карта (без базы KV)',
+        `Имя: ${tgEsc(String(name ?? '').slice(0, 200))}`,
+        `Телефон: ${tgEsc(formatPhone(p))}`,
+        cleanEmail ? `Email: ${tgEsc(cleanEmail)}` : null,
+      ].filter(Boolean).join('\n'))
+      if (ok) await markDelivered(lead)
+    } catch (e) {
+      console.error('[CARD] notify error:', e)
+    }
+  }
+
   if (!isKvConfigured()) {
+    await notifyNoKv()
     // База карт ещё не подключена в Vercel (KV_REST_API_URL / KV_REST_API_TOKEN) —
     // заявка всё равно уходит менеджеру в Telegram, но верификация по телефону работать не будет.
     console.warn('[CARD] issue: KV not configured, card not persisted')
@@ -98,7 +118,8 @@ export async function POST(req: NextRequest) {
         `Баллы: ${points}${referralBonus ? ` (из них ${referralBonus} — за реферала)` : ''}`,
         bonus ? `Бонус за дизайн-проект: ${bonus} ₽` : null,
       ].filter(Boolean)
-      await sendTG(lines.join('\n'))
+      const okTg = await sendTG(lines.join('\n'))
+      if (okTg) await markDelivered(lead)
     } catch (e) {
       console.error('[CARD] issue TG notify error:', e) // не блокируем выпуск карты
     }
