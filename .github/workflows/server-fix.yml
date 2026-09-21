@@ -16,13 +16,15 @@ jobs:
           command_timeout: 25m
           script: |
             cd /var/www/platforma-next-v2
+            exec 9>/tmp/platforma-deploy.lock
+            flock -w 1800 9
             free -m | sed -n 2p; df -h / | tail -1
 
             # дождаться уже идущей сборки (если запущена вручную)
             for i in $(seq 1 40); do pgrep -f "next build" >/dev/null || break; echo "waiting for running build..."; sleep 15; done
 
             git pull origin main
-            [ -d node_modules ] || npm ci
+            if [ ! -d node_modules ]; then npm ci; sha256sum package-lock.json | cut -c1-64 > .npm-lock-hash; fi
             if [ ! -f .next/BUILD_ID ]; then
               NEXT_PUBLIC_SITE_URL="https://platforma-msk.ru" NODE_OPTIONS="--max-old-space-size=1536" npm run build 2>&1 | tail -25
             fi

@@ -20,6 +20,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    concurrency:
+      group: vds-deploy
+      cancel-in-progress: false
     steps:
       - name: Deploy to VDS via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -27,17 +30,22 @@ jobs:
           host: 185.197.75.101
           username: root
           key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 30m
           script: |
+            set -e
             cd /var/www/platforma-next-v2
+            # Один деплой за раз (иначе две параллельные сборки на 2 ГБ убивают сайт)
+            exec 9>/tmp/platforma-deploy.lock
+            flock -w 1800 9
             git pull origin main
-            npm ci
+            # npm ci стирает node_modules у работающего сайта — только если lock-файл изменился
+            HASH=$(sha256sum package-lock.json | cut -c1-64)
+            if [ ! -d node_modules ] || [ "$(cat .npm-lock-hash 2>/dev/null)" != "$HASH" ]; then
+              npm ci
+              echo "$HASH" > .npm-lock-hash
+            fi
             NEXT_PUBLIC_SITE_URL="https://platforma-msk.ru" NODE_OPTIONS="--max-old-space-size=1536" npm run build
-            # reload вместо restart: старый процесс отдаёт уже принятые запросы
-            # и закрывается только после того, как новый поднялся и готов
-            # принимать соединения — без разрыва запросов Яндекс-бота/пользователей
-            # в момент деплоя. Раньше здесь был "pm2 restart", который резко убивал
-            # старый процесс и давал окно 502/504 на каждом деплое.
-            pm2 reload platforma --update-env
+            pm2 reload platforma --update-env || pm2 restart platforma --update-env
 
   ping-yandex:
     needs: deploy
