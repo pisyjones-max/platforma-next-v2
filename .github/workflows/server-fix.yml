@@ -34,7 +34,7 @@ jobs:
               grep -v '^ADMIN_KEY=' .env.local > .env.tmp || true
               mv .env.tmp .env.local
               echo "ADMIN_KEY=$NEWKEY" >> .env.local
-              echo "ADMIN_KEY создан заново: $NEWKEY"
+              echo "ADMIN_KEY создан заново (значение не выводится: репозиторий публичный)"
             else
               echo "ADMIN_KEY уже задан"
             fi
@@ -42,7 +42,7 @@ jobs:
             pm2 restart platforma --update-env
             sleep 12
             pm2 status
-            pm2 logs platforma --lines 15 --nostream
+            pm2 logs platforma --lines 40 --nostream 2>&1 | grep -iE "error|cannot find|enoent|eaddr|ready" | tail -8 | cut -c1-200
 
             KEY=$(grep -E '^ADMIN_KEY=' .env.local | head -1 | cut -d= -f2-)
             echo "--- site:"; curl -s -o /dev/null -w "%{http_code}\n" https://platforma-msk.ru/
