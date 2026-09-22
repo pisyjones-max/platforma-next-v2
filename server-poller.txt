@@ -1,0 +1,68 @@
+Warning: Permanently added '185.197.75.101' (ED25519) to the list of known hosts.
+From https://github.com/pisyjones-max/platforma-next-v2
+ * branch              main       -> FETCH_HEAD
+   6b6b61ae..b3885027  main       -> origin/main
+Updating 6b6b61ae..b3885027
+Fast-forward
+ .github/workflows/server-poller.yml |  27 +++++++++
+ scripts/deploy-poller.sh            |  11 ++++
+ scripts/tg-poller.js                | 115 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 153 insertions(+)
+ create mode 100644 .github/workflows/server-poller.yml
+ create mode 100644 scripts/deploy-poller.sh
+ create mode 100644 scripts/tg-poller.js
+[PM2] Starting /var/www/platforma-next-v2/scripts/tg-poller.js in fork_mode (1 instance)
+[PM2] Done.
+┌────┬──────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name         │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼──────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ platforma    │ default     │ N/A     │ fork    │ 73827    │ 10h    │ 2753 │ online    │ 0%       │ 19.1mb   │ root     │ disabled │
+│ 1  │ sk-craft     │ default     │ N/A     │ fork    │ 768      │ 11h    │ 0    │ online    │ 0%       │ 10.3mb   │ root     │ disabled │
+│ 2  │ tg-poller    │ default     │ 0.1.0   │ fork    │ 87944    │ 0s     │ 0    │ online    │ 0%       │ 60.6mb   │ root     │ disabled │
+└────┴──────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+host metrics | cpu: 100% | ram usage: 96% | eth0: ⇓ 0.001mb/s ⇑ 0.001mb/s | disk: ⇓ 3.133mb/s ⇑ 3.471mb/s / 69.7% |
+[PM2] Saving current process list...
+[PM2] Successfully saved in /root/.pm2/dump.pm2
+--- pm2 status:
+┌────┬──────────────┬─────────────┬─────────┬─�
+│ id │ name         │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      �
+├────┼──────────────┼─────────────┼─────────┼─�
+│ 0  │ platforma    │ default     │ N/A     │ fork    │ 73827    │ 10h    │ 2753 │ online    │ 0%       │ 19.1mb   │
+│ 1  │ sk-craft     │ default     │ N/A     │ fork    │ 768      │ 11h    │ 0    │ online    │ 0%       │ 10.3mb   │
+│ 2  │ tg-poller    │ default     │ 0.1.0   │ fork    │ 87944    │ 9s     │ 0    │ online    │ 0%       │ 72.0mb   │
+└────┴──────────────┴─────────────┴─────────┴─�
+host metrics | cpu: 46.9% | ram usage: 24% | lo: ⇓ 0.003mb/s ⇑ 0.003mb/s | eth0: ⇓ 0.001mb/s ⇑ 0.004mb/s | disk: ⇓ 23.167mb/s ⇑ 
+--- tg-poller logs:
+[TAILING] Tailing last 25 lines for [tg-poller] process (change the value with --lines option)
+/root/.pm2/logs/tg-poller-out.log last 25 lines:
+2|tg-polle | 2026-09-22T06:06:26: [tg-poller] deleteWebhook: {"ok":true,"result":true,"description":"Webhook was deleted"}
+2|tg-polle | 2026-09-22T06:06:26: [tg-poller] старт, offset = 0
+
+/root/.pm2/logs/tg-poller-error.log last 25 lines:
+2|tg-polle | 2026-09-22T06:06:26:   }
+2|tg-polle | 2026-09-22T06:06:26: }
+2|tg-polle | 2026-09-22T06:06:26: [tg-poller] handleUpdate error: TypeError: Failed to parse URL from "https://central-lynx-156273.upstash.io"/get/chat%3Acy14eq2k
+2|tg-polle | 2026-09-22T06:06:26:     at node:internal/deps/undici/undici:15141:13
+2|tg-polle | 2026-09-22T06:06:26:     at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+2|tg-polle | 2026-09-22T06:06:26:     at async kvFetch (/var/www/platforma-next-v2/scripts/tg-poller.js:34:15)
+2|tg-polle | 2026-09-22T06:06:26:     at async kvGet (/var/www/platforma-next-v2/scripts/tg-poller.js:39:16)
+2|tg-polle | 2026-09-22T06:06:26:     at async handleUpdate (/var/www/platforma-next-v2/scripts/tg-poller.js:65:17)
+2|tg-polle | 2026-09-22T06:06:26:     at async tick (/var/www/platforma-next-v2/scripts/tg-poller.js:86:11)
+2|tg-polle | 2026-09-22T06:06:26:     at async main (/var/www/platforma-next-v2/scripts/tg-poller.js:106:20) {
+2|tg-polle | 2026-09-22T06:06:26:   [cause]: TypeError: Invalid URL
+2|tg-polle | 2026-09-22T06:06:26:       at new URL (node:internal/url:818:25)
+2|tg-polle | 2026-09-22T06:06:26:       at new Request (node:internal/deps/undici/undici:9911:25)
+2|tg-polle | 2026-09-22T06:06:26:       at fetch (node:internal/deps/undici/undici:10640:25)
+2|tg-polle | 2026-09-22T06:06:26:       at fetch (node:internal/deps/undici/undici:15139:10)
+2|tg-polle | 2026-09-22T06:06:26:       at fetch (node:internal/bootstrap/web/exposed-window-or-worker:75:12)
+2|tg-polle | 2026-09-22T06:06:26:       at kvFetch (/var/www/platforma-next-v2/scripts/tg-poller.js:34:21)
+2|tg-polle | 2026-09-22T06:06:26:       at kvGet (/var/www/platforma-next-v2/scripts/tg-poller.js:39:22)
+2|tg-polle | 2026-09-22T06:06:26:       at handleUpdate (/var/www/platforma-next-v2/scripts/tg-poller.js:65:23)
+2|tg-polle | 2026-09-22T06:06:26:       at tick (/var/www/platforma-next-v2/scripts/tg-poller.js:86:17)
+2|tg-polle | 2026-09-22T06:06:26:       at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
+2|tg-polle | 2026-09-22T06:06:26:     code: 'ERR_INVALID_URL',
+2|tg-polle | 2026-09-22T06:06:26:     input: '"https://central-lynx-156273.upstash.io"/get/chat%3Acy14eq2k'
+2|tg-polle | 2026-09-22T06:06:26:   }
+2|tg-polle | 2026-09-22T06:06:26: }
+
+exit=0
