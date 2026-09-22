@@ -11,7 +11,7 @@ function loadEnv() {
   const env = {}
   for (const line of fs.readFileSync(ENV_PATH, 'utf8').split('\n')) {
     const m = line.match(/^([A-Z0-9_]+)=(.*)$/)
-    if (m) env[m[1]] = m[2]
+    if (m) env[m[1]] = m[2].trim().replace(/^["']|["']$/g, '')
   }
   return env
 }
