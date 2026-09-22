@@ -19,7 +19,7 @@ echo "sid=$SID"
 curl -s -X POST http://127.0.0.1:3000/api/chat/webhook \
   -H "Content-Type: application/json" \
   -H "x-telegram-bot-api-secret-token: $SECRET" \
-  -d "{\"update_id\":999002,\"message\":{\"date\":$(date +%s),\"text\":\"Сессия: $SID тестовый ответ от скрипта\",\"chat\":{\"id\":1}}}" \
+  -d "{\"update_id\":999003,\"message\":{\"date\":$(date +%s),\"text\":\"$SID: тестовый ответ от скрипта\",\"chat\":{\"id\":1}}}" \
   -w "\nwebhook http=%{http_code}\n"
 
 sleep 1
