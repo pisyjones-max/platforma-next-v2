@@ -1,0 +1,27 @@
+name: Deploy tg-poller (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy poller on VDS
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh && printf '%s\n' "$SSH_KEY" > ~/.ssh/id && chmod 600 ~/.ssh/id
+          ssh -i ~/.ssh/id -o StrictHostKeyChecking=no -o ConnectTimeout=20 root@185.197.75.101 'bash -s' < scripts/deploy-poller.sh > log.txt 2>&1
+          echo "exit=$?" >> log.txt
+      - name: Save log
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SHA=$(curl -s -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/${{ github.repository }}/git/ref/heads/main | jq -r .object.sha)
+          curl -s -X POST -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/${{ github.repository }}/git/refs -d "{\"ref\":\"refs/heads/ci-logs\",\"sha\":\"$SHA\"}" >/dev/null
+          OLD=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/${{ github.repository }}/contents/server-poller.txt?ref=ci-logs" | jq -r '.sha // empty')
+          jq -n --arg c "$(base64 -w0 log.txt)" --arg s "$OLD" '{message:"poller log",branch:"ci-logs",content:$c} + (if $s != "" then {sha:$s} else {} end)' > body.json
+          curl -s -X PUT -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/${{ github.repository }}/contents/server-poller.txt -d @body.json | jq -r '.commit.sha // .message'
