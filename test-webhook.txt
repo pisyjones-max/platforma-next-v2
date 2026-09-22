@@ -1,8 +1,9 @@
 Warning: Permanently added '185.197.75.101' (ED25519) to the list of known hosts.
-secret len: 805
-sid=dbgtest6461
-
-webhook http=400
+secret len: 32
+sid=dbgtest6576
+{"ok":true}
+webhook http=200
 poll:
 {"messages":[],"lastId":0}
+--- pm2 webhook-related logs:
 exit=0
