@@ -1,10 +1,17 @@
 Warning: Permanently added '185.197.75.101' (ED25519) to the list of known hosts.
-secret len: 32
---- getWebhookInfo:
-{"ok":true,"result":{"url":"https://platforma-msk.ru/api/chat/webhook","has_custom_certificate":false,"pending_update_count":3,"last_error_date":1790056846,"last_error_message":"Connection timed out","max_connections":40,"ip_address":"185.197.75.101","allowed_updates":["message","channel_post"]}}
+--- getWebhookInfo (before):
+{"ok":true,"result":{"url":"https://platforma-msk.ru/api/chat/webhook","has_custom_certificate":false,"pending_update_count":3,"last_error_date":1790056984,"last_error_message":"Connection timed out","max_connections":40,"ip_address":"185.197.75.101","allowed_updates":["message","channel_post"]}}
 
---- nginx access for /api/chat/webhook (last 20):
---- (none found above means Telegram never reached nginx)
---- real chat: keys sample:
+--- local nginx status:
+active
+LISTEN 0      511          0.0.0.0:80         0.0.0.0:*    users:(("nginx",pid=687,fd=6),("nginx",pid=684,fd=6))                                                                                                             
+LISTEN 0      511          0.0.0.0:443        0.0.0.0:*    users:(("nginx",pid=687,fd=5),("nginx",pid=684,fd=5))                                                                                                             
+--- ufw / iptables (incoming rules, if any):
+Status: inactive
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination         
+--- fail2ban jails (if present):
+bash: line 28: fail2ban-client: command not found
+--- KV keys via REST list:
 err TypeError: Failed to parse URL from "https://central-lynx-156273.upstash.io"/keys/chat:*
 exit=0
