@@ -1,9 +1,10 @@
 Warning: Permanently added '185.197.75.101' (ED25519) to the list of known hosts.
 secret len: 32
-sid=dbgtest6701
-{"ok":true}
-webhook http=200
-poll:
-{"messages":[{"text":"тестовый ответ от скрипта","ts":1790056701000,"updateId":999003}],"lastId":999003}
---- pm2 webhook-related logs:
+--- getWebhookInfo:
+{"ok":true,"result":{"url":"https://platforma-msk.ru/api/chat/webhook","has_custom_certificate":false,"pending_update_count":3,"last_error_date":1790056846,"last_error_message":"Connection timed out","max_connections":40,"ip_address":"185.197.75.101","allowed_updates":["message","channel_post"]}}
+
+--- nginx access for /api/chat/webhook (last 20):
+--- (none found above means Telegram never reached nginx)
+--- real chat: keys sample:
+err TypeError: Failed to parse URL from "https://central-lynx-156273.upstash.io"/keys/chat:*
 exit=0
