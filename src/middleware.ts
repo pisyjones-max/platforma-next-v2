@@ -53,6 +53,25 @@ const PRODUCT_PATH = /^\/catalog\/([^/]+)\/([^/]+)\/?$/
 // slug категории не совпадает с этими именами (проверено по catalog.json).
 const RESERVED_CATALOG_SEGMENTS = new Set(['brand', 'group'])
 
+// Устаревшие slug категорий (были в индексе Яндекса) → актуальные адреса.
+const LEGACY_CATEGORY: Record<string, string> = {
+  metallicheskie: '/catalog/vodostoki-metallicheskie',
+  plastikovye: '/catalog/vodostoki-plastikovye',
+  metallocherepica: '/catalog/metallocherepitsa',
+  'krovelnye-materialy': '/catalog/group/krovlya',
+}
+
+const CATEGORY_PATH = /^\/catalog\/([^/]+)\/?$/
+const TOP_SEGMENT = /^\/([^/]+)(?:\/.*)?$/
+
+function redirect301(request: NextRequest, pathname: string) {
+  const url = request.nextUrl.clone()
+  url.pathname = pathname
+  return NextResponse.redirect(url, 301)
+}
+
+const RESERVED_TOP_SEGMENTS = new Set(['catalog', 'blog', 'api', 'admin', 'search', 'about'])
+
 export function middleware(request: NextRequest) {
   const host = request.headers.get('host') ?? ''
   const { pathname, search } = request.nextUrl
@@ -74,24 +93,38 @@ export function middleware(request: NextRequest) {
   //    301 на актуальный адрес вместо 404. Раньше это делал permanentRedirect()
   //    из next/navigation внутри страницы товара — Next всегда отдаёт по нему
   //    308, что и было первопричиной жалобы в аудите.
+  const catalog = loadCatalog()
+
+  // 3a. Устаревший slug категории → 301 на актуальную категорию/группу
+  const catMatch = pathname.match(CATEGORY_PATH)
+  if (catMatch && LEGACY_CATEGORY[catMatch[1]] && !RESERVED_CATALOG_SEGMENTS.has(catMatch[1])) {
+    if (!catalog || !catalog.categories.some(c => c.slug === catMatch[1])) {
+      return redirect301(request, LEGACY_CATEGORY[catMatch[1]])
+    }
+  }
+
+  // 3b. Старые верхнеуровневые URL групп (/izolyatsiya, /cherdachnye-lestnitsy/...)
+  //     → /catalog/group/<slug>
+  const top = pathname.match(TOP_SEGMENT)
+  if (top && catalog?.groups?.[top[1]] && !RESERVED_TOP_SEGMENTS.has(top[1])) {
+    return redirect301(request, `/catalog/group/${top[1]}`)
+  }
+
   const match = pathname.match(PRODUCT_PATH)
-  if (match) {
+  if (match && catalog) {
     const [, catSlug, productId] = match
     if (!RESERVED_CATALOG_SEGMENTS.has(catSlug)) {
-      const catalog = loadCatalog()
-      if (catalog) {
-        const cat = catalog.categories.find(c => c.slug === catSlug)
-        const directHit = cat ? findProductBySlug(cat.products, productId) : undefined
-        if (!directHit || !directHit.variants?.length) {
-          const fallback = findProductAnywhere(catalog, productId)
-          if (fallback) {
-            const url = request.nextUrl.clone()
-            url.pathname = `/catalog/${fallback.cat.slug}/${productSlug(fallback.product.id)}`
-            return NextResponse.redirect(url, 301)
-          }
-          // Ни прямого совпадения, ни где-либо ещё в каталоге — честный 404
-          // без промежуточных редиректов, отдаёт сама страница товара (notFound()).
+      const cat = catalog.categories.find(c => c.slug === catSlug)
+      const directHit = cat ? findProductBySlug(cat.products, productId) : undefined
+      if (!directHit || !directHit.variants?.length) {
+        const fallback = findProductAnywhere(catalog, productId)
+        if (fallback) {
+          return redirect301(request, `/catalog/${fallback.cat.slug}/${productSlug(fallback.product.id)}`)
         }
+        // Товара нет нигде: честный 301 на категорию (живую или устаревшую),
+        // а не 404/307 — сохраняем ссылочный вес (page.tsx делал 307).
+        if (cat) return redirect301(request, `/catalog/${catSlug}`)
+        if (LEGACY_CATEGORY[catSlug]) return redirect301(request, LEGACY_CATEGORY[catSlug])
       }
     }
   }
