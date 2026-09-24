@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useUI } from '@/context/UIContext'
 import { useCard } from '@/context/CardContext'
 import { formatPhone } from '@/lib/phone'
+import { ymGoal } from '@/lib/metrika'
 
 export function LoyaltyModal() {
   const { loyaltyOpen, closeLoyalty } = useUI()
@@ -49,6 +50,7 @@ export function LoyaltyModal() {
       console.error('[LOYALTY] submit error:', e)
     }
     markVerified(phone)
+    ymGoal('card_issue')
     setLoading(false)
     setSent(true)
   }

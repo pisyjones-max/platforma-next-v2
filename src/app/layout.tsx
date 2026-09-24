@@ -18,6 +18,7 @@ import { PromoBanner } from '@/components/ui/PromoBanner'
 import { PromosBanner } from '@/components/ui/PromosBanner'
 import { TelegramChat } from '@/components/ui/TelegramChat'
 import { ChromeVisible } from '@/components/ui/ChromeVisible'
+import { MetrikaHits } from '@/components/ui/MetrikaHits'
 import './globals.css'
 
 // Раньше шрифты подключались через @import url("https://fonts.googleapis.com/...")
@@ -150,6 +151,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* /Top.Mail.Ru counter */}
       </head>
       <body style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <MetrikaHits />
         <CartProvider>
           <UIProvider>
             <CardProvider>

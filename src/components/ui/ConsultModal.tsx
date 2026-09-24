@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useUI } from '@/context/UIContext'
+import { ymGoal } from '@/lib/metrika'
 
 function formatPhone(raw: string): string {
   let v = raw.replace(/\D/g, '')
@@ -54,6 +55,7 @@ export function ConsultModal() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, product: text, type: 'specialist' }),
     })
+    ymGoal('consult_request')
     setLoading(false)
     setSent(true)
   }

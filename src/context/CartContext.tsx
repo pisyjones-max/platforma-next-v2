@@ -1,6 +1,7 @@
 'use client'
 import { createContext, useContext, useEffect, useReducer } from 'react'
 import type { CartItem, LoyaltyCard } from '@/types/cart'
+import { ymGoal, ymEcommerce } from '@/lib/metrika'
 
 interface CartState {
   items: CartItem[]
@@ -80,7 +81,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   return (
     <CartContext.Provider value={{
       ...state,
-      add: item => dispatch({ type: 'ADD', item }),
+      add: item => {
+        dispatch({ type: 'ADD', item })
+        ymEcommerce('add', [{ id: item.sku, name: item.title, price: item.price, quantity: item.qty }])
+        ymGoal('add_to_cart')
+      },
       remove: i => dispatch({ type: 'REMOVE', index: i }),
       setQty: (i, q) => dispatch({ type: 'SET_QTY', index: i, qty: q }),
       clear: () => dispatch({ type: 'CLEAR' }),

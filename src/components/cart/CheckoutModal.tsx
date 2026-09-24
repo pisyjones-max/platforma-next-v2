@@ -5,6 +5,7 @@ import { useUI } from '@/context/UIContext'
 import { fmt } from '@/lib/price'
 import { CASHBACK_RATE } from '@/lib/constants'
 import type { CheckoutForm, DeliveryMethod } from '@/types/cart'
+import { ymGoal, ymEcommerce } from '@/lib/metrika'
 
 const EMPTY: CheckoutForm = {
   name: '', phone: '', email: '', address: '', pvzAddress: '',
@@ -50,6 +51,12 @@ export function CheckoutModal() {
         body: JSON.stringify({ form, items, total: finalTotal }),
       })
       if (!res.ok) throw new Error(`order request failed: ${res.status}`)
+      ymEcommerce(
+        'purchase',
+        items.map(i => ({ id: i.sku, name: i.title, price: i.price, quantity: i.qty })),
+        { id: `web-${Date.now()}`, revenue: finalTotal },
+      )
+      ymGoal('order_submit', { order_price: finalTotal, currency: 'RUB' })
       clear(); setDone(true)
     } catch (e) {
       // Раньше при сетевом сбое/ошибке сервера этот await падал необработанным
