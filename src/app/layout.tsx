@@ -130,6 +130,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </noscript>
 
+        {/* Google tag (gtag.js) */}
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-NHCPHQP5QW" strategy="afterInteractive" />
+        <Script id="gtag-init" strategy="afterInteractive">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-NHCPHQP5QW');
+        `}</Script>
+
         {/* Top.Mail.Ru counter */}
         <Script id="tmr-init" strategy="afterInteractive">{`
           var _tmr = window._tmr || (window._tmr = []);
