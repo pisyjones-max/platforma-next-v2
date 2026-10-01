@@ -9,7 +9,9 @@ export const CARD_WELCOME_BONUS = 15000
 // Единая формулировка про доставку (используется в описаниях и на страницах)
 export const DELIVERY_TAGLINE = 'Быстрая доставка на объект или в пункт выдачи заказов Яндекс Маркета'
 export const ADMIN_KEY      = process.env.ADMIN_KEY ?? ''   // секретный ключ для /admin/cards
-export const PHONE_NUMBER   = '+7 (933) 203-30-05'
+const REAL_PHONE_NUMBER     = '+7 (933) 203-30-05'   // не удалять — реальный номер, подставится назад при PHONE_CALLS_ENABLED = true
+export const PHONE_CALLS_ENABLED = false              // временно отключили приём звонков по сайту — номер нигде не показывается и не кликается
+export const PHONE_NUMBER   = PHONE_CALLS_ENABLED ? REAL_PHONE_NUMBER : ''
 
 // Услуга "Дизайн-проект дома" — реальная стоимость услуги. Бесплатно для
 // клиента при оформлении карты лояльности: сумма зачисляется на карту
