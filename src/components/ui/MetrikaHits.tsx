@@ -8,7 +8,7 @@ function Inner() {
   const search = useSearchParams().toString()
   const first = useRef(true)
 
-  // Переходы между страницами внутри SPA. Первый хит отправляет ym('init').
+  // Переходы между страницами внутри SPA. Первый хит отправляется из init-скрипта в layout.tsx (init с defer: true).
   useEffect(() => {
     if (first.current) { first.current = false; return }
     ymHit(location.pathname + location.search)

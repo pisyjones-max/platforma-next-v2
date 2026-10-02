@@ -115,13 +115,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
           })(window,document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
           ym(109166481,'init',{
-            ssr:true,webvisor:true,clickmap:true,
+            ssr:true,defer:true,webvisor:true,clickmap:true,
             ecommerce:'dataLayer',
             referrer:document.referrer,
             url:location.href,
             accurateTrackBounce:true,
             trackLinks:true
           });
+          ym(109166481,'hit',location.pathname+location.search);
         `}</Script>
         <noscript>
           <div>
