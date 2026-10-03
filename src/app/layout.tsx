@@ -9,6 +9,7 @@ import { CardProvider } from '@/context/CardContext'
 import { CartPanel } from '@/components/cart/CartPanel'
 import { CheckoutModal } from '@/components/cart/CheckoutModal'
 import { Header } from '@/components/ui/Header'
+import { PhoneNoticeBar } from '@/components/ui/PhoneNoticeBar'
 import { Footer } from '@/components/ui/Footer'
 import { LoyaltyModal } from '@/components/ui/LoyaltyModal'
 import { ConsultModal } from '@/components/ui/ConsultModal'
@@ -165,7 +166,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CartProvider>
           <UIProvider>
             <CardProvider>
-            <ChromeVisible><Header /></ChromeVisible>
+            <ChromeVisible><PhoneNoticeBar /><Header /></ChromeVisible>
             <main style={{ flex: 1 }}>
               {children}
             </main>

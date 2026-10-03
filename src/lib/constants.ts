@@ -33,3 +33,6 @@ export const WORK_HOURS = {
 // Вторая фирма — получает заказы параллельно (без контактов клиента)
 export const TG_TOKEN_2     = process.env.TG_TOKEN_2  ?? ''
 export const TG_CHAT_ID_2   = process.env.TG_CHAT_ID_2 ?? ''
+
+/** Бегущая строка вверху сайта: «заказы по телефону временно не принимаются». Поставь false, чтобы убрать. */
+export const PHONE_NOTICE_ENABLED = true
