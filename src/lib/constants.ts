@@ -49,4 +49,4 @@ export const CONTACT_EMAIL = 'info@platforma-msk.ru'
 /** Номер, к которому привязан аккаунт MAX. Показываем как текст, БЕЗ ссылки tel: */
 export const MAX_ACCOUNT_LABEL = '+7 (933) 203-30-05'
 /** Ссылка на профиль MAX (вида https://max.ru/u/...). Пока пусто — показываем номер текстом. */
-export const MAX_PROFILE_URL = ''
+export const MAX_PROFILE_URL = 'https://max.ru/u/f9LHodD0cOK9IfaKYXM9k15AxRkqhMwAvHhHa_9ZUuF_2_W_bI-4XCad84E'

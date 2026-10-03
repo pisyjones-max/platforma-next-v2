@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
-import { PHONE_NUMBER, PHONE_CALLS_ENABLED } from '@/lib/constants'
+import { PHONE_NUMBER, PHONE_CALLS_ENABLED, MAX_PROFILE_URL } from '@/lib/constants'
 import { SearchBox } from '@/components/ui/SearchBox'
 
 const NAV = [
@@ -97,6 +97,21 @@ export function Header() {
           💬 TG
         </a>
 
+        {/* MAX */}
+        {MAX_PROFILE_URL && (
+          <a href={MAX_PROFILE_URL} target="_blank" rel="noopener noreferrer" className="hbt-quick" style={{
+            gap: 6, padding: '0 11px', height: 34,
+            borderRadius: 8, background: 'rgba(255,255,255,.1)', color: '#fff',
+            fontSize: 13, fontWeight: 500, textDecoration: 'none', transition: 'background .15s',
+            whiteSpace: 'nowrap',
+          }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,.18)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,.1)')}
+          >
+            🟦 MAX
+          </a>
+        )}
+
         {PHONE_CALLS_ENABLED && (
 
         <a href={`tel:${PHONE_NUMBER}`} className="hdr-phone" style={{
@@ -160,6 +175,11 @@ export function Header() {
               <a href="https://t.me/platforma_roof" target="_blank" rel="noopener noreferrer" onClick={() => setMmOpen(false)}>
                 💬 Написать в Telegram
               </a>
+              {MAX_PROFILE_URL && (
+                <a href={MAX_PROFILE_URL} target="_blank" rel="noopener noreferrer" onClick={() => setMmOpen(false)}>
+                  🟦 Написать в MAX
+                </a>
+              )}
             </div>
 
             {PHONE_CALLS_ENABLED && (
