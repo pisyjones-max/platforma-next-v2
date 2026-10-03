@@ -6,6 +6,7 @@ import { fmt } from '@/lib/price'
 import { CASHBACK_RATE } from '@/lib/constants'
 import type { CheckoutForm, DeliveryMethod } from '@/types/cart'
 import { ymGoal, ymEcommerce } from '@/lib/metrika'
+import { PriceNotice } from '@/components/ui/PriceNotice'
 
 const EMPTY: CheckoutForm = {
   name: '', phone: '', email: '', address: '', pvzAddress: '',
@@ -154,6 +155,8 @@ export function CheckoutModal() {
                   <div className="co-cashback-note">💳 +{fmt(cashback)} ₽ вернётся на карту PLATFORMA</div>
                 )}
               </div>
+
+              <PriceNotice style={{ margin: '0 0 8px' }} />
 
               <p className="privacy-note">
                 Нажимая «Отправить заказ», вы соглашаетесь с{' '}

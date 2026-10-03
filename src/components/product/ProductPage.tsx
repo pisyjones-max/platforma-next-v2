@@ -19,6 +19,7 @@ import { getServicesForGroup } from '@/lib/services'
 import type { Product } from '@/types/catalog'
 import type { CrossSellProduct } from '@/lib/crossSell'
 import type { FaqItem } from '@/lib/productFaq'
+import { PriceNotice } from '@/components/ui/PriceNotice'
 
 export type RelatedProduct = {
   id: string
@@ -214,6 +215,8 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
               <span className="prod-price-req">Цена по запросу</span>
             </div>
           )}
+
+          <PriceNotice style={{ margin: '4px 0 12px' }} />
 
           {v.pack_quantity && v.pack_quantity > 1 && (
             <div className="prod-pack-note">

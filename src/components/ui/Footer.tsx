@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useUI } from '@/context/UIContext'
 import { PHONE_NUMBER, PHONE_CALLS_ENABLED, WORK_HOURS } from '@/lib/constants'
 import { CITIES } from '@/lib/cities'
+import { PriceNotice } from '@/components/ui/PriceNotice'
 
 const YANDEX_MAPS_URL = 'https://yandex.ru/maps/?text=Новохаритоново+кровельные+материалы+PLATFORMA'
 
@@ -137,6 +138,8 @@ export function Footer() {
             </Link>
           </div>
         </div>
+
+        <PriceNotice light style={{ margin: '0 0 16px', maxWidth: 820 }} />
 
         {/* Bottom bar */}
         <div style={{

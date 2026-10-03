@@ -8,6 +8,7 @@ import { findProduct } from '@/lib/catalog'
 import { getBrandFacets } from '@/lib/brandAliases'
 import { productSlug } from '@/lib/slug'
 import type { Category, Product } from '@/types/catalog'
+import { PriceNotice } from '@/components/ui/PriceNotice'
 
 interface Props {
   category: Category
@@ -148,6 +149,8 @@ export function CategoryPage({ category, parentGroup, totalCount, page = 1, tota
               </a>
             </div>
           ) : (
+          <>
+          <PriceNotice style={{ margin: '0 0 14px' }} />
           <div className="pgrid">
             {filtered.map(p => {
               // productSlug() — та же функция, что использует findProductBySlug() на
@@ -176,6 +179,7 @@ export function CategoryPage({ category, parentGroup, totalCount, page = 1, tota
               </div>
             )}
           </div>
+          </>
           )}
           {/* "Загрузить ещё" — прогрессивное улучшение поверх обычной
               постраничной ссылки ?page=N. Ссылка настоящая (href на реальный

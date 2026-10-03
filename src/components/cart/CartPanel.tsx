@@ -3,6 +3,7 @@ import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
 import { fmt } from '@/lib/price'
 import { CASHBACK_RATE } from '@/lib/constants'
+import { PriceNotice } from '@/components/ui/PriceNotice'
 
 export function CartPanel() {
   const { items, remove, setQty, total, loyalty } = useCart()
@@ -51,6 +52,7 @@ export function CartPanel() {
           {cashback > 0 && (
             <div className="ccashback">💳 +{fmt(cashback)} ₽ кэшбэк на карту PLATFORMA</div>
           )}
+          <PriceNotice style={{ margin: '0 0 10px', fontSize: 11.5 }} />
           <button className="chkbtn" onClick={openCheckout} disabled={items.length === 0}>
             Оформить заказ →
           </button>

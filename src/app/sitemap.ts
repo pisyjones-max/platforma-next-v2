@@ -20,6 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const urls: MetadataRoute.Sitemap = [
     { url: SITE_URL,                    lastModified: now, changeFrequency: 'daily',   priority: 1.0 },
+    { url: `${SITE_URL}/ceny-i-nalichie`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${SITE_URL}/delivery`,      lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${SITE_URL}/about`,         lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${SITE_URL}/loyalty-card`,  lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
