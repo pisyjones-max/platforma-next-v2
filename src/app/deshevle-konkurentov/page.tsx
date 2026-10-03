@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { PriceMatchForm } from '@/components/pricematch/PriceMatchForm'
-import { PHONE_NUMBER } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: 'Найдёте дешевле — предложим цену ниже — PLATFORMA',
@@ -104,7 +103,7 @@ export default function PriceMatchPage() {
             <ConditionRow
               icon="📞"
               title="Вопросы — на связи"
-              text={`Позвоните нам: ${PHONE_NUMBER}, или напишите в Telegram.`}
+              text={'Напишите нам в онлайн-чат или в Telegram.'}
             />
           </div>
 

@@ -98,8 +98,8 @@ export function HomeCalculator() {
 
         <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '10px 0 0', lineHeight: 1.5 }}>
           Точный расчёт с учётом типа материала и раскладки — бесплатно у нашего специалиста.{' '}
-          <a href="tel:+79332033005" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>
-            Позвоните нам
+          <a href="https://t.me/platforma_roof" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>
+            Напишите нам
           </a>
         </p>
       </div>

@@ -115,7 +115,7 @@ ${categoriesXml}
     <pickup-options>
       <option cost="0" days="0-1"/>
     </pickup-options>
-    <phone>${xmlEscape(PHONE_NUMBER)}</phone>
+    ${PHONE_NUMBER ? `<phone>${xmlEscape(PHONE_NUMBER)}</phone>` : ''}
     <offers>
 ${offersXml.join('\n')}
     </offers>

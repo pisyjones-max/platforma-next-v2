@@ -166,7 +166,7 @@ export default async function DistrictCommercePage({ params }: { params: Promise
             Рассчитаем доставку {meta.accusative} в {city.nameGenitive}
           </div>
           <div style={{ fontSize: 15, opacity: 0.75 }}>
-            Или позвоните: <a href="tel:+79332033005" style={{ color: '#fff' }}>+7 (933) 203-30-05</a>
+            Или напишите нам в чат на сайте
           </div>
         </div>
         <CityConsultButton city={city.name} />

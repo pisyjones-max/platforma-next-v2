@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { PHONE_NUMBER } from '@/lib/constants'
+import { PHONE_NUMBER, PHONE_CALLS_ENABLED } from '@/lib/constants'
 import { HomeCalculator } from '@/components/ui/HomeCalculator'
 import { HomeFAQ } from '@/components/ui/HomeFAQ'
 import { PriceMatchBanner } from '@/components/pricematch/PriceMatchBanner'
@@ -59,9 +59,11 @@ export function GroupsPage({
             {totalProducts} товаров в наличии · Цены ниже конкурентов · Доставка от 1 дня
           </p>
           <div className="home-hero-actions">
+            {PHONE_CALLS_ENABLED && (
             <a href={`tel:${PHONE_NUMBER}`} className="home-hero-phone">
               📞 {PHONE_NUMBER}
             </a>
+            )}
             <Link href="/catalog" className="home-hero-btn">
               Смотреть каталог →
             </Link>
@@ -97,7 +99,7 @@ export function GroupsPage({
         {[
           { icon: '🚚', title: 'Быстрая доставка', sub: 'На объект или в пункт выдачи Яндекс Маркета' },
           { icon: '💰', title: 'Цены ниже рынка', sub: 'На весь ассортимент сайта' },
-          { icon: '📞', title: 'Консультация', sub: 'Бесплатно по телефону' },
+          { icon: '📞', title: 'Консультация', sub: 'Бесплатно в чате' },
           { icon: '✅', title: 'Гарантия', sub: 'Официальная от производителей' },
         ].map(f => (
           <div key={f.title} className="home-feature">
@@ -165,6 +167,7 @@ export function GroupsPage({
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          {PHONE_CALLS_ENABLED && (
           <a href={`tel:${PHONE_NUMBER}`} style={{
             padding: '12px 22px', borderRadius: 12,
             background: '#7ecc9a', color: '#0d1f14',
@@ -172,6 +175,7 @@ export function GroupsPage({
           }}>
             📞 Позвонить
           </a>
+          )}
           <a href="https://t.me/platforma_mo" target="_blank" rel="noopener noreferrer" style={{
             padding: '12px 22px', borderRadius: 12,
             background: 'rgba(255,255,255,.12)', color: '#fff',

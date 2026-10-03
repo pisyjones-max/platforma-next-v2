@@ -43,7 +43,7 @@ export function CardIssueForm({
       setStatus('ok')
     } catch {
       setStatus('error')
-      setError('Не получилось оформить карту. Попробуйте ещё раз или позвоните нам.')
+      setError('Не получилось оформить карту. Попробуйте ещё раз или напишите нам в чат.')
     }
   }
 

@@ -1,10 +1,8 @@
 import Link from 'next/link'
 import type { ServiceConfig } from '@/lib/services'
 import { ServiceRequestForm } from '@/components/services/ServiceRequestForm'
-import { PHONE_NUMBER } from '@/lib/constants'
 
 export function ServiceLandingPage({ service }: { service: ServiceConfig }) {
-  const telHref = `tel:${PHONE_NUMBER.replace(/[^\d+]/g, '')}`
 
   return (
     <div style={{ maxWidth: 980, margin: '0 auto', padding: '40px 20px 80px' }}>
@@ -56,7 +54,7 @@ export function ServiceLandingPage({ service }: { service: ServiceConfig }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 20, maxWidth: 520, margin: '0 auto 48px' }}>
         <ServiceRequestForm serviceSlug={service.slug} ctaText="Оставить заявку на монтаж" />
         <div style={{ textAlign: 'center', fontSize: 13.5, color: 'var(--muted)' }}>
-          Или позвоните напрямую: <a href={telHref} style={{ color: 'var(--dark)', fontWeight: 700 }}>{PHONE_NUMBER}</a>
+          Или напишите нам в онлайн-чат на сайте
         </div>
       </div>
 

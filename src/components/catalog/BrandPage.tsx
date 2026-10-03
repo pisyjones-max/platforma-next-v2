@@ -3,7 +3,6 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
 import { productSlug } from '@/lib/slug'
-import { PHONE_NUMBER } from '@/lib/constants'
 import type { Product, Category } from '@/types/catalog'
 import type { BrandSeo, BrandStats, BrandFaqItem } from '@/lib/brands'
 
@@ -302,17 +301,17 @@ export function BrandPage({ brandName, seo, items, categoryFacets, stats, faq = 
             <span style={{ fontSize: 26 }}>🛠️</span>
             <div style={{ flex: 1, minWidth: 200 }}>
               <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 3 }}>Гарантийный случай по {brandName}?</div>
-              <div style={{ fontSize: 14, color: 'var(--muted)' }}>Поможем оформить обращение к производителю — позвоните.</div>
+              <div style={{ fontSize: 14, color: 'var(--muted)' }}>Поможем оформить обращение к производителю — напишите нам.</div>
             </div>
             <a
-              href={`tel:${PHONE_NUMBER.replace(/[^\d+]/g, '')}`}
+              href="https://t.me/platforma_roof" target="_blank" rel="noopener noreferrer"
               style={{
                 padding: '11px 20px', background: 'linear-gradient(135deg, #7ecc9a, #4caf70)',
                 borderRadius: 10, color: '#0d1f14', fontWeight: 800, fontSize: 14.5,
                 textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
               }}
             >
-              📞 {PHONE_NUMBER}
+              💬 Написать в Telegram
             </a>
           </div>
         </div>

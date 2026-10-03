@@ -1,6 +1,5 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { PHONE_NUMBER } from '@/lib/constants'
 import { formatPhone, normalizePhone } from '@/lib/phone'
 import { useUI } from '@/context/UIContext'
 
@@ -247,7 +246,6 @@ export function TelegramChat() {
   const [panel, setPanel] = useState<Panel>(null)
   const [unread, setUnread] = useState(0)
 
-  const phoneClean = PHONE_NUMBER.replace(/\D/g, '')
 
   const openPanel = (p: Panel) => { setPanel(p); setMenuOpen(false); if (p === 'chat') setUnread(0) }
   const closeAll = () => { setPanel(null); setMenuOpen(false); ctx.closeChat() }
@@ -351,7 +349,7 @@ export function TelegramChat() {
                 {panel === 'callback' ? 'Обратный звонок' : 'Менеджер PLATFORMA'}
               </div>
               <div style={{ fontSize: 12, opacity: 0.85 }}>
-                {panel === 'callback' ? `Перезвоним: ${PHONE_NUMBER}` : 'Онлайн · ответим за 5 мин'}
+                {panel === 'callback' ? 'Перезвоним в течение 15 минут' : 'Онлайн · ответим за 5 мин'}
               </div>
             </div>
             <button onClick={closeAll} style={{

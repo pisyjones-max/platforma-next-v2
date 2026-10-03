@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
-import { PHONE_NUMBER } from '@/lib/constants'
+import { PHONE_NUMBER, PHONE_CALLS_ENABLED } from '@/lib/constants'
 import { SearchBox } from '@/components/ui/SearchBox'
 
 const NAV = [
@@ -97,12 +97,16 @@ export function Header() {
           💬 TG
         </a>
 
+        {PHONE_CALLS_ENABLED && (
+
         <a href={`tel:${PHONE_NUMBER}`} className="hdr-phone" style={{
           color: '#7ECC9A', fontWeight: 700, fontSize: 15,
           textDecoration: 'none', whiteSpace: 'nowrap', padding: '0 8px',
         }}>
           {PHONE_NUMBER}
         </a>
+
+        )}
 
         <button className="hbt" onClick={openCart} aria-label="Корзина">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -158,9 +162,13 @@ export function Header() {
               </a>
             </div>
 
+            {PHONE_CALLS_ENABLED && (
+
             <a href={`tel:${PHONE_NUMBER}`} className="mmenu-phone" onClick={() => setMmOpen(false)}>
               {PHONE_NUMBER}
             </a>
+
+            )}
           </div>
         </>
       )}

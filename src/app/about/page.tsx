@@ -75,7 +75,6 @@ export default function AboutPage() {
         <h2 style={{ fontFamily: 'var(--fh)', fontSize: 20, fontWeight: 700, marginBottom: 20 }}>Контакты</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {[
-            { icon: '📞', label: 'Телефон', val: '+7 (933) 203-30-05', href: 'tel:+79332033005' },
             { icon: '💬', label: 'Telegram', val: '@platforma_roof', href: 'https://t.me/platforma_roof' },
             { icon: '📍', label: 'Склад', val: 'с. Новохаритоново, д. 220, лит. 1Б', href: null },
             { icon: '🕐', label: 'Режим работы', val: 'Пн–Пт 9:00–18:00, Сб 9:00–15:00', href: null },

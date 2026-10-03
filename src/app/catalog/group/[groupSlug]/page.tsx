@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `${group.name} — купить в Московской области`,
-    description: `${group.name} — ${catCount} категорий в наличии. Быстрая доставка на объект или в пункт выдачи Яндекс Маркета. Звоните: +7 (933) 203-30-05.`,
+    description: `${group.name} — ${catCount} категорий в наличии. Быстрая доставка на объект или в пункт выдачи Яндекс Маркета. Пишите в чат на сайте.`,
     alternates: { canonical: `/catalog/group/${groupSlug}` },
     openGraph: {
       title: `${group.name} — PLATFORMA`,

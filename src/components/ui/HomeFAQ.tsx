@@ -93,7 +93,9 @@ export function HomeFAQ() {
           </div>
         </div>
         <a
-          href="tel:+79332033005"
+          href="https://t.me/platforma_roof"
+          target="_blank"
+          rel="noopener noreferrer"
           style={{
             padding: '11px 20px',
             background: 'linear-gradient(135deg, #7ecc9a, #4caf70)',
@@ -106,7 +108,7 @@ export function HomeFAQ() {
             flexShrink: 0,
           }}
         >
-          📞 Позвонить
+          💬 Написать
         </a>
       </div>
     </div>

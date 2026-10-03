@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { BeforeAfterSlider } from '@/components/design/BeforeAfterSlider'
 import { DesignRequestForm } from '@/components/design/DesignRequestForm'
-import { DESIGN_PROJECT_PRICE, PHONE_NUMBER } from '@/lib/constants'
+import { DESIGN_PROJECT_PRICE } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: 'Бесплатный дизайн-проект дома — примерьте сайдинг, кровлю и фасад | PLATFORMA',
@@ -121,7 +121,7 @@ export default function DesignProjectPage() {
             <ConditionRow
               icon="📞"
               title="Вопросы — на связи"
-              text={`Позвоните нам: ${PHONE_NUMBER}, или напишите в Telegram.`}
+              text={'Напишите нам в онлайн-чат или в Telegram.'}
             />
           </div>
 

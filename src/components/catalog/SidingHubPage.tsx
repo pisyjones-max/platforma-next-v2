@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { fmt } from '@/lib/price'
-import { PHONE_NUMBER } from '@/lib/constants'
 
 interface SidingOptionView {
   slug: string
@@ -39,7 +38,6 @@ const FIRE_SAFETY: Record<string, string> = {
 
 export function SidingHubPage({ options, faq }: Props) {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const telHref = `tel:${PHONE_NUMBER.replace(/[^\d+]/g, '')}`
 
   return (
     <div id="main">
@@ -238,14 +236,14 @@ export function SidingHubPage({ options, faq }: Props) {
           🧮 Посчитать самому
         </Link>
         <a
-          href={telHref}
+          href="https://t.me/platforma_roof" target="_blank" rel="noopener noreferrer"
           style={{
             padding: '12px 24px', background: 'linear-gradient(135deg, #7ecc9a, #4caf70)',
             borderRadius: 10, color: '#0d1f14', fontWeight: 800, fontSize: 15,
             textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
           }}
         >
-          📞 {PHONE_NUMBER}
+          💬 Написать в Telegram
         </a>
       </div>
     </div>

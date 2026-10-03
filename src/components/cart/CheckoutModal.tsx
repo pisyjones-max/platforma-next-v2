@@ -166,7 +166,7 @@ export function CheckoutModal() {
               {submitError && (
                 <p style={{ color: 'var(--accent)', fontSize: 13, textAlign: 'center', marginTop: 8 }}>
                   Не получилось отправить заказ. Проверьте интернет и попробуйте ещё раз —
-                  или позвоните нам по телефону.
+                  или напишите нам в чат.
                 </p>
               )}
             </div>

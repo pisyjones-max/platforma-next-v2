@@ -252,10 +252,6 @@ export function PromoBanner() {
             {banner.cta}
           </button>
 
-          <div style={{ textAlign: 'center', marginTop: 10, fontSize: 12.5, opacity: 0.45 }}>
-            или звоните: +7 (933) 203-30-05
-          </div>
-
           {/* Точки */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 12 }}>
             {banners.map((_, i) => (

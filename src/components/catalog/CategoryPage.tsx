@@ -136,15 +136,15 @@ export function CategoryPage({ category, parentGroup, totalCount, page = 1, tota
                 Товар временно отсутствует
               </h2>
               <p style={{ color: 'var(--muted)', fontSize: 14.5, maxWidth: 420, margin: '0 auto 20px' }}>
-                Мы регулярно обновляем ассортимент «{category.name.toLowerCase()}». Позвоните — уточним сроки
+                Мы регулярно обновляем ассортимент «{category.name.toLowerCase()}». Напишите нам — уточним сроки
                 поступления или подберём аналог из наличия.
               </p>
               <a
-                href="tel:+79332033005"
+                href="https://t.me/platforma_roof" target="_blank" rel="noopener noreferrer"
                 className="btn-sm primary"
                 style={{ display: 'inline-block', padding: '11px 22px', textDecoration: 'none' }}
               >
-                📞 +7 (933) 203-30-05
+                💬 Написать в Telegram
               </a>
             </div>
           ) : (

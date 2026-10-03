@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { CardIssueForm } from '@/components/loyalty/CardIssueForm'
-import { CARD_WELCOME_BONUS, DESIGN_PROJECT_PRICE, PHONE_NUMBER } from '@/lib/constants'
+import { CARD_WELCOME_BONUS, DESIGN_PROJECT_PRICE } from '@/lib/constants'
 import { CASHBACK_TIERS, POINTS_EXPIRY_DAYS, REFERRAL_BONUS_POINTS } from '@/lib/loyaltyFeatures'
 
 export const metadata: Metadata = {
@@ -108,7 +108,7 @@ export default function LoyaltyCardPage() {
             <ConditionRow
               icon="📞"
               title="Списание баллов — через менеджера"
-              text={`Баллами не получится расплатиться автоматически на сайте: сумму списания на конкретный заказ определяет менеджер (${PHONE_NUMBER}), в зависимости от категории товара и условий поставки.`}
+              text={`Баллами не получится расплатиться автоматически на сайте: сумму списания на конкретный заказ определяет менеджер, в зависимости от категории товара и условий поставки.`}
             />
             <ConditionRow
               icon="🤝"
@@ -137,7 +137,7 @@ export default function LoyaltyCardPage() {
             />
             <FaqItem
               q="Как узнать баланс баллов и скидку?"
-              a="Уточните на кассе или у менеджера по телефону — достаточно назвать номер, привязанный к карте."
+              a="Уточните на кассе или у менеджера в чате — достаточно назвать номер, привязанный к карте."
             />
             <FaqItem
               q="Баллы сгорают?"

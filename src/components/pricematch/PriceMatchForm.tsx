@@ -52,7 +52,7 @@ export function PriceMatchForm() {
       setStatus('ok')
     } catch {
       setStatus('error')
-      setError('Не получилось отправить. Попробуйте ещё раз или позвоните нам.')
+      setError('Не получилось отправить. Попробуйте ещё раз или напишите нам в чат.')
     }
   }
 

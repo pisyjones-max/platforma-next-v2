@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { CardIssueForm } from '@/components/loyalty/CardIssueForm'
-import { CARD_WELCOME_BONUS, PHONE_NUMBER } from '@/lib/constants'
+import { CARD_WELCOME_BONUS, PHONE_NUMBER, PHONE_CALLS_ENABLED } from '@/lib/constants'
 import { CASHBACK_TIERS, REFERRAL_BONUS_POINTS, REVIEW_BONUS_MIN, REVIEW_BONUS_MAX } from '@/lib/loyaltyFeatures'
 import { CITIES } from '@/lib/cities'
 
@@ -281,9 +281,11 @@ export function SosediFunnel() {
         <a href="#form" style={{ display: 'inline-block', width: '100%', padding: '16px 24px', borderRadius: 14, background: 'var(--gold)', color: '#1a1408', fontFamily: 'var(--fh)', fontWeight: 800, fontSize: 16, textDecoration: 'none' }}>
           Забрать {CARD_WELCOME_BONUS.toLocaleString('ru-RU')} баллов →
         </a>
+        {PHONE_CALLS_ENABLED && (
         <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.4)', marginTop: 14 }}>
           Вопросы — {PHONE_NUMBER}
         </p>
+        )}
       </div>
 
       <div style={{

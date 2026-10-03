@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const desc = product.description?.trim()
     ? `${product.description.trim().slice(0, 120)}. ${brand ? `Бренд ${brand}. ` : ''}${sku ? `Артикул ${sku}. ` : ''}Цена ${priceStr}. Доставка по МО.`
-    : `${product.title}${featureSnippet ? '. ' + featureSnippet : ''}. ${brand ? `Бренд ${brand}. ` : ''}${sku ? `Артикул ${sku}. ` : ''}Цена ${priceStr}. Доставка по Московской области. Звоните: +7 (933) 203-30-05.`
+    : `${product.title}${featureSnippet ? '. ' + featureSnippet : ''}. ${brand ? `Бренд ${brand}. ` : ''}${sku ? `Артикул ${sku}. ` : ''}Цена ${priceStr}. Доставка по Московской области. Пишите в чат на сайте.`
 
   return {
     title: `${product.title}${titleSuffix ? ` (${titleSuffix})` : ''} — купить, цена ${priceStr}`,
