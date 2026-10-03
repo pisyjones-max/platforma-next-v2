@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useUI } from '@/context/UIContext'
-import { PHONE_NUMBER, PHONE_CALLS_ENABLED, WORK_HOURS } from '@/lib/constants'
+import { PHONE_NUMBER, PHONE_CALLS_ENABLED, WORK_HOURS, OWNER_INFO } from '@/lib/constants'
 import { CITIES } from '@/lib/cities'
 import { PriceNotice } from '@/components/ui/PriceNotice'
 
@@ -151,6 +151,7 @@ export function Footer() {
           flexWrap: 'wrap', gap: 10, fontSize: 12,
         }}>
           <span>© {new Date().getFullYear()} PLATFORMA. Все права защищены.</span>
+          <span style={{ opacity: 0.4, fontSize: 11 }}>{OWNER_INFO}</span>
           <span style={{ opacity: 0.4 }}>Московская область, Раменский округ</span>
           <a href="https://ads.msk.ru" target="_blank" rel="noopener noreferrer"
             style={{ opacity: 0.5, color: 'rgba(255,255,255,.6)', textDecoration: 'none' }}>
