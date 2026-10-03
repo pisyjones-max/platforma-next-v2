@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useUI } from '@/context/UIContext'
-import { PHONE_NUMBER, PHONE_CALLS_ENABLED, WORK_HOURS, OWNER_INFO } from '@/lib/constants'
+import { PHONE_NUMBER, PHONE_CALLS_ENABLED, WORK_HOURS, OWNER_INFO, CONTACT_EMAIL, MAX_ACCOUNT_LABEL, MAX_PROFILE_URL } from '@/lib/constants'
 import { CITIES } from '@/lib/cities'
 import { PriceNotice } from '@/components/ui/PriceNotice'
 
@@ -62,6 +62,15 @@ export function Footer() {
               {PHONE_NUMBER}
             </a>
             )}
+            <p style={{ fontSize: 13, marginBottom: 6 }}>
+              {MAX_PROFILE_URL
+                ? <a href={MAX_PROFILE_URL} target="_blank" rel="noopener noreferrer" style={{ color: '#7ECC9A', textDecoration: 'none', fontWeight: 600 }}>MAX: {MAX_ACCOUNT_LABEL}</a>
+                : <span>MAX: {MAX_ACCOUNT_LABEL}</span>}
+              <span style={{ opacity: 0.5 }}> · только сообщения</span>
+            </p>
+            <p style={{ fontSize: 13, marginBottom: 12 }}>
+              <a href={`mailto:${CONTACT_EMAIL}`} style={{ color: '#7ECC9A', textDecoration: 'none' }}>✉️ {CONTACT_EMAIL}</a>
+            </p>
             <p style={{ fontSize: 13, marginBottom: 6 }}>Пн–Пт: {WORK_HOURS.weekday.start}:00–{WORK_HOURS.weekday.end}:00</p>
             <p style={{ fontSize: 13, marginBottom: 12 }}>Сб: {WORK_HOURS.saturday.start}:00–{WORK_HOURS.saturday.end}:00</p>
             <a href={YANDEX_MAPS_URL} target="_blank" rel="noopener noreferrer"

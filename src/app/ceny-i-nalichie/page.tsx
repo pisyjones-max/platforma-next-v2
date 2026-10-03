@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { OWNER_INFO } from '@/lib/constants'
+import { OWNER_INFO, CONTACT_EMAIL, MAX_ACCOUNT_LABEL } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: 'Условия и цены',
@@ -44,7 +44,8 @@ export default function PriceNoticePage() {
       </div>
 
       <p style={{ marginTop: 28, fontSize: 12.5, lineHeight: 1.6, color: 'var(--muted)' }}>
-        Владелец сервиса: {OWNER_INFO}. Обращения и претензии — через онлайн-чат на сайте или в Telegram{' '}
+        Владелец сервиса: {OWNER_INFO}. Обращения и претензии: e-mail{' '}
+        <a href={`mailto:${CONTACT_EMAIL}`} style={{ color: 'inherit' }}>{CONTACT_EMAIL}</a>, онлайн-чат на сайте, MAX ({MAX_ACCOUNT_LABEL}, только сообщения) или Telegram{' '}
         <a href="https://t.me/platforma_roof" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>@platforma_roof</a>.
       </p>
     </div>

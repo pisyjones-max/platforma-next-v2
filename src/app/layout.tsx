@@ -72,6 +72,7 @@ export const metadata: Metadata = {
     'PLATFORMA',
   ],
   metadataBase: new URL(SITE_URL),
+  formatDetection: { telephone: false },
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',

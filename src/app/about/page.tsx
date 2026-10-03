@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { CONTACT_EMAIL, MAX_ACCOUNT_LABEL, MAX_PROFILE_URL } from '@/lib/constants'
 
 export const metadata: Metadata = {
   title: 'О компании — PLATFORMA',
@@ -76,6 +77,8 @@ export default function AboutPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {[
             { icon: '💬', label: 'Telegram', val: '@platforma_roof', href: 'https://t.me/platforma_roof' },
+            { icon: '🟦', label: 'MAX (только сообщения)', val: MAX_ACCOUNT_LABEL, href: MAX_PROFILE_URL || null },
+            { icon: '✉️', label: 'E-mail', val: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
             { icon: '📍', label: 'Склад', val: 'с. Новохаритоново, д. 220, лит. 1Б', href: null },
             { icon: '🕐', label: 'Режим работы', val: 'Пн–Пт 9:00–18:00, Сб 9:00–15:00', href: null },
           ].map((c, i) => (

@@ -3,7 +3,7 @@ import { imgUrl } from '@/lib/image'
 import { salePrice } from '@/lib/price'
 import { normalizeBrand } from '@/lib/brandAliases'
 import type { Product, Category } from '@/types/catalog'
-import { PHONE_CALLS_ENABLED } from '@/lib/constants'
+import { PHONE_CALLS_ENABLED, CONTACT_EMAIL } from '@/lib/constants'
 
 /**
  * Organization / LocalBusiness — размещается один раз глобально (layout.tsx).
@@ -19,6 +19,7 @@ export function organizationSchema() {
     logo: `${SITE_URL}/icon.png`,
     image: `${SITE_URL}/icon.png`,
     ...(PHONE_CALLS_ENABLED ? { telephone: '+7-933-203-30-05' } : {}),
+    email: CONTACT_EMAIL,
     priceRange: '₽₽',
     address: {
       '@type': 'PostalAddress',
