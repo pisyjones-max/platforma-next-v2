@@ -133,6 +133,9 @@ export function Footer() {
             <Link href="/about" style={{ display: 'block', fontSize: 13, marginBottom: 6, color: 'rgba(255,255,255,.6)', textDecoration: 'none' }}>
               🏢 О компании
             </Link>
+            <Link href="/ceny-i-nalichie" style={{ display: 'block', fontSize: 13, marginBottom: 6, color: 'rgba(255,255,255,.6)', textDecoration: 'none' }}>
+              📄 Условия и цены
+            </Link>
             <Link href="/privacy" style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,.6)', textDecoration: 'none' }}>
               🔒 Политика данных (ФЗ-152)
             </Link>

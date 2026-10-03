@@ -156,7 +156,10 @@ export function CheckoutModal() {
                 )}
               </div>
 
-              <PriceNotice style={{ margin: '0 0 8px' }} />
+              <PriceNotice style={{ margin: '0 0 6px' }} />
+              <p style={{ fontSize: 12, lineHeight: 1.5, margin: '0 0 8px', color: 'var(--muted)' }}>
+                После отправки менеджер передаст заказ партнёру-поставщику, подтвердит цену, наличие и рассчитает доставку.
+              </p>
 
               <p className="privacy-note">
                 Нажимая «Отправить заказ», вы соглашаетесь с{' '}
