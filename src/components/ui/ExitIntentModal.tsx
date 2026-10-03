@@ -1,4 +1,5 @@
 'use client'
+import { isPlausiblePhone } from '@/lib/phone'
 import { useState, useEffect } from 'react'
 import { useUI } from '@/context/UIContext'
 
@@ -23,7 +24,7 @@ export function ExitIntentModal() {
   const ss = String(seconds % 60).padStart(2, '0')
 
   const handleCallback = async () => {
-    if (!phone.trim()) return
+    if (!isPlausiblePhone(phone)) { alert('Введите корректный номер телефона'); return }
     await fetch('/api/order/callback', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useUI } from '@/context/UIContext'
+import { isPlausiblePhone } from '@/lib/phone'
 import { ymGoal } from '@/lib/metrika'
 
 function formatPhone(raw: string): string {
@@ -47,7 +48,8 @@ export function ConsultModal() {
   const days = getNextDays(10)
 
   const handleSubmit = async () => {
-    if (!name || !phone) { alert('Заполните имя и телефон'); return }
+    if (!name.trim() || !phone) { alert('Заполните имя и телефон'); return }
+    if (!isPlausiblePhone(phone)) { alert('Введите корректный номер телефона'); return }
     setLoading(true)
     const text = `📐 Вызов специалиста на объект\n👤 ${name}\n📞 ${phone}\n📍 ${address}\n📅 ${day} в ${time}\n💬 ${comment}`
     await fetch('/api/order/callback', {

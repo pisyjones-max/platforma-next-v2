@@ -13,7 +13,7 @@ import { CardPriceBlock } from '@/components/product/CardPriceBlock'
 import { CrossSellSection } from '@/components/product/CrossSellSection'
 import { DeliveryCountdown } from '@/components/product/DeliveryCountdown'
 import { AskKevPresets } from '@/components/product/AskKevPresets'
-import { formatPhone, normalizePhone } from '@/lib/phone'
+import { formatPhone, normalizePhone, isPlausiblePhone } from '@/lib/phone'
 import { DELIVERY_TAGLINE } from '@/lib/constants'
 import { getServicesForGroup } from '@/lib/services'
 import type { Product } from '@/types/catalog'
@@ -93,7 +93,7 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
 
   const handleCall = async () => {
     const norm = normalizePhone(callPhone)
-    if (!norm) { setCallErr(true); return }
+    if (!norm || !isPlausiblePhone(callPhone)) { setCallErr(true); return }
     setCallErr(false)
     try {
       await fetch('/api/order/callback', {

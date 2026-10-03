@@ -20,3 +20,14 @@ export function normalizePhone(raw: string): string | null {
   if (v.length !== 11 || !v.startsWith('7')) return null
   return v
 }
+
+/** Номер реалистичен: 11 цифр, код 3/4/8/9, не «все цифры одинаковые» и не 1234567-подобная последовательность. */
+export function isPlausiblePhone(raw: string): boolean {
+  const n = normalizePhone(raw)
+  if (!n) return false
+  const rest = n.slice(1) // 10 цифр без «7»
+  if (!/^[3489]/.test(rest)) return false
+  if (/^(\d)\1+$/.test(rest)) return false
+  if (rest === '1234567890' || rest === '9876543210') return false
+  return true
+}

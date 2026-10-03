@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useUI } from '@/context/UIContext'
 import { useCard } from '@/context/CardContext'
-import { formatPhone } from '@/lib/phone'
+import { formatPhone, isPlausiblePhone } from '@/lib/phone'
 import { ymGoal } from '@/lib/metrika'
 
 export function LoyaltyModal() {
@@ -20,7 +20,8 @@ export function LoyaltyModal() {
   if (!loyaltyOpen) return null
 
   const handleSubmit = async () => {
-    if (!name || !phone) { alert('Заполните имя и телефон'); return }
+    if (!name.trim() || !phone) { alert('Заполните имя и телефон'); return }
+    if (!isPlausiblePhone(phone)) { alert('Введите корректный номер телефона'); return }
     setLoading(true)
     try {
       const [, issueRes] = await Promise.all([
