@@ -1,3 +1,4 @@
+import { bumpGoal } from '@/lib/metricsStore'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendTG, sendTG2, tgEsc } from '@/lib/telegram'
 import { fmt } from '@/lib/price'
@@ -83,5 +84,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  if (ok) bumpGoal('order').catch(() => {})
   return NextResponse.json({ ok, finalTotal: total })
 }

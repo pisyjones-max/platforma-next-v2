@@ -157,6 +157,7 @@ export default function AdminChatPage() {
       <div style={{ padding: '12px 16px', background: '#192C1E', color: '#fff', display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{ fontWeight: 700, fontSize: 16 }}>Чат PLATFORMA</div>
         <div style={{ fontSize: 13, opacity: 0.85 }}>🟢 Сейчас на сайте: {onlineCount}</div>
+        <a href="/admin/stats" style={{ color: '#9fd', fontSize: 13 }}>Статистика</a>
         {error && <div style={{ fontSize: 12, color: '#ffb4a2' }}>{error}</div>}
       </div>
 

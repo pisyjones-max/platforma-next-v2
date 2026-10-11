@@ -119,11 +119,12 @@ function CallbackForm({ onClose }: { onClose: () => void }) {
     if (!norm) return
     setSending(true)
     try {
-      await fetch('/api/order', {
+      const res = await fetch('/api/order/callback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: formatPhone(norm), product: `Обратный звонок\nИмя: ${name || 'не указано'}`, type: 'callback' }),
+        body: JSON.stringify({ phone: formatPhone(norm), product: `Обратный звонок из чата. Имя: ${name || 'не указано'}` }),
       })
+      if (!res.ok) { setSending(false); return }
       setSent(true)
     } catch {}
     setSending(false)

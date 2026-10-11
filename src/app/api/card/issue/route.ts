@@ -1,3 +1,4 @@
+import { bumpGoal } from '@/lib/metricsStore'
 import { NextRequest, NextResponse } from 'next/server'
 import { kvSet, kvGet, isKvConfigured } from '@/lib/kv'
 import { normalizePhone, formatPhone } from '@/lib/phone'
@@ -124,6 +125,7 @@ export async function POST(req: NextRequest) {
       console.error('[CARD] issue TG notify error:', e) // не блокируем выпуск карты
     }
 
+    bumpGoal('card').catch(() => {})
     return NextResponse.json({ ok: true, persisted: true, bonus, referralBonus, points })
   } catch (e) {
     console.error('[CARD] issue error:', e)

@@ -42,6 +42,22 @@ export async function kvSetNx(key: string, value: unknown, ttlSec: number): Prom
   return data?.result === 'OK'
 }
 
+// Пачка произвольных команд Redis одним HTTP-запросом (счётчики метрики).
+// Возвращает массив результатов; для команды с ошибкой — null.
+export async function kvPipeline(cmds: (string | number)[][]): Promise<any[]> {
+  if (!KV_URL || !KV_TOKEN) throw new Error('KV is not configured (KV_REST_API_URL / KV_REST_API_TOKEN missing)')
+  if (!cmds.length) return []
+  const res = await fetch(`${KV_URL}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(cmds),
+    cache: 'no-store',
+  })
+  if (!res.ok) throw new Error(`KV pipeline failed: ${res.status}`)
+  const arr = await res.json()
+  return Array.isArray(arr) ? arr.map((x: any) => (x && 'result' in x ? x.result : null)) : []
+}
+
 // Несколько ключей одним запросом (MGET) — значения уже разобраны из JSON
 export async function kvMget<T>(keys: string[]): Promise<(T | null)[]> {
   if (!keys.length) return []

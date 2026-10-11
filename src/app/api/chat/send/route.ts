@@ -3,6 +3,7 @@ import { TG_TOKEN, TG_CHAT_ID } from '@/lib/constants'
 import { tgUrl, tgRelayHeaders } from '@/lib/telegram'
 import { appendLog, SID_RE } from '@/lib/chatStore'
 import { isKvConfigured } from '@/lib/kv'
+import { bumpGoal } from '@/lib/metricsStore'
 
 function tgEsc(s: string) {
   return String(s || '').replace(/([_*`\[])/g, '\\$1')
@@ -42,5 +43,6 @@ export async function POST(req: NextRequest) {
   } catch (e) {
     console.error('[CHAT] send error:', e)
   }
+  if (logged || tg) bumpGoal('chat_message').catch(() => {})
   return NextResponse.json({ ok: logged || tg, logged, tg })
 }

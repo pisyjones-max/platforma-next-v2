@@ -18,6 +18,7 @@ import { ExitIntentTrigger } from '@/components/ui/ExitIntentTrigger'
 import { PromoBanner } from '@/components/ui/PromoBanner'
 import { PromosBanner } from '@/components/ui/PromosBanner'
 import { TelegramChat } from '@/components/ui/TelegramChat'
+import { Analytics } from '@/components/ui/Analytics'
 import { ChromeVisible } from '@/components/ui/ChromeVisible'
 import { MetrikaHits } from '@/components/ui/MetrikaHits'
 import './globals.css'
@@ -172,6 +173,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {children}
             </main>
             <ChromeVisible><Footer /></ChromeVisible>
+            <Analytics />
             <CartPanel />
             <CheckoutModal />
             <LoyaltyModal />

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendTG, tgEsc } from '@/lib/telegram'
 import { saveLead, markDelivered } from '@/lib/orderStore'
+import { bumpGoal } from '@/lib/metricsStore'
 import { normalizePhone, formatPhone, isPlausiblePhone } from '@/lib/phone'
 
 const TITLES: Record<string, string> = {
@@ -67,5 +68,6 @@ export async function POST(req: NextRequest) {
   const lead = await saveLead({ kind: 'callback', phone: shown, note: product })
   const ok = await sendTG(text)
   if (ok) await markDelivered(lead)
+  bumpGoal('callback').catch(() => {})
   return NextResponse.json({ ok, saved: true })
 }
