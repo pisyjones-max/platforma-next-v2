@@ -29,6 +29,24 @@ export async function kvGet<T>(key: string): Promise<T | null> {
   }
 }
 
+// SET с временем жизни (секунды) — для присутствия посетителей на сайте
+export async function kvSetEx(key: string, value: unknown, ttlSec: number): Promise<void> {
+  const encoded = encodeURIComponent(JSON.stringify(value))
+  await kvFetch(`/set/${encodeURIComponent(key)}/${encoded}/EX/${Math.max(1, Math.floor(ttlSec))}`)
+}
+
+// Несколько ключей одним запросом (MGET) — значения уже разобраны из JSON
+export async function kvMget<T>(keys: string[]): Promise<(T | null)[]> {
+  if (!keys.length) return []
+  const data = await kvFetch(`/mget/${keys.map(encodeURIComponent).join('/')}`)
+  const arr: (string | null)[] = Array.isArray(data?.result) ? data.result : []
+  return keys.map((_, i) => {
+    const raw = arr[i]
+    if (raw == null) return null
+    try { return JSON.parse(raw) as T } catch { return null }
+  })
+}
+
 export async function kvDel(key: string): Promise<void> {
   await kvFetch(`/del/${encodeURIComponent(key)}`)
 }

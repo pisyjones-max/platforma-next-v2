@@ -1,5 +1,6 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { usePathname } from 'next/navigation'
 import { formatPhone, normalizePhone } from '@/lib/phone'
 import { useUI } from '@/context/UIContext'
 
@@ -19,6 +20,84 @@ function getOrCreateSession(): string {
   let sid = sessionStorage.getItem('plt_chat_sid')
   if (!sid) { sid = genSessionId(); sessionStorage.setItem('plt_chat_sid', sid) }
   return sid
+}
+
+// ── Присутствие на сайте: «онлайн», страница, «печатает» ────────
+const PING_MS = 20_000
+
+function usePresence(chatOpen: boolean) {
+  const pathname = usePathname()
+  const typingUntil = useRef(0)
+  const lastTypingPing = useRef(0)
+  const typingOff = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const chatOpenRef = useRef(chatOpen)
+  chatOpenRef.current = chatOpen
+
+  const ping = useCallback((gone = false) => {
+    try {
+      const sid = getOrCreateSession()
+      if (!sid) return
+      let first = Number(sessionStorage.getItem('plt_first'))
+      if (!first) { first = Date.now(); sessionStorage.setItem('plt_first', String(first)) }
+      let pages: { p: string; t: number }[] = []
+      try { pages = JSON.parse(sessionStorage.getItem('plt_pages') || '[]') } catch {}
+      const body = JSON.stringify({
+        sessionId: sid,
+        name: sessionStorage.getItem('plt_chat_name') || '',
+        page: location.pathname,
+        pages,
+        firstSeen: first,
+        ref: document.referrer ? new URL(document.referrer).hostname : '',
+        typing: Date.now() < typingUntil.current,
+        chatOpen: chatOpenRef.current,
+        visible: document.visibilityState === 'visible',
+        gone,
+      })
+      if (gone && navigator.sendBeacon) {
+        navigator.sendBeacon('/api/chat/ping', new Blob([body], { type: 'application/json' }))
+      } else {
+        fetch('/api/chat/ping', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true }).catch(() => {})
+      }
+    } catch {}
+  }, [])
+
+  // смена страницы → запоминаем путь и сразу сообщаем
+  useEffect(() => {
+    try {
+      let pages: { p: string; t: number }[] = []
+      try { pages = JSON.parse(sessionStorage.getItem('plt_pages') || '[]') } catch {}
+      if (pages[pages.length - 1]?.p !== pathname) {
+        pages.push({ p: pathname, t: Date.now() })
+        sessionStorage.setItem('plt_pages', JSON.stringify(pages.slice(-8)))
+      }
+    } catch {}
+    ping()
+  }, [pathname, ping])
+
+  useEffect(() => { ping() }, [chatOpen, ping])
+
+  useEffect(() => {
+    const iv = setInterval(() => ping(), PING_MS)
+    const onVis = () => ping()
+    const onHide = () => ping(true)
+    const onTyping = () => {
+      const now = Date.now()
+      typingUntil.current = now + 4000
+      if (now - lastTypingPing.current > 2500) { lastTypingPing.current = now; ping() }
+      if (typingOff.current) clearTimeout(typingOff.current)
+      typingOff.current = setTimeout(() => ping(), 4500) // «перестал печатать»
+    }
+    document.addEventListener('visibilitychange', onVis)
+    window.addEventListener('pagehide', onHide)
+    window.addEventListener('plt-typing', onTyping)
+    return () => {
+      clearInterval(iv)
+      if (typingOff.current) clearTimeout(typingOff.current)
+      document.removeEventListener('visibilitychange', onVis)
+      window.removeEventListener('pagehide', onHide)
+      window.removeEventListener('plt-typing', onTyping)
+    }
+  }, [ping])
 }
 
 // ── Callback form ──────────────────────────────────────────────
@@ -80,12 +159,14 @@ function CallbackForm({ onClose }: { onClose: () => void }) {
 }
 
 // ── Chat window ────────────────────────────────────────────────
-function ChatWindow({ prefill, prefillNonce, autoSend }: { prefill: string; prefillNonce: number; autoSend: boolean }) {
+function ChatWindow({ prefill, prefillNonce, autoSend, onStatus }: { prefill: string; prefillNonce: number; autoSend: boolean; onStatus: (s: { online: boolean; typing: boolean }) => void }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
   const [name, setName] = useState('')
   const [nameSet, setNameSet] = useState(false)
+  const [managerTyping, setManagerTyping] = useState(false)
+  const [readAt, setReadAt] = useState(0)
   const bottomRef = useRef<HTMLDivElement>(null)
   const sessionId = useRef<string>('')
   const lastIdRef = useRef<number>(0)
@@ -102,7 +183,7 @@ function ChatWindow({ prefill, prefillNonce, autoSend }: { prefill: string; pref
     }
   }, [])
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, managerTyping])
 
   // Пресет-вопрос с карточки товара ("Ask Kev") — подставляем текст в поле
   // ввода. Если имя ещё не введено, текст просто ждёт в input и появится
@@ -132,6 +213,9 @@ function ChatWindow({ prefill, prefillNonce, autoSend }: { prefill: string; pref
       try {
         const res = await fetch(`/api/chat/poll?sessionId=${sessionId.current}&lastId=${lastIdRef.current}`)
         const data = await res.json()
+        setManagerTyping(!!data.managerTyping)
+        if (typeof data.readAt === 'number') setReadAt(data.readAt)
+        onStatus({ online: !!data.managerOnline, typing: !!data.managerTyping })
         if (data.lastId && data.lastId > lastIdRef.current) {
           lastIdRef.current = data.lastId
           sessionStorage.setItem('plt_chat_lastId', String(data.lastId))
@@ -151,7 +235,7 @@ function ChatWindow({ prefill, prefillNonce, autoSend }: { prefill: string; pref
       } catch {}
     }
     poll()
-    const iv = setInterval(poll, 5000)
+    const iv = setInterval(poll, 3000)
     return () => clearInterval(iv)
   }, [nameSet])
 
@@ -199,10 +283,17 @@ function ChatWindow({ prefill, prefillNonce, autoSend }: { prefill: string; pref
               padding: '8px 12px', fontSize: 14, lineHeight: 1.5, boxShadow: '0 1px 4px rgba(0,0,0,.1)',
             }}>
               <div>{m.text}</div>
-              <div style={{ fontSize: 11, opacity: 0.6, marginTop: 3, textAlign: 'right' }}>{fmt(m.ts)}</div>
+              <div style={{ fontSize: 11, opacity: 0.6, marginTop: 3, textAlign: 'right' }}>{fmt(m.ts)}{m.from === 'visitor' && (readAt >= m.ts ? ' ✓✓' : ' ✓')}</div>
             </div>
           </div>
         ))}
+        {nameSet && managerTyping && (
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            <div style={{ background: '#fff', borderRadius: '16px 16px 16px 4px', padding: '8px 14px', fontSize: 13, color: '#7B7772', boxShadow: '0 1px 4px rgba(0,0,0,.1)' }}>
+              Менеджер печатает…
+            </div>
+          </div>
+        )}
         <div ref={bottomRef} />
       </div>
 
@@ -220,7 +311,7 @@ function ChatWindow({ prefill, prefillNonce, autoSend }: { prefill: string; pref
           </>
         ) : (
           <>
-            <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey}
+            <textarea value={input} onChange={e => { setInput(e.target.value); if (e.target.value) window.dispatchEvent(new Event('plt-typing')) }} onKeyDown={handleKey}
               placeholder="Написать сообщение..." rows={1}
               style={{ flex: 1, border: '1px solid #e4e1da', borderRadius: 10, padding: '10px 12px', fontSize: 14, outline: 'none', resize: 'none', maxHeight: 80, overflowY: 'auto' }} />
             <button onClick={send} disabled={!input.trim() || sending} style={{
@@ -245,6 +336,8 @@ export function TelegramChat() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [panel, setPanel] = useState<Panel>(null)
   const [unread, setUnread] = useState(0)
+  const [mgr, setMgr] = useState<{ online: boolean; typing: boolean } | null>(null)
+  usePresence(panel === 'chat')
 
 
   const openPanel = (p: Panel) => { setPanel(p); setMenuOpen(false); if (p === 'chat') setUnread(0) }
@@ -349,7 +442,7 @@ export function TelegramChat() {
                 {panel === 'callback' ? 'Обратный звонок' : 'Менеджер PLATFORMA'}
               </div>
               <div style={{ fontSize: 12, opacity: 0.85 }}>
-                {panel === 'callback' ? 'Перезвоним в течение 15 минут' : 'Онлайн · ответим за 5 мин'}
+                {panel === 'callback' ? 'Перезвоним в течение 15 минут' : mgr?.typing ? 'печатает…' : mgr == null ? 'Ответим в течение нескольких минут' : mgr.online ? 'Онлайн · ответим за 5 мин' : 'Сейчас не в сети · ответим позже'}
               </div>
             </div>
             <button onClick={closeAll} style={{
@@ -362,7 +455,7 @@ export function TelegramChat() {
           {panel === 'callback' ? (
             <CallbackForm onClose={closeAll} />
           ) : (
-            <ChatWindow prefill={ctx.chatPrefill} prefillNonce={ctx.chatNonce} autoSend={ctx.chatAutoSend} />
+            <ChatWindow prefill={ctx.chatPrefill} prefillNonce={ctx.chatNonce} autoSend={ctx.chatAutoSend} onStatus={setMgr} />
           )}
         </div>
       )}

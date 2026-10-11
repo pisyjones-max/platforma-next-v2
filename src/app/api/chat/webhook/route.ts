@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { kvGet, kvSet } from '@/lib/kv'
+import { addManagerMessage } from '@/lib/chatStore'
 import { webhookSecret } from '@/lib/telegram'
-
-type Stored = { text: string; ts: number; updateId: number }
 
 const sid = (t: string) => t.match(/Сессия:\s*`?([a-z0-9]+)`?/i)?.[1]?.toLowerCase() ?? null
 
@@ -27,10 +25,7 @@ export async function POST(req: NextRequest) {
     }
     if (!session) return NextResponse.json({ ok: true })
 
-    const key = `chat:${session}`
-    const list = (await kvGet<Stored[]>(key)) ?? []
-    list.push({ text: body, ts: msg.date * 1000, updateId: upd.update_id })
-    await kvSet(key, list.slice(-50))
+    await addManagerMessage(session, body, msg.date * 1000)
   } catch (e) {
     console.error('[CHAT] webhook error:', e)
   }
