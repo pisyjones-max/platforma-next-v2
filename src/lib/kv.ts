@@ -35,6 +35,13 @@ export async function kvSetEx(key: string, value: unknown, ttlSec: number): Prom
   await kvFetch(`/set/${encodeURIComponent(key)}/${encoded}/EX/${Math.max(1, Math.floor(ttlSec))}`)
 }
 
+// SET только если ключа ещё нет (NX) + время жизни. true — ключ создан именно сейчас.
+export async function kvSetNx(key: string, value: unknown, ttlSec: number): Promise<boolean> {
+  const encoded = encodeURIComponent(JSON.stringify(value))
+  const data = await kvFetch(`/set/${encodeURIComponent(key)}/${encoded}/EX/${Math.max(1, Math.floor(ttlSec))}/NX`)
+  return data?.result === 'OK'
+}
+
 // Несколько ключей одним запросом (MGET) — значения уже разобраны из JSON
 export async function kvMget<T>(keys: string[]): Promise<(T | null)[]> {
   if (!keys.length) return []

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SID_RE, savePresence, type Presence } from '@/lib/chatStore'
-import { isKvConfigured } from '@/lib/kv'
+import { isKvConfigured, kvSetNx } from '@/lib/kv'
+import { sendTG, tgEsc } from '@/lib/telegram'
 
 const BOT_RE = /bot|crawl|spider|slurp|headless|lighthouse|preview|facebookexternalhit|yandex|google|bing/i
 const cut = (v: unknown, n: number) => String(v ?? '').slice(0, n)
@@ -35,6 +36,22 @@ export async function POST(req: NextRequest) {
       ref: cut(b.ref, 200),
     }
     await savePresence(p)
+
+    // Уведомление в Telegram о новом посетителе: один раз на человека за 6 часов.
+    // Отключить: CHAT_NOTIFY_VISITS=0 в .env.local. Свои заходы (owner) и /admin не считаем.
+    const vid = String(b.vid || '').toLowerCase()
+    if (b.first && !b.owner && !b.gone && /^[a-z0-9]{4,32}$/.test(vid)
+        && process.env.CHAT_NOTIFY_VISITS !== '0' && !p.page.startsWith('/admin')) {
+      if (await kvSetNx(`chatvisit:${vid}`, 1, 6 * 3600)) {
+        const text =
+          `👀 *Новый посетитель на сайте*\n\n` +
+          `📄 ${tgEsc(p.page || '/')}\n` +
+          `${p.ref ? `↩️ с ${tgEsc(p.ref)}\n` : ''}` +
+          `${p.mobile ? '📱 телефон' : '💻 компьютер'}\n\n` +
+          `Чат: platforma-msk.ru/admin/chat`
+        sendTG(text).catch(() => {})
+      }
+    }
     return NextResponse.json({ ok: true })
   } catch {
     return NextResponse.json({ ok: false })

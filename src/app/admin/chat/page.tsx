@@ -50,7 +50,10 @@ export default function AdminChatPage() {
   const selRef = useRef('')
   selRef.current = sel
 
-  useEffect(() => { const k = localStorage.getItem(LS_ADMIN_KEY); if (k) setKey(k) }, [])
+  useEffect(() => {
+    const k = localStorage.getItem(LS_ADMIN_KEY); if (k) setKey(k)
+    try { localStorage.setItem('plt_owner', '1') } catch {} // свои заходы не шлют уведомления
+  }, [])
 
   const api = useCallback(async (path: string, init?: RequestInit) => {
     const res = await fetch(path, { ...init, headers: { 'x-admin-key': key, 'Content-Type': 'application/json' }, cache: 'no-store' })

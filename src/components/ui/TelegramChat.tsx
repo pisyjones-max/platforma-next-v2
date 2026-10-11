@@ -41,8 +41,15 @@ function usePresence(chatOpen: boolean) {
       if (!first) { first = Date.now(); sessionStorage.setItem('plt_first', String(first)) }
       let pages: { p: string; t: number }[] = []
       try { pages = JSON.parse(sessionStorage.getItem('plt_pages') || '[]') } catch {}
+      let vid = localStorage.getItem('plt_vid')
+      if (!vid) { vid = genSessionId() + genSessionId(); localStorage.setItem('plt_vid', vid) }
+      const isFirst = !sessionStorage.getItem('plt_pinged')
+      if (isFirst && !gone) sessionStorage.setItem('plt_pinged', '1')
       const body = JSON.stringify({
         sessionId: sid,
+        vid,
+        first: isFirst,
+        owner: localStorage.getItem('plt_owner') === '1',
         name: sessionStorage.getItem('plt_chat_name') || '',
         page: location.pathname,
         pages,
