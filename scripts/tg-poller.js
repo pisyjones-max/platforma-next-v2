@@ -44,6 +44,10 @@ async function kvSet(key, value) {
   const encoded = encodeURIComponent(JSON.stringify(value))
   await kvFetch(`/set/${encodeURIComponent(key)}/${encoded}`)
 }
+async function kvSetEx(key, value, ttlSec) {
+  const encoded = encodeURIComponent(JSON.stringify(value))
+  await kvFetch(`/set/${encodeURIComponent(key)}/${encoded}/EX/${ttlSec}`)
+}
 
 // Совпадает с логикой src/app/api/chat/webhook/route.ts — держать в синхроне при правках.
 const sidFromReply = (t) => t.match(/Сессия:\s*`?([a-z0-9]+)`?/i)?.[1]?.toLowerCase() ?? null
@@ -61,11 +65,23 @@ async function handleUpdate(upd) {
     if (m) { session = m[1].toLowerCase(); body = m[2].trim() }
   }
   if (!session) return
+  // Ровно как addManagerMessage в src/lib/chatStore.ts: updateId обязан расти и быть в миллисекундах,
+  // иначе виджет (фильтр updateId > lastId) молча теряет ответ. Telegram update_id для этого НЕ годится.
+  const ts = msg.date * 1000
   const key = `chat:${session}`
   const list = (await kvGet(key)) ?? []
-  list.push({ text: body, ts: msg.date * 1000, updateId: upd.update_id })
+  const last = list[list.length - 1]
+  const updateId = Math.max(Date.now(), (last?.updateId ?? 0) + 1)
+  list.push({ text: body, ts, updateId })
   await kvSet(key, list.slice(-50))
-  console.log(`[tg-poller] сообщение записано: session=${session} updateId=${upd.update_id}`)
+  // журнал переписки (админка /admin/chat) и «прочитано»
+  const logKey = `chatlog:${session}`
+  const log = (await kvGet(logKey)) ?? []
+  const lastLog = log[log.length - 1]
+  log.push({ id: Math.max(ts, (lastLog?.id ?? 0) + 1), from: 'manager', text: body, ts })
+  await kvSet(logKey, log.slice(-100))
+  await kvSetEx(`chatread:${session}`, Date.now(), 86400)
+  console.log(`[tg-poller] сообщение записано: session=${session} tgUpdate=${upd.update_id}`)
 }
 
 function readOffset() {
