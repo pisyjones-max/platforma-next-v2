@@ -1,10 +1,11 @@
 import Link from 'next/link'
 import { searchProducts } from '@/lib/search'
 import { ProductCard } from '@/components/catalog/ProductCard'
+import { BrandChips } from '@/components/catalog/BrandChips'
 import type { Metadata } from 'next'
 
 interface Props {
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<{ q?: string; brand?: string | string[] }>
 }
 
 const RESULT_LIMIT = 96
@@ -21,9 +22,23 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function SearchPage({ searchParams }: Props) {
-  const { q } = await searchParams
+  const { q, brand } = await searchParams
   const query = q?.trim() ?? ''
-  const { results, total } = query ? searchProducts(query, RESULT_LIMIT) : { results: [], total: 0 }
+  const selected = (Array.isArray(brand) ? brand : brand ? [brand] : []).filter(Boolean)
+  const { results, total, facets } = query
+    ? searchProducts(query, RESULT_LIMIT, selected)
+    : { results: [], total: 0, facets: [] }
+
+  const hrefFor = (next: string[]) => {
+    const sp = new URLSearchParams({ q: query })
+    next.forEach(b => sp.append('brand', b))
+    return `/search?${sp.toString()}`
+  }
+  const chips = facets.map(f => {
+    const active = selected.includes(f.name)
+    const next = active ? selected.filter(b => b !== f.name) : [...selected, f.name]
+    return { name: f.name, count: f.count, active, href: hrefFor(next) }
+  })
 
   return (
     <div id="main">
@@ -51,6 +66,7 @@ export default async function SearchPage({ searchParams }: Props) {
 
       {query && (
         <>
+          <BrandChips items={chips} clearHref={hrefFor([])} />
           <div className="pgrid">
             {results.map(r => (
               <ProductCard

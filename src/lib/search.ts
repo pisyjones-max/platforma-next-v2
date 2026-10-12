@@ -2,6 +2,7 @@ import { getCatalog } from '@/lib/catalog'
 import { productSlug } from '@/lib/slug'
 import { salePrice } from '@/lib/price'
 import type { Product } from '@/types/catalog'
+import { normalizeBrand, type BrandFacet } from '@/lib/brandAliases'
 
 export interface SearchResult {
   id: string
@@ -14,11 +15,14 @@ export interface SearchResult {
   categorySlug: string
   categoryName: string
   href: string
+  brand: string
 }
 
 export interface SearchResponse {
   results: SearchResult[]
   total: number
+  /** бренды среди ВСЕХ совпадений по запросу (до фильтра по бренду) */
+  facets: BrandFacet[]
 }
 
 interface IndexEntry {
@@ -27,6 +31,7 @@ interface IndexEntry {
   categoryName: string
   titleLower: string
   haystack: string
+  brand: string
 }
 
 // Индекс строится один раз за время жизни серверного процесса (ленивая
@@ -49,6 +54,7 @@ function buildIndex(): IndexEntry[] {
         categoryName: cat.name,
         titleLower,
         haystack,
+        brand: normalizeBrand(p.features?.['Производитель']),
       })
     }
   }
@@ -75,6 +81,7 @@ function toResult(entry: IndexEntry): SearchResult {
     categorySlug: entry.categorySlug,
     categoryName: entry.categoryName,
     href: `/catalog/${entry.categorySlug}/${productSlug(p.id)}`,
+    brand: entry.brand,
   }
 }
 
@@ -88,12 +95,12 @@ function toResult(entry: IndexEntry): SearchResult {
  * в title/description/features (AND по токенам). Ранжирование — по тому,
  * сколько слов совпало в заголовке и насколько близко к началу.
  */
-export function searchProducts(query: string, limit = 60): SearchResponse {
+export function searchProducts(query: string, limit = 60, brands: string[] = []): SearchResponse {
   const q = query.trim().toLowerCase()
-  if (!q) return { results: [], total: 0 }
+  if (!q) return { results: [], total: 0, facets: [] }
 
   const tokens = q.split(/\s+/).filter(t => t.length > 0)
-  if (tokens.length === 0) return { results: [], total: 0 }
+  if (tokens.length === 0) return { results: [], total: 0, facets: [] }
 
   const index = getIndex()
   const scored: { entry: IndexEntry; score: number }[] = []
@@ -114,10 +121,24 @@ export function searchProducts(query: string, limit = 60): SearchResponse {
     if (matchedAll) scored.push({ entry, score })
   }
 
-  scored.sort((a, b) => b.score - a.score || a.entry.titleLower.localeCompare(b.entry.titleLower, 'ru'))
+  // Счётчики брендов — по всем совпадениям запроса, чтобы плашки не пропадали после выбора
+  const counts = new Map<string, number>()
+  for (const { entry } of scored) {
+    if (!entry.brand) continue
+    counts.set(entry.brand, (counts.get(entry.brand) ?? 0) + 1)
+  }
+  const facets: BrandFacet[] = Array.from(counts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'ru'))
+
+  const selected = new Set(brands)
+  const filtered = selected.size > 0 ? scored.filter(s => selected.has(s.entry.brand)) : scored
+
+  filtered.sort((a, b) => b.score - a.score || a.entry.titleLower.localeCompare(b.entry.titleLower, 'ru'))
 
   return {
-    total: scored.length,
-    results: scored.slice(0, limit).map(s => toResult(s.entry)),
+    total: filtered.length,
+    results: filtered.slice(0, limit).map(s => toResult(s.entry)),
+    facets,
   }
 }

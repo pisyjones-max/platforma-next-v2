@@ -255,6 +255,25 @@ input, select, textarea { font-family: var(--fb); }
   .brand-mobile-btn { display: inline-flex; }
 }
 
+/* ══ ПЛАШКИ БРЕНДОВ СВЕРХУ ═════════════════════════════════════════════════ */
+.bchips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; }
+.bchip {
+  height: 34px; padding: 0 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 7px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  font-size: 13.5px; white-space: nowrap; cursor: pointer; transition: all .15s; text-decoration: none;
+}
+.bchip:hover { border-color: var(--dark); }
+.bchip.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+.bchip-n { font-size: 11.5px; opacity: .55; }
+.bchip.active .bchip-n { opacity: .75; }
+.bchip-more { color: var(--accent); border-style: dashed; }
+@media (max-width: 700px) {
+  /* на телефоне — одна строка со свайпом вбок, не растягиваем страницу вниз */
+  .bchips { flex-wrap: nowrap; overflow-x: auto; margin-left: -4px; margin-right: -4px; padding: 0 4px 6px; scrollbar-width: none; }
+  .bchips::-webkit-scrollbar { display: none; }
+  .bchip { flex-shrink: 0; }
+}
+
 /* ══ СЕТКА ТОВАРОВ ════════════════════════════════════════════════════════ */
 .pgrid{
   display:grid;

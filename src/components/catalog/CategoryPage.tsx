@@ -2,7 +2,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
-import { BrandFilter } from './BrandFilter'
+import { BrandChips } from './BrandChips'
 import { useFilters } from '@/hooks/useFilters'
 import { findProduct } from '@/lib/catalog'
 import { getBrandFacets } from '@/lib/brandAliases'
@@ -51,7 +51,6 @@ export function CategoryPage({ category, parentGroup, totalCount, page = 1, tota
   }
 
   const { filters, setFilters, search, setSearch, filtered, reset } = useFilters(products)
-  const [brandModalOpen, setBrandModalOpen] = useState(false)
 
   // Счётчики по брендам считаются по уже подгруженным товарам категории
   const brandFacets = useMemo(() => getBrandFacets(products), [products])
@@ -98,33 +97,19 @@ export function CategoryPage({ category, parentGroup, totalCount, page = 1, tota
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-        {brandFacets.length > 0 && (
-          <button
-            type="button"
-            className={`fchip brand-mobile-btn ${filters.brand.length > 0 ? 'active' : ''}`}
-            onClick={() => setBrandModalOpen(true)}
-          >
-            Бренд{filters.brand.length > 0 ? ` (${filters.brand.length})` : ''}
-          </button>
-        )}
         {hasActiveFilters && (
           <button type="button" className="btn-sm" onClick={reset}>Сбросить фильтры</button>
         )}
         <span className="rcnt">{filtered.length} товаров</span>
       </div>
 
-      <div className="cat-layout">
-        {brandFacets.length > 0 && (
-          <BrandFilter
-            facets={brandFacets}
-            selected={filters.brand}
-            onToggle={toggleBrand}
-            onClear={clearBrand}
-            mobileOpen={brandModalOpen}
-            onMobileClose={() => setBrandModalOpen(false)}
-          />
-        )}
+      <BrandChips
+        items={brandFacets.map(f => ({ ...f, active: filters.brand.includes(f.name) }))}
+        onToggle={toggleBrand}
+        onClear={clearBrand}
+      />
 
+      <div className="cat-layout">
         <div className="cat-main">
           {category.products.length === 0 ? (
             <div style={{
