@@ -1,6 +1,6 @@
 # ТОЛЬКО ЧТЕНИЕ. Диагностика: что происходит на сервере около 01:10
 echo "== date/tz/uptime"; date; timedatectl 2>/dev/null | grep -E "Time zone|Local time"; uptime
-echo "== crontab root"; crontab -l 2>&1 | head -30
+echo "== crontab root"; crontab -l 2>&1 | grep -v "^#" | sed -E "s/(Bearer )[A-Za-z0-9._-]+/\1***/g; s/(key=|token=|KEY=)[^ &]+/\1***/gI"
 echo "== /etc/cron.d + daily"; ls /etc/cron.d /etc/cron.daily 2>&1 | head -30
 echo "== systemd timers"; systemctl list-timers --all --no-pager 2>&1 | head -25
 echo "== ближайшие syslog 01:00-01:20 (последние сутки)"; 
