@@ -43,9 +43,11 @@ export async function POST(req: NextRequest) {
     if (b.first && !b.owner && !b.gone && /^[a-z0-9]{4,32}$/.test(vid)
         && process.env.CHAT_NOTIFY_VISITS !== '0' && !p.page.startsWith('/admin')) {
       if (await kvSetNx(`chatvisit:${vid}`, 1, 6 * 3600)) {
+        const title = cut(b.title, 120).replace(/\s*[|—–-]\s*PLATFORMA.*$/i, '').trim()
         const text =
           `👀 *Новый посетитель на сайте*\n\n` +
-          `📄 ${tgEsc(p.page || '/')}\n` +
+          `📄 Смотрит: ${title ? `*${tgEsc(title)}*\n` : ''}` +
+          `🔗 platforma-msk.ru${tgEsc(p.page || '/')}\n` +
           `${p.ref ? `↩️ с ${tgEsc(p.ref)}\n` : ''}` +
           `${p.mobile ? '📱 телефон' : '💻 компьютер'}\n\n` +
           `Чат: platforma-msk.ru/admin/chat`

@@ -52,6 +52,7 @@ function usePresence(chatOpen: boolean) {
         owner: localStorage.getItem('plt_owner') === '1',
         name: sessionStorage.getItem('plt_chat_name') || '',
         page: location.pathname,
+        title: document.title || '',
         pages,
         firstSeen: first,
         ref: document.referrer ? new URL(document.referrer).hostname : '',

@@ -63,6 +63,10 @@ async function checkSite(source: typeof SOURCES[0]): Promise<{ found: boolean; s
 }
 
 export async function GET(req: NextRequest) {
+  // ОТКЛЮЧЕНО: постинг акций в ТГ. Включить обратно: PROMOS_ENABLED=1 в env.
+  if (process.env.PROMOS_ENABLED !== '1') {
+    return NextResponse.json({ ok: true, disabled: true })
+  }
   // Allow manual trigger or cron
   const auth = req.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
