@@ -8,11 +8,19 @@ import { normalizePhone } from '@/lib/phone'
 import { cashbackRateFor, type CardRecord } from '@/lib/loyaltyEngine'
 import { LOYALTY_FEATURES, siteOrderBonusFor } from '@/lib/loyaltyFeatures'
 import { saveLead, markDelivered } from '@/lib/orderStore'
+import { productUrlBySku } from '@/lib/orderLinks'
 
 export async function POST(req: NextRequest) {
   const { form, items, total }: { form: CheckoutForm; items: CartItem[]; total: number } = await req.json()
 
   const lines = items.map(i => `— ${tgEsc(i.title)} × ${i.qty} = ${fmt(i.price * i.qty)} ₽`).join('\n')
+
+  // Для менеджера название товара — кликабельная ссылка на карточку на сайте
+  const linesFull = items.map(i => {
+    const url = productUrlBySku(i.sku)
+    const title = url ? `[${tgEsc(i.title)}](${url})` : tgEsc(i.title)
+    return `— ${title} × ${i.qty} = ${fmt(i.price * i.qty)} ₽`
+  }).join('\n')
 
   const delivery = form.deliveryMethod === 'pvz'
     ? `ПВЗ: ${tgEsc(form.pvzAddress || 'не выбран')}`
@@ -27,7 +35,7 @@ export async function POST(req: NextRequest) {
     `📱 *Телефон:* ${tgEsc(form.phone)}\n` +
     `📧 *Email:* ${tgEsc(form.email || '—')}\n` +
     `🚚 *Доставка:* ${delivery}\n\n` +
-    `📦 *Состав:*\n${lines}\n\n` +
+    `📦 *Состав:*\n${linesFull}\n\n` +
     `💰 *Сумма:* ${fmt(total)} ₽\n` +
     `💬 ${tgEsc(form.comment || '—')}\n` +
     `🕐 ${new Date().toLocaleString('ru-RU')}`
