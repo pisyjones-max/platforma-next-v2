@@ -1,4 +1,4 @@
-import { getCatalog } from '@/lib/catalog'
+import { getCatalog, getCanonicalCategorySlug } from '@/lib/catalog'
 import { productSlug } from '@/lib/slug'
 import { salePrice } from '@/lib/price'
 import type { Product } from '@/types/catalog'
@@ -45,6 +45,9 @@ function buildIndex(): IndexEntry[] {
   const index: IndexEntry[] = []
   for (const cat of catalog.categories) {
     for (const p of cat.products) {
+      // Один товар лежит сразу в нескольких категориях — в поиск пускаем
+      // только одну копию, из канонической категории (без дублей карточек).
+      if (getCanonicalCategorySlug(catalog, p, cat.slug) !== cat.slug) continue
       const featuresBlob = p.features ? Object.values(p.features).join(' ') : ''
       const titleLower = p.title.toLowerCase()
       const haystack = `${titleLower} ${(p.description ?? '').toLowerCase()} ${featuresBlob.toLowerCase()}`

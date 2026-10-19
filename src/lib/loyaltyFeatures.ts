@@ -36,7 +36,15 @@ export const REFERRAL_BONUS_POINTS = 2000
 // Фикс-бонус баллами за самостоятельное оформление заказа на сайте (сверх кэшбэка).
 // Не завязан на сумму заказа — это не скидка в рублях и не процент, поэтому
 // не требует ценового ФАС-разбора, начисляется тем же способом, что и кэшбэк.
-export const SITE_ORDER_BONUS_POINTS = 300
+export const SITE_ORDER_BONUS_POINTS = 300 // потолок бонуса
+// Бонус = 1% от суммы заказа, но не больше потолка и только от минимальной суммы заказа.
+export const SITE_ORDER_BONUS_RATE = 0.01
+export const SITE_ORDER_BONUS_MIN_ORDER = 5000
+
+export function siteOrderBonusFor(total: number): number {
+  if (!(total >= SITE_ORDER_BONUS_MIN_ORDER)) return 0
+  return Math.min(SITE_ORDER_BONUS_POINTS, Math.round(total * SITE_ORDER_BONUS_RATE))
+}
 
 // Через сколько дней неактивности баллы считаются сгоревшими (мягкая проверка при обращении,
 // без фонового кроном пересчёта — баланс "оживает" на 0 при следующей проверке/начислении)

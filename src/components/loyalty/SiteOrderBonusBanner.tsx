@@ -52,7 +52,7 @@ export function SiteOrderBonusBanner() {
       <div className="price-promo-body">
         <div className="price-promo-badge">🎁 Бонус за заказ на сайте</div>
         <div className="price-promo-title">
-          Оформите заказ сами на сайте — получите +{SITE_ORDER_BONUS_POINTS} баллов сверх кэшбэка
+          Оформите заказ сами на сайте — получите до {SITE_ORDER_BONUS_POINTS} баллов сверх кэшбэка (1% от заказа от 5 000 ₽)
         </div>
         <div className="price-promo-sub">
           Баллы начисляются автоматически на карту «Соседи» при оформлении через корзину на сайте,

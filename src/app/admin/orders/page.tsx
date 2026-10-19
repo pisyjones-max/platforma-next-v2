@@ -119,7 +119,7 @@ export default function AdminOrdersPage() {
                 <div><b>{l.form?.name || '—'}</b> · {phone ? <a href={`tel:${phone}`}>{phone}</a> : '—'}</div>
                 {l.form?.email && <div style={{ color: '#666' }}>{l.form.email}</div>}
                 <div style={{ color: '#666' }}>
-                  {l.form?.deliveryMethod === 'pvz' ? `ПВЗ: ${l.form?.pvzAddress || '—'}` : `Курьер: ${l.form?.address || '—'}`}
+                  {l.form?.deliveryMethod === 'pvz' ? `ПВЗ: ${l.form?.pvzAddress || '—'}` : l.form?.deliveryMethod === 'pickup' ? 'Самовывоз' : `Курьер: ${l.form?.address || '—'}`}
                 </div>
                 <ul style={{ margin: '6px 0', paddingLeft: 18 }}>
                   {(l.items ?? []).map((i, idx) => <li key={idx}>{i.title} × {i.qty} = {rub(i.price * i.qty)}</li>)}

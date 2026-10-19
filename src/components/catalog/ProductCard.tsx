@@ -84,8 +84,8 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
             </div>
             <div className="pcard-cardprice">
               {verified
-                ? `💳 Кэшбэк + ${SITE_ORDER_BONUS_POINTS} баллов за заказ на сайте начислятся автоматически`
-                : `💳 Оформите карту — и получайте кэшбэк + ${SITE_ORDER_BONUS_POINTS} баллов за каждый заказ на сайте`}
+                ? `💳 Кэшбэк + до ${SITE_ORDER_BONUS_POINTS} баллов за заказ на сайте начислятся автоматически`
+                : `💳 Оформите карту — и получайте кэшбэк + до ${SITE_ORDER_BONUS_POINTS} баллов за заказ на сайте`}
             </div>
           </>
         ) : (

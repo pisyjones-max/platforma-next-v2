@@ -112,11 +112,11 @@ export function CheckoutModal() {
               <div className="finp-wrap">
                 <label>Способ доставки</label>
                 <div className="sub-methods">
-                  {(['pvz', 'courier'] as DeliveryMethod[]).map(m => (
+                  {(['pvz', 'courier', 'pickup'] as DeliveryMethod[]).map(m => (
                     <div key={m} onClick={() => set({ deliveryMethod: m })}
                       className={`sub-method ${form.deliveryMethod === m ? 'active' : ''}`}>
-                      <div className="sm-icon">{m === 'pvz' ? '📦' : '🚚'}</div>
-                      {m === 'pvz' ? 'Пункт выдачи Яндекс Маркета' : 'Доставка курьером'}
+                      <div className="sm-icon">{m === 'pvz' ? '📦' : m === 'courier' ? '🚚' : '🏬'}</div>
+                      {m === 'pvz' ? 'Пункт выдачи Яндекс Маркета' : m === 'courier' ? 'Доставка курьером' : 'Самовывоз'}
                     </div>
                   ))}
                 </div>
@@ -133,6 +133,12 @@ export function CheckoutModal() {
                   <label>Адрес пункта выдачи</label>
                   <input className="finp" placeholder="Введите адрес ПВЗ" value={form.pvzAddress} onChange={e => set({ pvzAddress: e.target.value })} />
                 </div>
+              )}
+
+              {form.deliveryMethod === 'pickup' && (
+                <p style={{ fontSize: 13, lineHeight: 1.5, margin: '0 0 8px', color: 'var(--muted)' }}>
+                  Адрес склада и время выдачи подтвердит менеджер после оформления заказа.
+                </p>
               )}
 
               <div className="finp-wrap">

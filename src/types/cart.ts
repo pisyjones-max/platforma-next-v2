@@ -11,7 +11,7 @@ export interface LoyaltyCard {
   balance: number
 }
 
-export type DeliveryMethod = 'pvz' | 'courier'
+export type DeliveryMethod = 'pvz' | 'courier' | 'pickup'
 
 export interface CheckoutForm {
   name: string

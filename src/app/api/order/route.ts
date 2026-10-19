@@ -6,7 +6,7 @@ import type { CartItem, CheckoutForm } from '@/types/cart'
 import { kvGet, kvSet, isKvConfigured } from '@/lib/kv'
 import { normalizePhone } from '@/lib/phone'
 import { cashbackRateFor, type CardRecord } from '@/lib/loyaltyEngine'
-import { LOYALTY_FEATURES, SITE_ORDER_BONUS_POINTS } from '@/lib/loyaltyFeatures'
+import { LOYALTY_FEATURES, siteOrderBonusFor } from '@/lib/loyaltyFeatures'
 import { saveLead, markDelivered } from '@/lib/orderStore'
 
 export async function POST(req: NextRequest) {
@@ -16,7 +16,9 @@ export async function POST(req: NextRequest) {
 
   const delivery = form.deliveryMethod === 'pvz'
     ? `ПВЗ: ${tgEsc(form.pvzAddress || 'не выбран')}`
-    : `Курьер: ${tgEsc(form.address)}`
+    : form.deliveryMethod === 'pickup'
+      ? 'Самовывоз'
+      : `Курьер: ${tgEsc(form.address)}`
 
   // --- Наш чат: полная информация с контактами ---
   const textFull =
@@ -35,7 +37,7 @@ export async function POST(req: NextRequest) {
     `📋 *Заявка на поставку — PLATFORMA*\n\n` +
     `📦 *Состав:*\n${lines}\n\n` +
     `💰 *Сумма заказа:* ${fmt(total)} ₽\n` +
-    `🚚 *Тип доставки:* ${form.deliveryMethod === 'pvz' ? 'Пункт выдачи (ПВЗ)' : 'Курьер'}\n` +
+    `🚚 *Тип доставки:* ${form.deliveryMethod === 'pvz' ? 'Пункт выдачи (ПВЗ)' : form.deliveryMethod === 'pickup' ? 'Самовывоз' : 'Курьер'}\n` +
     `🕐 ${new Date().toLocaleString('ru-RU')}`
 
   // Сначала сохраняем заказ в собственный журнал (файл + KV), потом шлём в Telegram:
@@ -70,7 +72,7 @@ export async function POST(req: NextRequest) {
           const cashback = Math.round(total * rate)
           // Доп. бонус за то, что заказ оформлен самостоятельно на сайте (эта форма) —
           // отдельно от кэшбэка, см. LOYALTY_FEATURES.siteOrderBonus
-          const siteBonus = LOYALTY_FEATURES.siteOrderBonus ? SITE_ORDER_BONUS_POINTS : 0
+          const siteBonus = LOYALTY_FEATURES.siteOrderBonus ? siteOrderBonusFor(total) : 0
           await kvSet(`card:${p}`, {
             ...rec,
             purchases: purchaseNumber,
