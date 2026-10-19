@@ -10,7 +10,7 @@ export const CARD_WELCOME_BONUS = 15000
 export const DELIVERY_TAGLINE = 'Быстрая доставка на объект или в пункт выдачи заказов Яндекс Маркета'
 export const ADMIN_KEY      = process.env.ADMIN_KEY ?? ''   // секретный ключ для /admin/cards
 const REAL_PHONE_NUMBER     = '+7 (933) 203-30-05'   // не удалять — реальный номер, подставится назад при PHONE_CALLS_ENABLED = true
-export const PHONE_CALLS_ENABLED = false              // временно отключили приём звонков по сайту — номер нигде не показывается и не кликается
+export const PHONE_CALLS_ENABLED = true               // звонки включены — номер показывается и кликается (false — скрыть везде)
 export const PHONE_NUMBER   = PHONE_CALLS_ENABLED ? REAL_PHONE_NUMBER : ''
 
 // Услуга "Дизайн-проект дома" — реальная стоимость услуги. Бесплатно для
@@ -35,7 +35,7 @@ export const TG_TOKEN_2     = process.env.TG_TOKEN_2  ?? ''
 export const TG_CHAT_ID_2   = process.env.TG_CHAT_ID_2 ?? ''
 
 /** Бегущая строка вверху сайта: «заказы по телефону временно не принимаются». Поставь false, чтобы убрать. */
-export const PHONE_NOTICE_ENABLED = true
+export const PHONE_NOTICE_ENABLED = false
 
 /** Юридическая оговорка про цены (показывается в футере, карточках, корзине). Подробности — /ceny-i-nalichie */
 export const PRICE_NOTICE_SHORT =
@@ -44,7 +44,7 @@ export const PRICE_NOTICE_SHORT =
 /** Данные владельца сервиса (обязательны для агрегатора). */
 export const OWNER_INFO = 'Сысоев Евгений Германович, самозанятый (плательщик НПД), ИНН 272099783263'
 
-/** Контакты для связи (звонки не принимаются — только сообщения). */
+/** Контакты для связи (телефон — см. PHONE_CALLS_ENABLED). */
 export const CONTACT_EMAIL = 'info@platforma-msk.ru'
 /** Номер, к которому привязан аккаунт MAX. Показываем как текст, БЕЗ ссылки tel: */
 export const MAX_ACCOUNT_LABEL = '+7 (933) 203-30-05'
