@@ -1,9 +1,10 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { ProductCard } from './ProductCard'
-import { BrandChips } from './BrandChips'
-import { useFilters } from '@/hooks/useFilters'
+import { CatalogFilters } from './CatalogFilters'
+import { useFilters, colorKey, NO_MAX } from '@/hooks/useFilters'
+import { salePrice } from '@/lib/price'
 import { findProduct } from '@/lib/catalog'
 import { getBrandFacets } from '@/lib/brandAliases'
 import { productSlug } from '@/lib/slug'
@@ -51,6 +52,39 @@ export function CategoryPage({ category, parentGroup, totalCount, page = 1, tota
   }
 
   const { filters, setFilters, search, setSearch, filtered, reset } = useFilters(products)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [priceFrom, setPriceFrom] = useState('')
+  const [priceTo, setPriceTo] = useState('')
+
+  const onPrice = (from: string, to: string) => {
+    setPriceFrom(from); setPriceTo(to)
+    setFilters(f => ({ ...f, minPrice: from ? Number(from) : 0, maxPrice: to ? Number(to) : NO_MAX }))
+  }
+
+  const resetAll = () => { reset(); setPriceFrom(''); setPriceTo('') }
+
+  const priceBounds = useMemo(() => {
+    const prices = category.products.map(p => salePrice(p.variants[0].price)).filter(n => n > 0)
+    return prices.length
+      ? { min: Math.min(...prices), max: Math.max(...prices) }
+      : { min: 0, max: 0 }
+  }, [category.products])
+
+  const colorFacets = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const p of products) {
+      for (const c of new Set(p.variants.map(colorKey).filter(Boolean))) counts.set(c, (counts.get(c) ?? 0) + 1)
+    }
+    return Array.from(counts, ([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'ru'))
+  }, [products])
+
+  const toggleColor = (name: string) => {
+    setFilters(f => ({
+      ...f,
+      colors: f.colors.includes(name) ? f.colors.filter(c => c !== name) : [...f.colors, name],
+    }))
+  }
 
   // Счётчики по брендам считаются по уже подгруженным товарам категории
   const brandFacets = useMemo(() => getBrandFacets(products), [products])
@@ -62,9 +96,42 @@ export function CategoryPage({ category, parentGroup, totalCount, page = 1, tota
     }))
   }
 
-  const clearBrand = () => setFilters(f => ({ ...f, brand: [] }))
+  const hasActiveFilters =
+    filters.brand.length > 0 || filters.colors.length > 0 || search.length > 0 ||
+    filters.minPrice > 0 || filters.maxPrice < NO_MAX || filters.sort !== 'default'
 
-  const hasActiveFilters = filters.brand.length > 0 || search.length > 0
+  // Фильтры и сортировка должны работать по ВСЕЙ категории, а не только по уже
+  // подгруженным 24 товарам — как только фильтр включён, дозагружаем остальные страницы.
+  const loadingAll = useRef(false)
+  const [loadingAllUi, setLoadingAllUi] = useState(false)
+  useEffect(() => {
+    if (!hasActiveFilters || !hasMore || !catSlug || loadingAll.current) return
+    loadingAll.current = true
+    setLoadingAllUi(true)
+    ;(async () => {
+      try {
+        let next = loadedPage + 1
+        const acc: Product[] = []
+        let more = true
+        while (more) {
+          const res = await fetch(`/api/catalog/${catSlug}/page/${next}`)
+          if (!res.ok) throw new Error(`HTTP ${res.status}`)
+          const data: { products: Product[]; hasMore: boolean } = await res.json()
+          acc.push(...data.products)
+          more = data.hasMore
+          next++
+        }
+        setProducts(prev => [...prev, ...acc])
+        setLoadedPage(next - 1)
+        setHasMore(false)
+      } catch (e) {
+        console.error('[CategoryPage] Не удалось догрузить категорию для фильтров:', e)
+      } finally {
+        loadingAll.current = false
+        setLoadingAllUi(false)
+      }
+    })()
+  }, [hasActiveFilters, hasMore, catSlug, loadedPage])
 
   return (
     <div id="main">
@@ -98,18 +165,44 @@ export function CategoryPage({ category, parentGroup, totalCount, page = 1, tota
           onChange={e => setSearch(e.target.value)}
         />
         {hasActiveFilters && (
-          <button type="button" className="btn-sm" onClick={reset}>Сбросить фильтры</button>
+          <button type="button" className="btn-sm" onClick={resetAll}>Сбросить фильтры</button>
         )}
-        <span className="rcnt">{filtered.length} товаров</span>
+        <button type="button" className="btn-sm brand-mobile-btn" onClick={() => setMobileOpen(true)}>
+          ⚙ Фильтры{hasActiveFilters ? ' •' : ''}
+        </button>
+        <select
+          className="cf-sort" aria-label="Сортировка"
+          value={filters.sort}
+          onChange={e => setFilters(f => ({ ...f, sort: e.target.value as typeof f.sort }))}
+        >
+          <option value="default">По умолчанию</option>
+          <option value="price_asc">Сначала дешёвые</option>
+          <option value="price_desc">Сначала дорогие</option>
+          <option value="name">По названию</option>
+        </select>
+        <span className="rcnt">{loadingAllUi ? 'Загружаем…' : `${filtered.length} товаров`}</span>
       </div>
 
-      <BrandChips
-        items={brandFacets.map(f => ({ ...f, active: filters.brand.includes(f.name) }))}
-        onToggle={toggleBrand}
-        onClear={clearBrand}
-      />
-
       <div className="cat-layout">
+        {category.products.length > 0 && (
+          <CatalogFilters
+            brands={brandFacets}
+            selectedBrands={filters.brand}
+            onToggleBrand={toggleBrand}
+            colors={colorFacets}
+            selectedColors={filters.colors}
+            onToggleColor={toggleColor}
+            priceBounds={priceBounds}
+            priceFrom={priceFrom}
+            priceTo={priceTo}
+            onPrice={onPrice}
+            onReset={resetAll}
+            hasActive={hasActiveFilters}
+            foundCount={filtered.length}
+            mobileOpen={mobileOpen}
+            onMobileClose={() => setMobileOpen(false)}
+          />
+        )}
         <div className="cat-main">
           {category.products.length === 0 ? (
             <div style={{

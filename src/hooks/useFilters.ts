@@ -5,8 +5,14 @@ import type { Filters } from '@/types/cart'
 import { salePrice } from '@/lib/price'
 import { normalizeBrand } from '@/lib/brandAliases'
 
+export const NO_MAX = 999999
+
+/** Цвет варианта без двойных пробелов — по нему строятся фильтр и счётчики */
+export const colorKey = (v: { color?: string; sku_name?: string }) =>
+  (v.color ?? '').replace(/\s+/g, ' ').trim()
+
 const DEFAULT_FILTERS: Filters = {
-  minPrice: 0, maxPrice: 999999, color: '', brand: [], sort: 'default',
+  minPrice: 0, maxPrice: NO_MAX, color: '', colors: [], brand: [], sort: 'default',
 }
 
 export function useFilters(products: Product[]) {
@@ -24,11 +30,15 @@ export function useFilters(products: Product[]) {
     }
     list = list.filter(p => {
       const fp = salePrice(p.variants[0].price)
-      return fp >= filters.minPrice && (filters.maxPrice >= 99999 || fp <= filters.maxPrice)
+      return fp >= filters.minPrice && (filters.maxPrice >= NO_MAX || fp <= filters.maxPrice)
     })
     if (filters.color) {
       const q = filters.color.toLowerCase()
       list = list.filter(p => p.variants.some(v => (v.color ?? v.sku_name ?? '').toLowerCase().includes(q)))
+    }
+    if (filters.colors.length > 0) {
+      const sel = new Set(filters.colors)
+      list = list.filter(p => p.variants.some(v => sel.has(colorKey(v))))
     }
     if (filters.brand.length > 0) {
       const selected = new Set(filters.brand)

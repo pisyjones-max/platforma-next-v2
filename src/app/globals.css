@@ -1736,3 +1736,23 @@ main { flex: 1; }
   .pnb-item:not(:first-child) { display: none; }
   .pnb-item { white-space: normal; padding-right: 0; }
 }
+
+/* ══ ФИЛЬТРЫ КАТЕГОРИИ (цена / бренд / цвет, как на Ozon) ═════════════════ */
+.cf-aside { width: 250px; max-height: calc(100vh - 32px); overflow-y: auto; }
+.cf-sec { padding: 14px 0; border-top: 1px solid var(--border); }
+.brand-aside-title + .cf-sec, .bmodal-body .cf-sec:first-child { border-top: none; padding-top: 4px; }
+.cf-title { font-size: 14px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+.cf-price { display: flex; align-items: center; gap: 8px; }
+.cf-price span { color: var(--muted); }
+.cf-price input {
+  width: 100%; min-width: 0; height: 36px; padding: 0 10px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface2); font-size: 14px; outline: none;
+}
+.cf-price input:focus { border-color: var(--dark); background: var(--surface); }
+.cf-more { margin-top: 6px; padding: 4px; font-size: 13px; color: var(--accent); cursor: pointer; background: none; border: none; }
+.cf-more:hover { text-decoration: underline; }
+.cf-sort {
+  height: 32px; padding: 0 10px; border-radius: 20px; border: 1px solid var(--border);
+  background: var(--surface); font-size: 13px; color: var(--text); outline: none; cursor: pointer;
+}
+@media (max-width: 900px) { .cf-aside { display: none; } }
