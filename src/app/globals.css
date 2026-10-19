@@ -1776,3 +1776,15 @@ main { flex: 1; }
   .fbar > .brand-mobile-btn { display: inline-flex; }
   .fbar > input { flex: 1 1 100%; width: auto; }
 }
+
+/* ══ ПЛАШКИ КАТЕГОРИЙ/БРЕНДОВ: длинные слова не обрезаются ═════════════════ */
+.gcard, .gcard-info { min-width: 0; }
+.gcard-title, .gcard-sub {
+  overflow-wrap: anywhere; word-break: normal; hyphens: auto; -webkit-hyphens: auto;
+}
+@media (max-width: 640px) {
+  .ggrid { gap: 12px; }
+  .gcard-info { padding: 12px 12px 8px; }
+  .gcard-title { font-size: 11.5px; line-height: 1.35; letter-spacing: -0.2px; }
+  .gcard-sub { font-size: 12px; }
+}
