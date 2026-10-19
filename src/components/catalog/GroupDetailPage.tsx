@@ -4,6 +4,9 @@ import Link from 'next/link'
 import type { Group } from '@/types/catalog'
 import { fmt } from '@/lib/price'
 import { getServicesForGroup } from '@/lib/services'
+import { productSlug } from '@/lib/slug'
+import { PAGE_SIZE } from '@/lib/constants'
+import { ProductListing, type ListedProduct, type PageResult } from './ProductListing'
 
 type CategorySummary = { slug: string; name: string; productsCount: number }
 
@@ -41,13 +44,28 @@ interface Props {
    * вторая кнопка в CTA-блоке ниже сравнения материалов.
    */
   calculatorHref?: string
+  /** Первая порция товаров раздела + общее число — для списка с фильтрами под плашками категорий */
+  listing?: { initial: ListedProduct[]; total: number }
 }
 
 // Группы, для которых имеет смысл предложить "примерить" материал на дом
 // через бесплатный дизайн-проект (визуальные, "фасадные" материалы).
 
-export function GroupDetailPage({ groupSlug, group, categories: cats, comparison, faq, calculatorHref }: Props) {
+export function GroupDetailPage({ groupSlug, group, categories: cats, comparison, faq, calculatorHref, listing }: Props) {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+
+  const apiUrl = `/api/catalog/group/${groupSlug}`
+  const fetchPage = async (n: number): Promise<PageResult> => {
+    const res = await fetch(`${apiUrl}?offset=${(n - 1) * PAGE_SIZE}&limit=${PAGE_SIZE}`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return res.json()
+  }
+  const fetchRest = async (afterPage: number): Promise<ListedProduct[]> => {
+    const res = await fetch(`${apiUrl}?offset=${afterPage * PAGE_SIZE}&limit=5000`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data: { products: ListedProduct[] } = await res.json()
+    return data.products
+  }
 
   return (
     <div id="main">
@@ -159,6 +177,23 @@ export function GroupDetailPage({ groupSlug, group, categories: cats, comparison
           </Link>
         ))}
       </div>
+
+      {listing && listing.total > 0 && (
+        <div style={{ marginTop: 40 }}>
+          <h2 style={{ fontFamily: 'var(--fh)', fontSize: 20, fontWeight: 800, margin: '0 0 14px' }}>
+            Все товары раздела «{group.name}»
+          </h2>
+          <ProductListing
+            initialProducts={listing.initial}
+            totalCount={listing.total}
+            totalPages={Math.max(1, Math.ceil(listing.total / PAGE_SIZE))}
+            fetchPage={fetchPage}
+            fetchRest={fetchRest}
+            getHref={p => `/catalog/${p.catSlug}/${productSlug(p.id)}`}
+            emptyName={group.name}
+          />
+        </div>
+      )}
 
       {faq && faq.length > 0 && (
         <div style={{ marginTop: 48 }}>

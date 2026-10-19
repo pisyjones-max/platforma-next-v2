@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { getCatalog } from '@/lib/catalog'
 import { getKrovlyaComparison, KROVLYA_FAQ } from '@/lib/krovlyaHub'
 import { breadcrumbSchema, faqSchema, jsonLdScriptProps } from '@/lib/schema'
+import { getGroupProducts } from '@/lib/groupProducts'
+import { PAGE_SIZE } from '@/lib/constants'
 import { GroupDetailPage } from '@/components/catalog/GroupDetailPage'
 import { RelatedBlogArticles } from '@/components/catalog/RelatedBlogArticles'
 import { DistrictLinksBlock } from '@/components/catalog/DistrictLinksBlock'
@@ -67,6 +69,9 @@ export default async function GroupPage({ params }: Props) {
     .filter((c): c is NonNullable<typeof c> => Boolean(c))
     .map(c => ({ slug: c.slug, name: c.name, productsCount: c.products.length }))
 
+  const allProducts = getGroupProducts(groupSlug)
+  const listing = { initial: allProducts.slice(0, PAGE_SIZE), total: allProducts.length }
+
   const isKrovlya = groupSlug === KROVLYA_GROUP_SLUG
   const comparison = isKrovlya ? getKrovlyaComparison(catalog) : undefined
   const faq = isKrovlya ? KROVLYA_FAQ : undefined
@@ -87,6 +92,7 @@ export default async function GroupPage({ params }: Props) {
         comparison={comparison}
         faq={faq}
         calculatorHref={isKrovlya ? '/kalkulyator/krovli' : undefined}
+        listing={listing}
       />
       <DistrictLinksBlock groupSlug={groupSlug} groupName={group.name} />
       <RelatedBlogArticles href={`/catalog/group/${groupSlug}`} />
