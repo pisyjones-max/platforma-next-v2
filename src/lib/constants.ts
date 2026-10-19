@@ -34,8 +34,8 @@ export const WORK_HOURS = {
 export const TG_TOKEN_2     = process.env.TG_TOKEN_2  ?? ''
 export const TG_CHAT_ID_2   = process.env.TG_CHAT_ID_2 ?? ''
 
-/** Бегущая строка вверху сайта: «заказы по телефону временно не принимаются». Поставь false, чтобы убрать. */
-export const PHONE_NOTICE_ENABLED = false
+/** Бегущая строка вверху сайта: «высокая загрузка менеджеров, оставляйте заказ на сайте». Поставь false, чтобы убрать. */
+export const PHONE_NOTICE_ENABLED = true
 
 /** Юридическая оговорка про цены (показывается в футере, карточках, корзине). Подробности — /ceny-i-nalichie */
 export const PRICE_NOTICE_SHORT =

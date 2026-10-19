@@ -6,7 +6,6 @@ import { useCart } from '@/context/CartContext'
 import { useCard } from '@/context/CardContext'
 import { fmt, salePrice as computeSalePrice } from '@/lib/price'
 import { isHitProduct } from '@/lib/hitProducts'
-import { SITE_ORDER_BONUS_POINTS } from '@/lib/loyaltyFeatures'
 
 interface Props {
   id: string
@@ -84,8 +83,8 @@ export function ProductCard({ id, title, price, img, sku, href, description, fea
             </div>
             <div className="pcard-cardprice">
               {verified
-                ? `💳 Кэшбэк + до ${SITE_ORDER_BONUS_POINTS} баллов за заказ на сайте начислятся автоматически`
-                : `💳 Оформите карту — и получайте кэшбэк + до ${SITE_ORDER_BONUS_POINTS} баллов за заказ на сайте`}
+                ? `💳 Кэшбэк + дополнительный бонус за заказ на сайте начислятся автоматически`
+                : `💳 Оформите карту — и получайте кэшбэк + дополнительный бонус за заказ на сайте`}
             </div>
           </>
         ) : (

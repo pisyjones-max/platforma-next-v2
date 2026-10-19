@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { SITE_ORDER_BONUS_POINTS, REFERRAL_BONUS_POINTS, LOYALTY_FEATURES } from '@/lib/loyaltyFeatures'
+import { REFERRAL_BONUS_POINTS, LOYALTY_FEATURES } from '@/lib/loyaltyFeatures'
 import { referralLink } from '@/lib/loyaltyEngine'
 import { useCard } from '@/context/CardContext'
 
@@ -52,7 +52,7 @@ export function SiteOrderBonusBanner() {
       <div className="price-promo-body">
         <div className="price-promo-badge">🎁 Бонус за заказ на сайте</div>
         <div className="price-promo-title">
-          Оформите заказ сами на сайте — получите до {SITE_ORDER_BONUS_POINTS} баллов сверх кэшбэка (1% от заказа от 5 000 ₽)
+          Оформите заказ сами на сайте — получите дополнительный кэшбэк сверх обычного
         </div>
         <div className="price-promo-sub">
           Баллы начисляются автоматически на карту «Соседи» при оформлении через корзину на сайте,

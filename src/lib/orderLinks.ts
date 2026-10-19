@@ -24,13 +24,17 @@ function getMap(): Map<string, string> {
   return map
 }
 
-/** Полная ссылка на товар по SKU или null, если товар не найден. */
-export function productUrlBySku(sku: string): string | null {
+/** Путь к карточке товара по SKU (или id) или null, если товар не найден. */
+export function productPathBySku(sku: string): string | null {
   try {
-    const path = getMap().get(sku)
-    if (!path) return null
-    return `${SITE_URL || 'https://platforma-msk.ru'}${path}`
+    return getMap().get(sku) ?? null
   } catch {
     return null
   }
+}
+
+/** Полная ссылка на товар по SKU или null, если товар не найден. */
+export function productUrlBySku(sku: string): string | null {
+  const path = productPathBySku(sku)
+  return path ? `${SITE_URL}${path}` : null
 }
