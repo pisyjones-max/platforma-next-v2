@@ -133,7 +133,7 @@ export function BrandPage({ brandName, seo, items, categoryFacets, stats, faq = 
 
       <div className="fbar">
         <input
-          style={{ padding: '0 14px', width: 220, border: '1px solid var(--border)', background: 'var(--surface)', fontSize: 13, height: 32, borderRadius: 20, outline: 'none' }}
+          className="fbar-search"
           placeholder="🔍 Поиск..."
           value={search}
           onChange={e => setSearch(e.target.value)}
@@ -150,7 +150,6 @@ export function BrandPage({ brandName, seo, items, categoryFacets, stats, faq = 
         <select
           value={sort}
           onChange={e => setSort(e.target.value as typeof sort)}
-          style={{ height: 32, borderRadius: 20, border: '1px solid var(--border)', background: 'var(--surface)', fontSize: 13, padding: '0 10px' }}
         >
           <option value="default">По умолчанию</option>
           <option value="price_asc">Сначала дешевле</option>

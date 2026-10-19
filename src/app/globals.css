@@ -1756,3 +1756,23 @@ main { flex: 1; }
   background: var(--surface); font-size: 13px; color: var(--text); outline: none; cursor: pointer;
 }
 @media (max-width: 900px) { .cf-aside { display: none; } }
+
+/* ══ ЕДИНЫЙ ВИД КОНТРОЛОВ В ПАНЕЛИ ФИЛЬТРОВ ════════════════════════════════
+   Поиск, сортировка, «Фильтры», «Сбросить» — одна высота, один радиус, один шрифт */
+.fbar > input, .fbar > select, .fbar > .btn-sm, .fbar > .fchip {
+  box-sizing: border-box; height: 34px; padding: 0 16px; border-radius: 20px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  font-family: var(--fb); font-size: 13px; line-height: 1; font-weight: 400;
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; margin: 0;
+  transition: border-color .15s, background .15s;
+}
+.fbar > .brand-mobile-btn { display: none; }
+.fbar > select { padding-right: 10px; cursor: pointer; }
+.fbar > input { width: 220px; outline: none; }
+.fbar > input:focus, .fbar > select:focus { border-color: var(--dark); }
+.fbar > .btn-sm:hover, .fbar > .fchip:hover { border-color: var(--dark); background: var(--surface); color: var(--text); }
+.fbar > .fchip.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+@media (max-width: 900px) {
+  .fbar > .brand-mobile-btn { display: inline-flex; }
+  .fbar > input { flex: 1 1 100%; width: auto; }
+}

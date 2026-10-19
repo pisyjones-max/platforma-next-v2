@@ -159,7 +159,7 @@ export function CategoryPage({ category, parentGroup, totalCount, page = 1, tota
 
       <div className="fbar">
         <input
-          style={{ padding: '0 14px', width: 220, border: '1px solid var(--border)', background: 'var(--surface)', fontSize: 13, height: 32, borderRadius: 20, outline: 'none' }}
+          className="fbar-search"
           placeholder="🔍 Поиск..."
           value={search}
           onChange={e => setSearch(e.target.value)}
