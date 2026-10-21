@@ -322,6 +322,16 @@ function ChatWindow({ prefill, prefillNonce, autoSend, onStatus }: { prefill: st
   }
   const fmt = (ts: number) => new Date(ts).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
 
+  // Статус для посетителя: оператор печатает / прочитал и отвечает / сообщение доставлено.
+  // «Печатает» приходит из админки чата; ответы из Telegram такого сигнала не дают,
+  // поэтому там честно показываем «доставлено / прочитано, подождите».
+  const lastReal = [...messages].reverse().find(m => m.id !== 'welcome')
+  const waitingText = managerTyping
+    ? 'Оператор печатает…'
+    : lastReal && lastReal.from === 'visitor'
+      ? (readAt >= lastReal.ts ? 'Оператор прочитал сообщение и отвечает, подождите…' : 'Сообщение доставлено. Оператор скоро ответит, подождите…')
+      : ''
+
   return (
     <>
       <div style={{ flex: 1, overflowY: 'auto', padding: '12px', background: '#f5f5f5', display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -345,10 +355,11 @@ function ChatWindow({ prefill, prefillNonce, autoSend, onStatus }: { prefill: st
             </div>
           </div>
         ))}
-        {nameSet && managerTyping && (
+        {nameSet && waitingText && (
           <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-            <div style={{ background: '#fff', borderRadius: '16px 16px 16px 4px', padding: '8px 14px', fontSize: 13, color: '#7B7772', boxShadow: '0 1px 4px rgba(0,0,0,.1)' }}>
-              Менеджер печатает…
+            <div style={{ background: '#fff', borderRadius: '16px 16px 16px 4px', padding: '8px 14px', fontSize: 13, color: '#7B7772', boxShadow: '0 1px 4px rgba(0,0,0,.1)', display: 'flex', alignItems: 'center', gap: 8, maxWidth: '85%' }}>
+              <span className="plt-dots" aria-hidden><i /><i /><i /></span>
+              <span>{waitingText}</span>
             </div>
           </div>
         )}
@@ -471,6 +482,11 @@ export function TelegramChat() {
     <>
       <style>{`
         @keyframes chatIn{from{opacity:0;transform:translateY(20px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+        .plt-dots{display:inline-flex;gap:3px;align-items:center}
+        .plt-dots i{width:6px;height:6px;border-radius:50%;background:#229ED9;opacity:.35;animation:pltDot 1.2s infinite ease-in-out}
+        .plt-dots i:nth-child(2){animation-delay:.2s}
+        .plt-dots i:nth-child(3){animation-delay:.4s}
+        @keyframes pltDot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
         @keyframes menuItemIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
       `}</style>
 
@@ -564,10 +580,10 @@ export function TelegramChat() {
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, fontSize: 15 }}>
-                {panel === 'callback' ? 'Обратный звонок' : 'Менеджер PLATFORMA'}
+                {panel === 'callback' ? 'Обратный звонок' : 'Оператор PLATFORMA'}
               </div>
               <div style={{ fontSize: 12, opacity: 0.85 }}>
-                {panel === 'callback' ? 'Перезвоним в течение 15 минут' : mgr?.typing ? 'печатает…' : mgr == null ? 'Ответим в течение нескольких минут' : mgr.online ? 'Онлайн · ответим за 5 мин' : 'Сейчас не в сети · ответим позже'}
+                {panel === 'callback' ? 'Перезвоним в течение 15 минут' : mgr?.typing ? 'оператор печатает…' : mgr == null ? 'Ответим в течение нескольких минут' : mgr.online ? 'Онлайн · ответим за 5 мин' : 'Сейчас не в сети · ответим позже'}
               </div>
             </div>
             <button onClick={closeAll} style={{
