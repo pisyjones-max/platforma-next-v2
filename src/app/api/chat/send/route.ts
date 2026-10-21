@@ -5,6 +5,7 @@ import { appendLog, SID_RE } from '@/lib/chatStore'
 import { isKvConfigured } from '@/lib/kv'
 import { bumpGoal } from '@/lib/metricsStore'
 import { SITE_URL } from '@/lib/site'
+import { crmTouch, cleanVid, phoneFromText } from '@/lib/crmStore'
 
 function tgEsc(s: string) {
   return String(s || '').replace(/([_*`\[])/g, '\\$1')
@@ -30,12 +31,39 @@ export async function POST(req: NextRequest) {
     catch (e) { console.error('[CHAT] log error:', e) }
   }
 
+  // 1.1) Мини-CRM: запоминаем человека, его вопрос и телефон, если написал в тексте
+  const lead = await crmTouch({
+    vid: cleanVid(body.vid),
+    sid: sessionId,
+    name,
+    phone: phoneFromText(message),
+    event: { type: 'chat_in', text: message, p: page || undefined, title: pageTitle || undefined },
+    counters: { msgs: 1 },
+    lastMsg: message,
+  })
+  let crmLines = ''
+  if (lead) {
+    const returning = lead.visits > 1 || lead.msgs > 1 || lead.orders > 0
+    const since = new Date(lead.firstSeen).toLocaleDateString('ru-RU', { timeZone: 'Europe/Moscow', day: '2-digit', month: '2-digit' })
+    const top = lead.views.filter(v => v.product).sort((a, b) => b.last - a.last).slice(0, 3)
+      .map(v => (v.title || v.p).slice(0, 50))
+    crmLines =
+      (returning
+        ? `🔁 *Знакомый клиент:* визит №${lead.visits}, с ${since}, сообщений ${lead.msgs}${lead.orders ? `, заказов ${lead.orders}` : ''}\n`
+        : `🆕 *Новый клиент, первое обращение*\n`) +
+      (lead.phone ? `📞 ${tgEsc(lead.phone)}\n` : '') +
+      (lead.city ? `📍 ${tgEsc(lead.city)}\n` : '') +
+      (top.length ? `👁 *Смотрел:* ${tgEsc(top.join(' · '))}\n` : '') +
+      (lead.ref ? `↩️ пришёл с ${tgEsc(lead.ref)}\n` : '')
+  }
+
   // 2) Затем уведомление в Telegram
   const text =
     `💬 *Чат с сайта — PLATFORMA*\n\n` +
     `👤 *Посетитель:* ${tgEsc(name || 'Аноним')}\n` +
     `🔑 *Сессия:* \`${sessionId}\`\n` +
     (page ? `🔗 *Страница:* [${tgEsc(pageTitle || page)}](${SITE_URL}${page})\n` : '') +
+    crmLines +
     `\n${tgEsc(message)}`
   let tg = false
   try {

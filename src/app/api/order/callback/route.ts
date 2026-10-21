@@ -1,3 +1,4 @@
+import { crmTrackForm } from '@/lib/crmServer'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendTG, tgEsc } from '@/lib/telegram'
 import { saveLead, markDelivered } from '@/lib/orderStore'
@@ -65,6 +66,7 @@ export async function POST(req: NextRequest) {
     `📱 *Телефон:* ${tgEsc(shown)}\n` +
     `📦 *Товар:* ${tgEsc(product || '—')}\n` +
     `🕐 ${new Date().toLocaleString('ru-RU')}`
+  await crmTrackForm({ type: 'callback', phone: norm, text: product })
   const lead = await saveLead({ kind: 'callback', phone: shown, note: product })
   const ok = await sendTG(text)
   if (ok) await markDelivered(lead)

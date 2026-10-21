@@ -1,3 +1,4 @@
+import { crmTrackForm } from '@/lib/crmServer'
 import { bumpGoal } from '@/lib/metricsStore'
 import { NextRequest, NextResponse } from 'next/server'
 import { kvSet, kvGet, isKvConfigured } from '@/lib/kv'
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest) {
   // Независимая от KV копия заявки на карту + уведомление в Telegram —
   // раньше без подключённого KV регистрация карты никуда не уходила.
   const cardNote = `Карта: ${String(name ?? '').slice(0, 200)}${cleanEmail ? `, ${cleanEmail}` : ''}${cleanIntent ? `, ${cleanIntent}` : ''}`
+  await crmTrackForm({ type: 'card', name: String(name ?? ''), phone: p, email: cleanEmail, text: cleanIntent || 'Оформил карту лояльности' })
   const lead = await saveLead({ kind: 'card', phone: formatPhone(p), note: cardNote })
   const notifyNoKv = async () => {
     try {

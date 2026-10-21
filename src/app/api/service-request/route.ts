@@ -1,3 +1,4 @@
+import { crmTrackForm } from '@/lib/crmServer'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendTG, tgEsc } from '@/lib/telegram'
 import { normalizePhone } from '@/lib/phone'
@@ -33,6 +34,7 @@ export async function POST(req: NextRequest) {
     `ℹ️ Партнёрская услуга — передать монтажному партнёру, не заказ материала\n` +
     `🕐 ${new Date().toLocaleString('ru-RU')}`
 
+  await crmTrackForm({ type: 'service', name, phone: phoneRaw, text: `${serviceSlug}${comment ? `: ${comment}` : ''}` })
   const sent = await sendTG(text)
 
   return NextResponse.json({ ok: sent })

@@ -1,3 +1,4 @@
+import { crmTrackForm } from '@/lib/crmServer'
 import { bumpGoal } from '@/lib/metricsStore'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendTG, sendTG2, tgEsc } from '@/lib/telegram'
@@ -21,6 +22,11 @@ export async function POST(req: NextRequest) {
     const title = url ? `[${tgEsc(i.title)}](${url})` : tgEsc(i.title)
     return `— ${title} × ${i.qty} = ${fmt(i.price * i.qty)} ₽`
   }).join('\n')
+
+  await crmTrackForm({
+    type: 'order', name: form.name, phone: form.phone, email: form.email,
+    text: `${items.map(i => `${i.title} × ${i.qty}`).join('; ').slice(0, 300)} — ${fmt(total)} ₽`,
+  })
 
   const delivery = form.deliveryMethod === 'pvz'
     ? `ПВЗ: ${tgEsc(form.pvzAddress || 'не выбран')}`

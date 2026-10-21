@@ -1,6 +1,7 @@
 // Общее хранилище живого чата: присутствие посетителей, журнал переписки, «печатает», «прочитано».
 // Всё лежит в Upstash Redis через kv.ts — ничего нового ставить не нужно.
 import { kvGet, kvSet, kvSetEx, kvMget } from './kv'
+import { crmEventBySid } from './crmStore'
 
 export const SID_RE = /^[a-z0-9]{4,32}$/
 export const PRESENCE_TTL = 86400      // помним посетителя сутки
@@ -53,6 +54,7 @@ export async function addManagerMessage(sid: string, text: string, ts = Date.now
   list.push({ text, ts, updateId })
   await kvSet(key, list.slice(-50))
   await appendLog(sid, 'manager', text, ts)
+  await crmEventBySid(sid, { type: 'chat_out', text })
   await kvSetEx(kRead(sid), Date.now(), PRESENCE_TTL) // ответил — значит прочитал
 }
 

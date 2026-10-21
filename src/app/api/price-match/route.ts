@@ -1,3 +1,4 @@
+import { crmTrackForm } from '@/lib/crmServer'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendTG, sendTGPhoto, tgEsc } from '@/lib/telegram'
 import { normalizePhone } from '@/lib/phone'
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
     `📸 *Скрин/прайс:* ${photos.length ? `${photos.length} шт. (ниже)` : 'не приложен'}\n` +
     `🕐 ${new Date().toLocaleString('ru-RU')}`
 
+  await crmTrackForm({ type: 'pricematch', name, phone: phoneRaw, text: `${product}${competitorPrice ? `, у конкурента ${competitorPrice}` : ''}` })
   const sent = await sendTG(text)
 
   for (const photo of photos) {

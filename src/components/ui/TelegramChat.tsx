@@ -23,9 +23,34 @@ function getOrCreateSession(): string {
 }
 
 // Где писал посетитель — уходит менеджеру в Telegram ссылкой (для товара — на карточку)
+// Постоянный ID браузера (живёт между визитами) — по нему чат и CRM «узнают» человека.
+// Дублируем в куку, чтобы формы заказа/обратного звонка тоже попадали в карточку клиента.
+function getVid(): string {
+  if (typeof window === 'undefined') return ''
+  try {
+    let vid = localStorage.getItem('plt_vid')
+    if (!vid) { vid = genSessionId() + genSessionId(); localStorage.setItem('plt_vid', vid) }
+    document.cookie = `plt_vid=${vid}; max-age=31536000; path=/; SameSite=Lax`
+    return vid
+  } catch { return '' }
+}
+
 function pageContext() {
   if (typeof window === 'undefined') return {}
-  return { page: location.pathname, pageTitle: document.title || '' }
+  return { page: location.pathname, pageTitle: document.title || '', vid: getVid() }
+}
+
+// UTM-метки / клик из Директа запоминаем на сессию — откуда пришёл человек
+function readUtm(): string {
+  try {
+    const saved = sessionStorage.getItem('plt_utm')
+    if (saved != null) return saved
+    const q = new URLSearchParams(location.search)
+    let utm = [q.get('utm_source'), q.get('utm_medium'), q.get('utm_campaign')].filter(Boolean).join('/')
+    if (!utm && q.get('yclid')) utm = 'yandex-direct'
+    sessionStorage.setItem('plt_utm', utm)
+    return utm
+  } catch { return '' }
 }
 
 const MSGS_KEY = 'plt_chat_msgs'
@@ -80,13 +105,13 @@ function usePresence(chatOpen: boolean) {
       if (!first) { first = Date.now(); sessionStorage.setItem('plt_first', String(first)) }
       let pages: { p: string; t: number }[] = []
       try { pages = JSON.parse(sessionStorage.getItem('plt_pages') || '[]') } catch {}
-      let vid = localStorage.getItem('plt_vid')
-      if (!vid) { vid = genSessionId() + genSessionId(); localStorage.setItem('plt_vid', vid) }
+      const vid = getVid()
       const isFirst = !sessionStorage.getItem('plt_pinged')
       if (isFirst && !gone) sessionStorage.setItem('plt_pinged', '1')
       const body = JSON.stringify({
         sessionId: sid,
         vid,
+        utm: readUtm(),
         first: isFirst,
         owner: localStorage.getItem('plt_owner') === '1',
         name: sessionStorage.getItem('plt_chat_name') || '',

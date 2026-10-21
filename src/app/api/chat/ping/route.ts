@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { SID_RE, savePresence, type Presence } from '@/lib/chatStore'
 import { isKvConfigured, kvSetNx } from '@/lib/kv'
 import { sendTG, tgEsc } from '@/lib/telegram'
+import { crmTouch, firstViewInSession, cleanVid } from '@/lib/crmStore'
 
 const BOT_RE = /bot|crawl|spider|slurp|headless|lighthouse|preview|facebookexternalhit|yandex|google|bing/i
 const cut = (v: unknown, n: number) => String(v ?? '').slice(0, n)
@@ -52,6 +53,28 @@ export async function POST(req: NextRequest) {
           `${p.mobile ? '📱 телефон' : '💻 компьютер'}\n\n` +
           `Чат: platforma-msk.ru/admin/chat`
         sendTG(text).catch(() => {})
+      }
+    }
+
+    // Мини-CRM: запоминаем человека по постоянному vid — заход, источник, какие страницы смотрел.
+    // Свои заходы (owner), админку и «ушёл» (gone) не пишем.
+    const crmVid = cleanVid(b.vid)
+    if (crmVid && !b.owner && !b.gone && !p.page.startsWith('/admin')) {
+      const path = p.page.split('?')[0] || '/'
+      const isNewView = await firstViewInSession(sid, path)
+      if (b.first || isNewView) {
+        const hdr = (n: string) => { try { return decodeURIComponent(req.headers.get(n) || '') } catch { return '' } }
+        await crmTouch({
+          vid: crmVid,
+          sid,
+          name: p.name,
+          ref: p.ref,
+          utm: cut(b.utm, 120),
+          device: p.mobile ? 'Телефон' : 'Компьютер',
+          city: hdr('x-vercel-ip-city') || hdr('cf-ipcity') || '',
+          newVisit: !!b.first,
+          view: isNewView ? { p: path, title: cut(b.title, 120) } : undefined,
+        })
       }
     }
     return NextResponse.json({ ok: true })

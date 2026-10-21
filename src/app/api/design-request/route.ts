@@ -1,3 +1,4 @@
+import { crmTrackForm } from '@/lib/crmServer'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendTG, sendTGPhoto, tgEsc } from '@/lib/telegram'
 import { kvSet, isKvConfigured } from '@/lib/kv'
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
     `💰 *Стоимость услуги:* ${DESIGN_PROJECT_PRICE} ₽ — бесплатно при оформлении карты лояльности\n` +
     `🕐 ${new Date().toLocaleString('ru-RU')}`
 
+  await crmTrackForm({ type: 'design', name, phone: phoneRaw, text: 'Заявка на дизайн-проект' })
   const sent = await sendTG(text)
 
   // Фото шлём отдельными сообщениями, чтобы не терять качество/подписи
