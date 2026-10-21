@@ -4,6 +4,7 @@ import { tgUrl, tgRelayHeaders } from '@/lib/telegram'
 import { appendLog, SID_RE } from '@/lib/chatStore'
 import { isKvConfigured } from '@/lib/kv'
 import { bumpGoal } from '@/lib/metricsStore'
+import { SITE_URL } from '@/lib/site'
 
 function tgEsc(s: string) {
   return String(s || '').replace(/([_*`\[])/g, '\\$1')
@@ -15,6 +16,11 @@ export async function POST(req: NextRequest) {
   const message = String(body.message ?? '').trim().slice(0, 2000)
   const sessionId = String(body.sessionId ?? '').toLowerCase()
   const name = String(body.name ?? '').slice(0, 60)
+  // Страница, с которой написали (для карточки товара — ссылка на сам товар).
+  // Принимаем только внутренний путь, чтобы в Telegram нельзя было подсунуть чужой URL.
+  const rawPage = String(body.page ?? '')
+  const page = /^\/[A-Za-z0-9\-._~\/%]{0,300}$/.test(rawPage) ? rawPage : ''
+  const pageTitle = String(body.pageTitle ?? '').replace(/\s+/g, ' ').trim().slice(0, 120)
   if (!message || !SID_RE.test(sessionId)) return NextResponse.json({ ok: false })
 
   // 1) Сначала пишем в журнал — сообщение не потеряется, даже если Telegram недоступен
@@ -28,8 +34,9 @@ export async function POST(req: NextRequest) {
   const text =
     `💬 *Чат с сайта — PLATFORMA*\n\n` +
     `👤 *Посетитель:* ${tgEsc(name || 'Аноним')}\n` +
-    `🔑 *Сессия:* \`${sessionId}\`\n\n` +
-    `${tgEsc(message)}`
+    `🔑 *Сессия:* \`${sessionId}\`\n` +
+    (page ? `🔗 *Страница:* [${tgEsc(pageTitle || page)}](${SITE_URL}${page})\n` : '') +
+    `\n${tgEsc(message)}`
   let tg = false
   try {
     const res = await fetch(tgUrl(TG_TOKEN, 'sendMessage'), {

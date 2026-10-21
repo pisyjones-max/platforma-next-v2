@@ -22,6 +22,45 @@ function getOrCreateSession(): string {
   return sid
 }
 
+// Где писал посетитель — уходит менеджеру в Telegram ссылкой (для товара — на карточку)
+function pageContext() {
+  if (typeof window === 'undefined') return {}
+  return { page: location.pathname, pageTitle: document.title || '' }
+}
+
+const MSGS_KEY = 'plt_chat_msgs'
+const STARTED_KEY = 'plt_chat_started'
+
+// Окно чата закрывается (размонтируется), а переписка должна жить — храним в sessionStorage
+function readStoredMsgs(): Message[] {
+  try { return JSON.parse(sessionStorage.getItem(MSGS_KEY) || '[]') } catch { return [] }
+}
+function writeStoredMsgs(list: Message[]) {
+  try { sessionStorage.setItem(MSGS_KEY, JSON.stringify(list.slice(-60))) } catch {}
+}
+
+// Разрешение на системные уведомления просим в момент клика «отправить» (нужен жест пользователя)
+function askNotifyPermission() {
+  try {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') Notification.requestPermission().catch(() => {})
+  } catch {}
+}
+
+// Короткий «дзынь» без аудиофайлов
+function beep() {
+  try {
+    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    const ac = new AC()
+    const o = ac.createOscillator(); const g = ac.createGain()
+    o.type = 'sine'; o.frequency.value = 880
+    g.gain.setValueAtTime(0.0001, ac.currentTime)
+    g.gain.exponentialRampToValueAtTime(0.25, ac.currentTime + 0.02)
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.4)
+    o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + 0.42)
+    setTimeout(() => ac.close().catch(() => {}), 700)
+  } catch {}
+}
+
 // ── Присутствие на сайте: «онлайн», страница, «печатает» ────────
 const PING_MS = 20_000
 
@@ -186,11 +225,17 @@ function ChatWindow({ prefill, prefillNonce, autoSend, onStatus }: { prefill: st
     const saved = sessionStorage.getItem('plt_chat_lastId')
     if (saved) lastIdRef.current = parseInt(saved)
     const n = sessionStorage.getItem('plt_chat_name')
+    const stored = readStoredMsgs()
+    stored.forEach(m => seenIds.current.add(m.id))
+    if (stored.length) setMessages(stored)
     if (n && !(prefillNonce > 0 && prefill)) {
       setName(n); setNameSet(true)
-      setMessages([{ id: 'welcome', text: `Привет, ${n}! 👋 Напишите вопрос — ответим в течение нескольких минут.`, from: 'manager', ts: Date.now() }])
+      if (!stored.length) setMessages([{ id: 'welcome', text: `Привет, ${n}! 👋 Напишите вопрос — ответим в течение нескольких минут.`, from: 'manager', ts: Date.now() }])
     }
   }, [])
+
+  // Сохраняем переписку, чтобы после закрытия/открытия окна она не пропадала
+  useEffect(() => { if (messages.length) writeStoredMsgs(messages) }, [messages])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, managerTyping])
 
@@ -204,6 +249,8 @@ function ChatWindow({ prefill, prefillNonce, autoSend, onStatus }: { prefill: st
     const n = sessionStorage.getItem('plt_chat_name') || name.trim() || 'Гость'
     const sid = sessionId.current || getOrCreateSession()
     sessionId.current = sid
+    try { sessionStorage.setItem('plt_chat_name', n); sessionStorage.setItem(STARTED_KEY, '1') } catch {}
+    askNotifyPermission()
     setName(n); setNameSet(true)
     setMessages(prev => [
       ...(prev.some(m => m.id === 'welcome') ? [] : [{ id: 'welcome', text: `Привет, ${n}! 👋 Ваш вопрос отправлен — ответим в течение нескольких минут.`, from: 'manager' as const, ts: Date.now() }]),
@@ -212,7 +259,7 @@ function ChatWindow({ prefill, prefillNonce, autoSend, onStatus }: { prefill: st
     ])
     fetch('/api/chat/send', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: prefill, sessionId: sid, name: n }),
+      body: JSON.stringify({ message: prefill, sessionId: sid, name: n, ...pageContext() }),
     }).catch(() => {})
   }, [prefillNonce, prefill])
 
@@ -250,7 +297,8 @@ function ChatWindow({ prefill, prefillNonce, autoSend, onStatus }: { prefill: st
 
   const startChat = () => {
     if (!name.trim()) return
-    try { sessionStorage.setItem('plt_chat_name', name.trim()) } catch {}
+    try { sessionStorage.setItem('plt_chat_name', name.trim()); sessionStorage.setItem(STARTED_KEY, '1') } catch {}
+    askNotifyPermission()
     setNameSet(true)
     setMessages([{ id: 'welcome', text: `Привет, ${name.trim()}! 👋 Напишите вопрос — ответим в течение нескольких минут.`, from: 'manager', ts: Date.now() }])
   }
@@ -259,10 +307,11 @@ function ChatWindow({ prefill, prefillNonce, autoSend, onStatus }: { prefill: st
     if (!input.trim() || sending) return
     const text = input.trim(); setInput(''); setSending(true)
     setMessages(prev => [...prev, { id: `vis-${Date.now()}`, text, from: 'visitor', ts: Date.now() }])
+    try { sessionStorage.setItem(STARTED_KEY, '1') } catch {}
     try {
       await fetch('/api/chat/send', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, sessionId: sessionId.current, name }),
+        body: JSON.stringify({ message: text, sessionId: sessionId.current, name, ...pageContext() }),
       })
     } catch {}
     setSending(false)
@@ -349,7 +398,59 @@ export function TelegramChat() {
   usePresence(panel === 'chat')
 
 
-  const openPanel = (p: Panel) => { setPanel(p); setMenuOpen(false); if (p === 'chat') setUnread(0) }
+  const [preview, setPreview] = useState('')
+  const openPanel = (p: Panel) => { setPanel(p); setMenuOpen(false); if (p === 'chat') { setUnread(0); setPreview('') } }
+
+  // Пока окно чата закрыто, ответы менеджера всё равно надо ловить:
+  // бейдж на кнопке, «дзынь», мигающий заголовок вкладки, системное уведомление, плашка с текстом.
+  const openRef = useRef(openPanel)
+  useEffect(() => { openRef.current = openPanel })
+  useEffect(() => {
+    if (panel === 'chat') return
+    let stop = false
+    const tick = async () => {
+      try {
+        const sid = sessionStorage.getItem('plt_chat_sid')
+        if (!sid || !sessionStorage.getItem(STARTED_KEY)) return
+        const lastId = parseInt(sessionStorage.getItem('plt_chat_lastId') || '0') || 0
+        const res = await fetch(`/api/chat/poll?sessionId=${sid}&lastId=${lastId}`)
+        const data = await res.json()
+        if (stop) return
+        if (data.lastId && data.lastId > lastId) sessionStorage.setItem('plt_chat_lastId', String(data.lastId))
+        const fresh: { text: string; ts: number; updateId: number }[] = data.messages ?? []
+        if (!fresh.length) return
+        const stored = readStoredMsgs()
+        const known = new Set(stored.map(m => m.id))
+        const add: Message[] = fresh
+          .filter(m => !known.has(`mgr-${m.updateId}`))
+          .map(m => ({ id: `mgr-${m.updateId}`, text: m.text, from: 'manager' as const, ts: m.ts }))
+        if (!add.length) return
+        writeStoredMsgs([...stored, ...add])
+        setUnread(u => u + add.length)
+        const last = add[add.length - 1].text
+        setPreview(last.length > 90 ? last.slice(0, 90) + '…' : last)
+        beep()
+        try {
+          if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && document.visibilityState !== 'visible') {
+            const n = new Notification('Менеджер PLATFORMA ответил', { body: last, tag: 'plt-chat' })
+            n.onclick = () => { window.focus(); openRef.current('chat'); n.close() }
+          }
+        } catch {}
+      } catch {}
+    }
+    const iv = setInterval(tick, 5000)
+    const first = setTimeout(tick, 800)
+    return () => { stop = true; clearInterval(iv); clearTimeout(first) }
+  }, [panel])
+
+  // Мигающий заголовок вкладки, пока есть непрочитанные
+  useEffect(() => {
+    if (unread <= 0 || panel === 'chat') return
+    const orig = document.title
+    let on = false
+    const iv = setInterval(() => { on = !on; document.title = on ? '💬 Новый ответ — PLATFORMA' : orig }, 1000)
+    return () => { clearInterval(iv); document.title = orig }
+  }, [unread, panel])
   const closeAll = () => { setPanel(null); setMenuOpen(false); ctx.closeChat() }
 
   // Внешние запросы на открытие чата (например, пресет-вопросы на странице
@@ -396,6 +497,21 @@ export function TelegramChat() {
           }}>{unread}</span>
         )}
       </button>
+
+      {/* Плашка с текстом нового ответа над кнопкой */}
+      {preview && unread > 0 && !panel && !menuOpen && (
+        <button
+          onClick={() => openPanel('chat')}
+          style={{
+            position: 'fixed', bottom: 90, right: 24, zIndex: 599, maxWidth: 'min(300px, calc(100vw - 48px))',
+            background: '#fff', border: 'none', borderRadius: 16, padding: '12px 14px', textAlign: 'left',
+            boxShadow: '0 8px 30px rgba(0,0,0,.22)', cursor: 'pointer', animation: 'chatIn .3s both',
+          }}
+        >
+          <div style={{ fontSize: 12, color: '#229ED9', fontWeight: 700, marginBottom: 3 }}>Менеджер PLATFORMA</div>
+          <div style={{ fontSize: 13.5, color: '#1A1916', lineHeight: 1.4 }}>{preview}</div>
+        </button>
+      )}
 
       {/* Radial menu */}
       {menuOpen && !panel && (
