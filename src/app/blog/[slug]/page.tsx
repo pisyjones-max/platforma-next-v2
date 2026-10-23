@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { marked } from 'marked'
 import { getAllArticles, getArticleBySlug } from '@/lib/blog'
 import { SITE_URL } from '@/lib/site'
-import { breadcrumbSchema } from '@/lib/schema'
+import { breadcrumbSchema, faqSchema } from '@/lib/schema'
 
 export function generateStaticParams() {
   return getAllArticles().map(a => ({ slug: a.slug }))
@@ -54,11 +54,15 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
     publisher: { '@type': 'Organization', name: 'PLATFORMA', logo: { '@type': 'ImageObject', url: `${SITE_URL}/icon.png` } },
     mainEntityOfPage: `${SITE_URL}/blog/${article.slug}`,
   }
+  const faq = article.faq ?? []
 
   return (
     <div style={{ maxWidth: 760, margin: '0 auto', padding: '48px 20px 80px' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(bcSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
+      {faq.length > 0 && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema(faq)) }} />
+      )}
 
       <Link href="/blog" style={{ fontSize: 14, color: 'var(--muted)', textDecoration: 'none' }}>
         ← Все статьи
@@ -76,6 +80,22 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
         style={{ fontSize: 15.5, lineHeight: 1.7, color: 'var(--fg)' }}
         dangerouslySetInnerHTML={{ __html: html }}
       />
+
+      {faq.length > 0 && (
+        <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
+          <h2 style={{ fontFamily: 'var(--fh)', fontSize: 22, fontWeight: 800, margin: '0 0 16px' }}>
+            Частые вопросы
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {faq.map(item => (
+              <div key={item.q}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 6px' }}>{item.q}</h3>
+                <p style={{ fontSize: 15, lineHeight: 1.65, margin: 0, color: 'var(--fg)' }}>{item.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {related.length > 0 && (
         <div style={{ marginTop: 40, paddingTop: 24, borderTop: '1px solid var(--border)' }}>

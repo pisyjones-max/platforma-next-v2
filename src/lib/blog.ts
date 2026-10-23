@@ -13,6 +13,7 @@ export type BlogArticle = {
   bodyMarkdown: string
   relatedLinks?: { href: string; label: string }[]
   relatedArticles?: string[]
+  faq?: { q: string; a: string }[]
 }
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog')
