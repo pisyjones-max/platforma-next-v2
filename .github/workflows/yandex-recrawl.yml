@@ -44,8 +44,28 @@ jobs:
               npm ci
               echo "$HASH" > .npm-lock-hash
             fi
+            # Билдим в ОТДЕЛЬНОЙ папке: next build стирает .next, и пока он шёл,
+            # живой сайт отдавал HTML со ссылками на CSS, которых уже нет (голая страница).
+            command -v rsync >/dev/null || apt-get install -y rsync
+            LIVE=/var/www/platforma-next-v2
+            B=/var/www/platforma-build
+            mkdir -p $B
+            rsync -a --delete --exclude .git --exclude .next --exclude node_modules --exclude public/images $LIVE/ $B/
+            ln -sfn $LIVE/node_modules $B/node_modules
+            ln -sfn $LIVE/public/images $B/public/images
+            cd $B
             NEXT_PUBLIC_SITE_URL="https://platforma-msk.ru" NODE_OPTIONS="--max-old-space-size=1536" npm run build
+            cd $LIVE
+            # Подмена .next за миллисекунды + старые чанки остаются,
+            # чтобы у открытых/закэшированных страниц CSS не пропадал
+            rm -rf .next.new .next.old
+            cp -a $B/.next .next.new
+            if [ -d .next/static ]; then cp -an .next/static/. .next.new/static/; fi
+            find .next.new/static -type f -mtime +14 -delete
+            mv .next .next.old 2>/dev/null || true
+            mv .next.new .next
             pm2 reload platforma --update-env || pm2 restart platforma --update-env
+            rm -rf .next.old
 
   ping-yandex:
     needs: deploy
