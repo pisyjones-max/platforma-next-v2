@@ -7,6 +7,8 @@ import { RoofCalculator } from './RoofCalculator'
 import { GutterCalculator } from './GutterCalculator'
 import { InsulationCalculator } from './InsulationCalculator'
 import { ScrewsCalculator } from './ScrewsCalculator'
+import { SheetCalculator } from './SheetCalculator'
+import { LiquidCalculator } from './LiquidCalculator'
 
 interface Props { groupSlug?: string; catSlug: string; catName: string; product?: Product }
 
@@ -16,6 +18,8 @@ const TITLES: Record<Exclude<CalcType, null>, string> = {
   insulation: '🧱 Калькулятор утеплителя',
   screws: '🔩 Калькулятор саморезов',
   siding: '🏠 Калькулятор фасада',
+  sheet: '📐 Калькулятор листов',
+  liquid: '🧴 Калькулятор расхода',
 }
 
 // Calculator — тонкая обёртка-аккордеон. Вся логика расчёта и UI —
@@ -41,6 +45,8 @@ export function Calculator({ groupSlug = '', catSlug, catName, product }: Props)
           {type === 'gutter' && <GutterCalculator product={product} />}
           {type === 'insulation' && <InsulationCalculator product={product} />}
           {type === 'screws' && <ScrewsCalculator product={product} />}
+          {type === 'sheet' && <SheetCalculator product={product} />}
+          {type === 'liquid' && <LiquidCalculator product={product} catSlug={catSlug} />}
         </div>
       )}
     </div>

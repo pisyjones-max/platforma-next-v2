@@ -1,56 +1,53 @@
 // CalcType = null означает "калькулятор не нужен для этой категории"
-export type CalcType = 'roofing' | 'gutter' | 'insulation' | 'screws' | 'siding' | null
+export type CalcType = 'roofing' | 'gutter' | 'insulation' | 'screws' | 'siding' | 'sheet' | 'liquid' | null
 
-// Категории где калькулятор ТОЧНО НЕ НУЖЕН:
-// - Лестницы (чердачные) — штучный товар, выбирается по размеру люка
-// - Окна мансардные — штучный товар
-// - Дымоходы — штучный, подбор по диаметру
-// - Химия (герметики, антисептики, клей) — жидкости/банки, считают литрами вручную
-// - Сухие смеси — мешки, штучно
-// - Вентиляция — штучные элементы
-// - Снегозадержатели — штучный монтаж
-// - Безопасность кровли (лестницы, ограждения) — штучно
-// - Козырьки — штучно
-// - Благоустройство — разнородные товары
-// - Флюгеры, кабель, герметики (комплектация кровли)
-// - Дренаж — штучные лотки
-// - Напольные покрытия — отдельная логика (есть своя формула, но пока не делаем)
+// Определяем калькулятор СТРОГО по белым спискам: категория → тип.
+// Никакого "по умолчанию кровля": если товар не подходит ни под один калькулятор,
+// калькулятора нет вообще (лучше ничего, чем кровля на гипсокартоне).
 
-const NO_CALC_SLUGS = new Set([
-  'cherdachnye-lestnitsy',
-  'mansardnye-okna',
-  'dymohody',
-  'himiya',
-  'suhie-smesi',
-  'ventilyatsiya-krovli',
-  'snegozaderzhateli',
-  'bezopasnost-krovli',
-  'kozyrek-iz-polikarbonata',
-  'blagoustroystvo',
-  'krovli',           // комплектация: флюгеры, кабель, герметики
-  'drenazh',
-  'floor',
-  'krepezh',          // крепёж — лучше перестраховаться, там упаковки с фиксированным кол-вом
+// Листовые / плитные материалы — считаем по площади и размеру листа
+const SHEET_CATS = new Set(['gipsokarton', 'plita-osb-osp', 'dsp', 'quickdeck', 'mdvp'])
+
+// Жидкие составы — считаем по расходу л/м² и объёму тары
+const LIQUID_CATS = new Set([
+  'gruntovka', 'zashchita-drevesiny', 'ognezashchitnye-sostavy',
+  'zashchita-poverkhnostey', 'antiseptik-tehnonikol', 'katepal',
 ])
 
+// Утеплитель (плиты/маты) — по площади и слоям
+const INSULATION_CATS = new Set(['uteplitel'])
+
+// Кровельные материалы и прочее, что считается по площади покрытия
+const ROOFING_CATS = new Set(['profnastil-dlya-zabora', 'evroshtaketnik', 'zabornaya-doska'])
+const ROOFING_GROUPS = new Set(['krovlya', 'terrasnaya-doska-dpk'])
+
+const SIDING_GROUPS = new Set(['sayding', 'fasadnye-materialy'])
+const GUTTER_GROUPS = new Set(['vodostoki'])
+
 export function getCalcType(groupSlug: string, slug: string, name: string, productTitle = ''): CalcType {
-  // Проверяем slug ГРУППЫ (не категории!) — именно группы перечислены в NO_CALC_SLUGS
-  for (const noSlug of NO_CALC_SLUGS) {
-    if (groupSlug.includes(noSlug)) return null
-  }
+  const title = productTitle.toLowerCase()
+  const cat = slug.toLowerCase()
+  const group = groupSlug.toLowerCase()
 
-  const c = `${slug} ${name.toLowerCase()} ${productTitle.toLowerCase()}`
+  // Саморезы — где бы ни лежали
+  if (/саморез|samorez/.test(title)) return 'screws'
 
-  if (/vodostok|водосто|gutter|жёлоб|желоб/.test(c))              return 'gutter'
-  if (/uteplitel|изоляц|утеплит|rockwool|isover|izolyats/.test(c)) return 'insulation'
-  if (/samorez|саморез/.test(c))                                   return 'screws'
-  if (/sayding|сайдинг|fasad|фасад|panel|панел|planken|планкен/.test(c)) return 'siding'
+  // 1. Категория решает всё
+  if (SHEET_CATS.has(cat)) return 'sheet'
+  if (LIQUID_CATS.has(cat)) return 'liquid'
+  if (INSULATION_CATS.has(cat)) return 'insulation'
+  if (ROOFING_CATS.has(cat)) return 'roofing'
 
-  // Кровля, заборы (профнастил, евроштакетник), террасная доска, плиты OSB — считаем по площади
-  if (/krovl|кровл|profnastil|профнаст|shtaketnik|штакетн|terrasnay|терраcн|doska-dpk|plita|плита|osb|osp/.test(c)) return 'roofing'
+  // 2. Гипсокартон/плиты, случайно лежащие в чужих категориях (напр. ветрозащитный ГКЛ в изоляции)
+  if (/гипсокартон|(^|[\s-])(гкл|гвл|дсп|осб|osb)([\s-]|$)/.test(title)) return 'sheet'
 
-  // По умолчанию — roofing (площадь), лучше чем ничего
-  return 'roofing'
+  // 3. Группа
+  if (GUTTER_GROUPS.has(group)) return 'gutter'
+  if (SIDING_GROUPS.has(group)) return 'siding'
+  if (ROOFING_GROUPS.has(group)) return 'roofing'
+
+  // 4. Всё остальное (мембраны, ленты, химия-клей, крепёж, окна, дымоходы и т.д.) — без калькулятора
+  return null
 }
 
 // ─── Сайдинг: пообъектная модель дома (стены/проёмы/углы отдельно) ───
@@ -262,4 +259,102 @@ export function calcScrewsDetailed(inputs: ScrewsInputs, packQty = 1) {
     perM2,
     bom: [{ label: preset?.label ?? 'Саморезы', qty, unit: 'уп.' }] as BomItem[],
   }
+}
+
+
+// ─── Листовые материалы (гипсокартон, OSB, ДСП, МДВП) ───
+// Считаем листы по площади поверхностей и размеру листа. Размер берём из
+// характеристик товара (Длина/Ширина, мм) или из названия вида 2500х1200.
+export interface SheetZoneItem { id: string; label: string; area: number; layers: number }
+
+export interface SheetInputs {
+  zones: SheetZoneItem[]
+  lenMm: number
+  widMm: number
+  margin: number
+}
+
+const firstNum = (v?: string) => {
+  const m = (v ?? '').match(/\d+(?:[.,]\d+)?/)
+  return m ? parseFloat(m[0].replace(',', '.')) : 0
+}
+
+export function parseSheetSize(features: Record<string, string> = {}, title = '', skuName = ''): { lenMm: number; widMm: number } {
+  let lenMm = firstNum(features['Длина'])
+  let widMm = firstNum(features['Ширина'])
+  if (!lenMm || !widMm) {
+    const m = `${title} ${skuName}`.match(/(\d{3,4})\s*[xхXХ*×]\s*(\d{3,4})/)
+    if (m) {
+      const a = parseInt(m[1], 10), b = parseInt(m[2], 10)
+      lenMm = Math.max(a, b)
+      widMm = Math.min(a, b)
+    }
+  }
+  return { lenMm: lenMm || 2500, widMm: widMm || 1200 }
+}
+
+export function calcSheetDetailed(inputs: SheetInputs) {
+  const margin = (inputs.margin ?? 10) / 100
+  const sheetM2 = (Math.max(1, inputs.lenMm) / 1000) * (Math.max(1, inputs.widMm) / 1000)
+
+  let totalArea = 0
+  const bom: BomItem[] = []
+  for (const z of inputs.zones) {
+    const zoneArea = Math.max(0, z.area) * Math.max(1, z.layers) * (1 + margin)
+    totalArea += zoneArea
+    if (zoneArea > 0) {
+      bom.push({ label: `${z.label} (${Math.max(1, z.layers)} сл.)`, qty: Math.ceil(zoneArea / sheetM2), unit: 'лист.' })
+    }
+  }
+  const qty = Math.ceil(totalArea / sheetM2)
+  return { area: totalArea, unit: 'м²', qty, qtyLabel: 'лист.', sheetM2, bom }
+}
+
+// ─── Жидкие составы (грунт, антисептик, огнезащита) ───
+// Расход на 1 слой (л/м² или кг/м²) подставляем по типу состава, но можно поправить
+// вручную — на банке всегда есть точная цифра. Если у товара указана «Площадь полезная»,
+// расход считаем из неё.
+export interface LiquidInputs {
+  area: number
+  coats: number
+  perM2: number      // расход на 1 слой, л/м² (или кг/м²)
+  packVolume: number // объём/вес одной тары
+  margin: number
+}
+
+export const LIQUID_DEFAULT_PER_M2: Record<string, number> = {
+  'gruntovka': 0.15,
+  'zashchita-drevesiny': 0.2,
+  'ognezashchitnye-sostavy': 0.25,
+  'zashchita-poverkhnostey': 0.2,
+  'antiseptik-tehnonikol': 0.2,
+  'katepal': 0.15,
+}
+
+export function parseLiquidPack(features: Record<string, string> = {}, title = '', skuName = ''): { volume: number; unit: 'л' | 'кг' } {
+  const fromText = (t: string): { volume: number; unit: 'л' | 'кг' } | null => {
+    const m = t.toLowerCase().match(/(\d+(?:[.,]\d+)?)\s*(мл|л\b|литр\w*|кг|г\b)/)
+    if (!m) return null
+    const n = parseFloat(m[1].replace(',', '.'))
+    const u = m[2]
+    if (u === 'мл') return { volume: n / 1000, unit: 'л' }
+    if (u === 'г') return { volume: n / 1000, unit: 'кг' }
+    if (u === 'кг') return { volume: n, unit: 'кг' }
+    return { volume: n, unit: 'л' }
+  }
+  return (
+    fromText(features['Объем'] ?? '') ||
+    fromText(features['Вес'] ?? '') ||
+    fromText(skuName) ||
+    fromText(title) ||
+    { volume: 1, unit: 'л' }
+  )
+}
+
+export function calcLiquidDetailed(inputs: LiquidInputs) {
+  const margin = (inputs.margin ?? 10) / 100
+  const total = Math.max(0, inputs.area) * Math.max(1, inputs.coats) * Math.max(0, inputs.perM2) * (1 + margin)
+  const pack = Math.max(0.001, inputs.packVolume)
+  const qty = total > 0 ? Math.ceil(total / pack) : 0
+  return { total, qty, qtyLabel: 'уп.' }
 }
