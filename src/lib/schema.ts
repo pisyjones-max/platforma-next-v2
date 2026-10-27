@@ -94,17 +94,20 @@ export function productSchema(product: Product, category: Category, catSlug: str
     description: product.description?.trim() || `${product.title} — ${category.name}. Доставка по Московской области.`,
     sku: v?.sku,
     image: images.length ? images : undefined,
-    category: category.name,
+    category: 'Hardware > Building Materials',
     brand: { '@type': 'Brand', name: brandName },
-    offers: {
-      '@type': 'Offer',
-      url: `${SITE_URL}/catalog/${catSlug}/${productSlug}`,
-      priceCurrency: 'RUB',
-      price: price > 0 ? price : undefined,
-      availability: price > 0 ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
-      itemCondition: 'https://schema.org/NewCondition',
-      seller: { '@id': `${SITE_URL}/#organization` },
-    },
+    // Offer выводим только при реальной цене: без price Google считает это критичной ошибкой.
+    ...(price > 0 ? {
+      offers: {
+        '@type': 'Offer',
+        url: `${SITE_URL}/catalog/${catSlug}/${productSlug}`,
+        priceCurrency: 'RUB',
+        price,
+        availability: 'https://schema.org/InStock',
+        itemCondition: 'https://schema.org/NewCondition',
+        seller: { '@id': `${SITE_URL}/#organization` },
+      },
+    } : {}),
     ...(hasReviews ? {
       aggregateRating: {
         '@type': 'AggregateRating',
