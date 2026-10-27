@@ -23,8 +23,8 @@ export function SheetCalculator({ product }: Props) {
   const [lenMm, setLenMm] = useState(size.lenMm)
   const [widMm, setWidMm] = useState(size.widMm)
   const [zones, setZones] = useState<SheetZoneItem[]>([
-    { id: nextId(), label: 'Стены', area: 40, layers: 1 },
-    { id: nextId(), label: 'Потолок', area: 20, layers: 1 },
+    { id: nextId(), label: 'Стены', area: 0, layers: 1 },
+    { id: nextId(), label: 'Потолок', area: 0, layers: 1 },
   ])
 
   const result = useMemo(
@@ -37,7 +37,7 @@ export function SheetCalculator({ product }: Props) {
 
   const addZone = () => {
     extraZoneCounter++
-    setZones(z => [...z, { id: nextId(), label: `Доп. поверхность ${extraZoneCounter}`, area: 10, layers: 1 }])
+    setZones(z => [...z, { id: nextId(), label: `Доп. поверхность ${extraZoneCounter}`, area: 0, layers: 1 }])
   }
   const removeZone = (id: string) => setZones(z => (z.length > 1 ? z.filter(x => x.id !== id) : z))
 
@@ -115,6 +115,9 @@ export function SheetCalculator({ product }: Props) {
         </div>
       </div>
 
+      {result.qty < 1 ? (
+        <p className="calcw-note">Введите размеры — расчёт появится здесь.</p>
+      ) : (
       <div className="calcw-result">
         <div className="calcw-result-area">
           Площадь с учётом слоёв и запаса: <strong>{result.area.toFixed(1)} м²</strong>
@@ -137,6 +140,7 @@ export function SheetCalculator({ product }: Props) {
           </button>
         )}
       </div>
+      )}
     </div>
   )
 }

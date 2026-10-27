@@ -13,7 +13,7 @@ export function ScrewsCalculator({ product }: Props) {
   const { add } = useCart()
   const variant = product?.variants[0]
   const [added, setAdded] = useState(false)
-  const [area, setArea] = useState(80)
+  const [area, setArea] = useState(0)
   const [materialId, setMaterialId] = useState(SCREW_PRESETS[0].id)
   const [customPerM2, setCustomPerM2] = useState(8)
   const [packSize, setPackSize] = useState(variant?.pack_quantity ?? 250)
@@ -76,6 +76,9 @@ export function ScrewsCalculator({ product }: Props) {
         </div>
       </div>
 
+      {result.qty < 1 ? (
+        <p className="calcw-note">Введите размеры — расчёт появится здесь.</p>
+      ) : (
       <div className="calcw-result calcw-result-row">
         <div className="calcw-result-area">
           {Math.round(result.area)} шт. <span style={{ color: 'var(--muted)' }}>(норма {result.perM2} шт/м²)</span>
@@ -88,6 +91,7 @@ export function ScrewsCalculator({ product }: Props) {
           </button>
         )}
       </div>
+      )}
     </div>
   )
 }

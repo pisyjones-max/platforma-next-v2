@@ -33,10 +33,10 @@ export function RoofCalculator({ product, catSlug }: Props) {
   const variant = product?.variants[0]
   const [added, setAdded] = useState(false)
   const [margin, setMargin] = useState(10)
-  const [slopes, setSlopes] = useState<RoofSlopeItem[]>([{ id: nextId(), len: 10, wid: 6 }])
-  const [ridgeLen, setRidgeLen] = useState(10)
-  const [eaveLen, setEaveLen] = useState(20)
-  const [vergeLen, setVergeLen] = useState(14)
+  const [slopes, setSlopes] = useState<RoofSlopeItem[]>([{ id: nextId(), len: 0, wid: 0 }])
+  const [ridgeLen, setRidgeLen] = useState(0)
+  const [eaveLen, setEaveLen] = useState(0)
+  const [vergeLen, setVergeLen] = useState(0)
   const [valleyLen, setValleyLen] = useState(0)
 
   const result = useMemo(
@@ -68,7 +68,7 @@ export function RoofCalculator({ product, catSlug }: Props) {
         title="Скаты (длина × ширина)"
         unit="м"
         items={slopes}
-        onAdd={() => setSlopes(s => [...s, { id: nextId(), len: 5, wid: 5 }])}
+        onAdd={() => setSlopes(s => [...s, { id: nextId(), len: 0, wid: 0 }])}
         onRemove={id => setSlopes(s => (s.length > 1 ? s.filter(x => x.id !== id) : s))}
         onChange={(id, key, val) => setSlopes(s => s.map(x => (x.id === id ? { ...x, [key]: val } : x)))}
         fields={[{ key: 'len', label: 'Длина' }, { key: 'wid', label: 'Ширина' }]}
@@ -91,6 +91,9 @@ export function RoofCalculator({ product, catSlug }: Props) {
         />
       </div>
 
+      {result.qty < 1 ? (
+        <p className="calcw-note">Введите размеры — расчёт появится здесь.</p>
+      ) : (
       <div className="calcw-result">
         <div className="calcw-result-area">
           Площадь кровли: <strong>{result.area.toFixed(1)} м²</strong>
@@ -105,6 +108,7 @@ export function RoofCalculator({ product, catSlug }: Props) {
           </button>
         )}
       </div>
+      )}
     </div>
   )
 }

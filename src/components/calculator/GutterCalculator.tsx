@@ -33,11 +33,11 @@ export function GutterCalculator({ product, catSlug }: Props) {
   const variant = product?.variants[0]
   const [added, setAdded] = useState(false)
   const [margin, setMargin] = useState(10)
-  const [runs, setRuns] = useState<GutterRunItem[]>([{ id: nextId(), len: 40 }])
-  const [outerCorners, setOuterCorners] = useState(2)
-  const [innerCorners, setInnerCorners] = useState(2)
-  const [funnels, setFunnels] = useState(2)
-  const [wallHeight, setWallHeight] = useState(3)
+  const [runs, setRuns] = useState<GutterRunItem[]>([{ id: nextId(), len: 0 }])
+  const [outerCorners, setOuterCorners] = useState(0)
+  const [innerCorners, setInnerCorners] = useState(0)
+  const [funnels, setFunnels] = useState(0)
+  const [wallHeight, setWallHeight] = useState(0)
   const [elbowsPerFunnel, setElbowsPerFunnel] = useState(2)
 
   const result = useMemo(
@@ -69,7 +69,7 @@ export function GutterCalculator({ product, catSlug }: Props) {
         title="Участки жёлоба (длина)"
         unit="м"
         items={runs}
-        onAdd={() => setRuns(r => [...r, { id: nextId(), len: 10 }])}
+        onAdd={() => setRuns(r => [...r, { id: nextId(), len: 0 }])}
         onRemove={id => setRuns(r => (r.length > 1 ? r.filter(x => x.id !== id) : r))}
         onChange={(id, key, val) => setRuns(r => r.map(x => (x.id === id ? { ...x, [key]: val } : x)))}
         fields={[{ key: 'len', label: 'Длина' }]}
@@ -84,6 +84,9 @@ export function GutterCalculator({ product, catSlug }: Props) {
         <NumBox label="Запас" value={margin} onChange={setMargin} unit="%" />
       </div>
 
+      {result.qty < 1 ? (
+        <p className="calcw-note">Введите размеры — расчёт появится здесь.</p>
+      ) : (
       <div className="calcw-result">
         <div className="calcw-result-area">
           Длина жёлоба: <strong>{result.area.toFixed(1)} м</strong>
@@ -98,6 +101,7 @@ export function GutterCalculator({ product, catSlug }: Props) {
           </button>
         )}
       </div>
+      )}
     </div>
   )
 }

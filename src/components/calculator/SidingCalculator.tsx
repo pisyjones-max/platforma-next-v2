@@ -18,9 +18,9 @@ export function SidingCalculator({ product, catSlug }: Props) {
   const variant = product?.variants[0]
   const [added, setAdded] = useState(false)
   const [margin, setMargin] = useState(10)
-  const [walls, setWalls] = useState<WallItem[]>([{ id: nextId(), w: 10, h: 3 }])
-  const [openings, setOpenings] = useState<OpeningItem[]>([{ id: nextId(), w: 1.2, h: 1.5 }])
-  const [outerCorners, setOuterCorners] = useState<CornerItem[]>([{ id: nextId(), h: 3 }])
+  const [walls, setWalls] = useState<WallItem[]>([{ id: nextId(), w: 0, h: 0 }])
+  const [openings, setOpenings] = useState<OpeningItem[]>([{ id: nextId(), w: 0, h: 0 }])
+  const [outerCorners, setOuterCorners] = useState<CornerItem[]>([{ id: nextId(), h: 0 }])
   const [innerCorners, setInnerCorners] = useState<CornerItem[]>([])
 
   const result = useMemo(
@@ -53,7 +53,7 @@ export function SidingCalculator({ product, catSlug }: Props) {
           title="Стены (ширина × высота)"
           unit="м"
           items={walls}
-          onAdd={() => setWalls(w => [...w, { id: nextId(), w: 5, h: 3 }])}
+          onAdd={() => setWalls(w => [...w, { id: nextId(), w: 0, h: 0 }])}
           onRemove={id => setWalls(w => (w.length > 1 ? w.filter(x => x.id !== id) : w))}
           onChange={(id, key, val) => setWalls(w => w.map(x => (x.id === id ? { ...x, [key]: val } : x)))}
           fields={[{ key: 'w', label: 'Ширина' }, { key: 'h', label: 'Высота' }]}
@@ -62,7 +62,7 @@ export function SidingCalculator({ product, catSlug }: Props) {
           title="Проёмы: окна/двери (ширина × высота)"
           unit="м"
           items={openings}
-          onAdd={() => setOpenings(o => [...o, { id: nextId(), w: 1, h: 1 }])}
+          onAdd={() => setOpenings(o => [...o, { id: nextId(), w: 0, h: 0 }])}
           onRemove={id => setOpenings(o => (o.length > 1 ? o.filter(x => x.id !== id) : o))}
           onChange={(id, key, val) => setOpenings(o => o.map(x => (x.id === id ? { ...x, [key]: val } : x)))}
           fields={[{ key: 'w', label: 'Ширина' }, { key: 'h', label: 'Высота' }]}
@@ -71,7 +71,7 @@ export function SidingCalculator({ product, catSlug }: Props) {
           title="Наружные углы (высота каждого)"
           unit="м"
           items={outerCorners}
-          onAdd={() => setOuterCorners(c => [...c, { id: nextId(), h: 3 }])}
+          onAdd={() => setOuterCorners(c => [...c, { id: nextId(), h: 0 }])}
           onRemove={id => setOuterCorners(c => c.filter(x => x.id !== id))}
           onChange={(id, key, val) => setOuterCorners(c => c.map(x => (x.id === id ? { ...x, [key]: val } : x)))}
           fields={[{ key: 'h', label: 'Высота' }]}
@@ -80,7 +80,7 @@ export function SidingCalculator({ product, catSlug }: Props) {
           title="Внутренние углы (высота каждого)"
           unit="м"
           items={innerCorners}
-          onAdd={() => setInnerCorners(c => [...c, { id: nextId(), h: 3 }])}
+          onAdd={() => setInnerCorners(c => [...c, { id: nextId(), h: 0 }])}
           onRemove={id => setInnerCorners(c => c.filter(x => x.id !== id))}
           onChange={(id, key, val) => setInnerCorners(c => c.map(x => (x.id === id ? { ...x, [key]: val } : x)))}
           fields={[{ key: 'h', label: 'Высота' }]}
@@ -97,6 +97,9 @@ export function SidingCalculator({ product, catSlug }: Props) {
         />
       </div>
 
+      {result.qty < 1 ? (
+        <p className="calcw-note">Введите размеры — расчёт появится здесь.</p>
+      ) : (
       <div className="calcw-result">
         <div className="calcw-result-area">
           Чистая площадь стен: <strong>{result.area.toFixed(1)} м²</strong>
@@ -111,6 +114,7 @@ export function SidingCalculator({ product, catSlug }: Props) {
           </button>
         )}
       </div>
+      )}
     </div>
   )
 }

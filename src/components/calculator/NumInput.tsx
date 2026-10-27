@@ -10,7 +10,7 @@ type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 
 // Пока поле пустое — наружу отдаём 0 (родитель сам подставит свой минимум),
 // но на экране остаётся пусто, а не «0».
 export function NumInput({ value, onChange, ...rest }: Props) {
-  const [text, setText] = useState(String(value))
+  const [text, setText] = useState(value === 0 ? '' : String(value))
   const [lastEmitted, setLastEmitted] = useState(value)
 
   // значение поменялось снаружи (не из этого поля) — подтягиваем в текст
@@ -21,6 +21,7 @@ export function NumInput({ value, onChange, ...rest }: Props) {
 
   return (
     <input
+      placeholder="0"
       {...rest}
       type="number"
       inputMode="decimal"

@@ -27,7 +27,7 @@ export function LiquidCalculator({ product, catSlug = '' }: Props) {
     : (LIQUID_DEFAULT_PER_M2[catSlug] ?? 0.2)
 
   const [added, setAdded] = useState(false)
-  const [area, setArea] = useState(50)
+  const [area, setArea] = useState(0)
   const [coats, setCoats] = useState(2)
   const [perM2, setPerM2] = useState(initialPerM2)
   const [packVolume, setPackVolume] = useState(pack.volume)
@@ -97,6 +97,9 @@ export function LiquidCalculator({ product, catSlug = '' }: Props) {
         </div>
       </div>
 
+      {result.qty < 1 ? (
+        <p className="calcw-note">Введите размеры — расчёт появится здесь.</p>
+      ) : (
       <div className="calcw-result">
         <div className="calcw-result-area">
           Нужно состава: <strong>{result.total.toFixed(1)} {pack.unit}</strong>
@@ -116,6 +119,7 @@ export function LiquidCalculator({ product, catSlug = '' }: Props) {
           </button>
         )}
       </div>
+      )}
     </div>
   )
 }

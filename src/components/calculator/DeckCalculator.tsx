@@ -30,7 +30,7 @@ export function DeckCalculator({ product }: Props) {
   const variant = product?.variants[0]
   const board = parseDeckBoard(product?.features, product?.title, variant?.sku_name)
   const [added, setAdded] = useState(false)
-  const [area, setArea] = useState(20)
+  const [area, setArea] = useState(0)
   const [boardLenM, setBoardLenM] = useState(board.lenM)
   const [boardWidMm, setBoardWidMm] = useState(board.widMm)
   const [gapMm, setGapMm] = useState(6)
@@ -71,6 +71,9 @@ export function DeckCalculator({ product }: Props) {
         Диагональная раскладка (+5% на подрезку)
       </label>
 
+      {result.qty < 1 ? (
+        <p className="calcw-note">Введите размеры — расчёт появится здесь.</p>
+      ) : (
       <div className="calcw-result">
         <div className="calcw-result-area">
           Площадь с запасом: <strong>{result.area.toFixed(1)} м²</strong>
@@ -85,6 +88,7 @@ export function DeckCalculator({ product }: Props) {
           </button>
         )}
       </div>
+      )}
     </div>
   )
 }

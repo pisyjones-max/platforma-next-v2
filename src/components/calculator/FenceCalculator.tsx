@@ -31,10 +31,10 @@ export function FenceCalculator({ product, catSlug = '' }: Props) {
   // профнастил — сплошные листы, остальное (евроштакетник, заборная доска) — штакетины с зазором
   const kind: FenceKind = catSlug === 'profnastil-dlya-zabora' ? 'sheet' : 'picket'
   const [added, setAdded] = useState(false)
-  const [length, setLength] = useState(30)
-  const [height, setHeight] = useState(1.8)
-  const [gatesWidth, setGatesWidth] = useState(4)
-  const [gatesCount, setGatesCount] = useState(2)
+  const [length, setLength] = useState(0)
+  const [height, setHeight] = useState(0)
+  const [gatesWidth, setGatesWidth] = useState(0)
+  const [gatesCount, setGatesCount] = useState(0)
   const [elementWidthMm, setElementWidthMm] = useState(
     parseFenceWidthMm(product?.features, product?.title, kind) || FENCE_DEFAULT_WIDTH_MM[kind]
   )
@@ -73,6 +73,9 @@ export function FenceCalculator({ product, catSlug = '' }: Props) {
         <NumBox label="Запас, %" value={margin} onChange={setMargin} />
       </div>
 
+      {result.qty < 1 ? (
+        <p className="calcw-note">Введите размеры — расчёт появится здесь.</p>
+      ) : (
       <div className="calcw-result">
         <div className="calcw-result-area">
           Длина забора без проёмов: <strong>{result.netLen.toFixed(1)} м</strong>
@@ -88,6 +91,7 @@ export function FenceCalculator({ product, catSlug = '' }: Props) {
           </button>
         )}
       </div>
+      )}
     </div>
   )
 }

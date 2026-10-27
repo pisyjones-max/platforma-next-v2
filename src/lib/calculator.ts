@@ -104,6 +104,15 @@ export function calcSiding(inputs: SidingInputs, variantSkuName = '', _packQty =
   if (innerQty > 0) bom.push({ label: 'Внутренний угол', qty: innerQty, unit: 'шт.' })
   if (stripQty > 0) bom.push({ label: 'Стартовая планка', qty: stripQty, unit: 'шт.' })
 
+  // Околооконная (J) планка — по периметру проёмов
+  const openingsPerim = inputs.openings.reduce((a, o) => a + 2 * (Math.max(0, o.w) + Math.max(0, o.h)), 0)
+  const jQty = openingsPerim > 0 ? Math.ceil(openingsPerim / SIDING_STRIP_LEN_M) : 0
+  if (jQty > 0) bom.push({ label: 'Околооконная планка (J-профиль)', qty: jQty, unit: 'шт.' })
+  if (netArea > 0) {
+    bom.push({ label: 'Обрешётка (3 м, шаг 400 мм)', qty: Math.ceil(netArea / 0.4 / 3), unit: 'шт.', href: '/catalog/obreshetka' })
+    bom.push({ label: 'Саморезы (≈8 шт/м²)', qty: Math.ceil(netArea * 8), unit: 'шт.', href: '/catalog/samorezy' })
+  }
+
   return { area: netArea, unit: 'м²', qty: panelsQty, qtyLabel: 'уп.', bom }
 }
 
@@ -148,6 +157,12 @@ export function calcRoofDetailed(inputs: RoofInputs, variantSkuName = '', _packQ
   if (eaveQty > 0) bom.push({ label: 'Карнизная планка', qty: eaveQty, unit: 'шт.' })
   if (vergeQty > 0) bom.push({ label: 'Ветровая (фронтонная) планка', qty: vergeQty, unit: 'шт.' })
   if (valleyQty > 0) bom.push({ label: 'Ендова', qty: valleyQty, unit: 'шт.' })
+  if (area > 0) {
+    bom.push({ label: 'Подкровельная плёнка (рулон 75 м²)', qty: Math.ceil(area / 75), unit: 'рул.', href: '/catalog/group/izolyatsiya' })
+    bom.push({ label: 'Обрешётка (3 м, шаг 350 мм)', qty: Math.ceil(area / 0.35 / 3), unit: 'шт.', href: '' })
+    bom.push({ label: 'Саморезы кровельные (≈8 шт/м²)', qty: Math.ceil(area * 8), unit: 'шт.', href: '/catalog/samorezy' })
+  }
+  if (inputs.eaveLen > 0) bom.push({ label: 'Снегозадержатель (1 ряд по карнизу, 3 м)', qty: Math.ceil(inputs.eaveLen / 3), unit: 'шт.', href: '/catalog/group/snegozaderzhateli' })
 
   return { area, unit: 'м²', qty: sheetsQty, qtyLabel: 'шт.', bom }
 }
@@ -194,6 +209,15 @@ export function calcGutterDetailed(inputs: GutterInputs, variantSkuName = '', _p
   if (pipeQty > 0) bom.push({ label: 'Труба водосточная', qty: pipeQty, unit: 'шт.' })
   if (elbowsQty > 0) bom.push({ label: 'Колено', qty: Math.round(elbowsQty), unit: 'шт.' })
 
+  const activeRuns = inputs.runs.filter(r => r.len > 0).length
+  if (lenWithMargin > 0) {
+    bom.push({ label: 'Держатели желоба (шаг 600 мм)', qty: Math.ceil(lenWithMargin / 0.6), unit: 'шт.' })
+    const joints = Math.max(0, gutterQty - activeRuns)
+    if (joints > 0) bom.push({ label: 'Соединитель желобов', qty: joints, unit: 'шт.' })
+    if (activeRuns > 0) bom.push({ label: 'Заглушка желоба', qty: activeRuns * 2, unit: 'шт.' })
+  }
+  if (pipeLen > 0) bom.push({ label: 'Хомуты трубы (1 на ~1,8 м)', qty: Math.ceil(pipeLen / 1.8), unit: 'шт.' })
+
   return { area: lenWithMargin, unit: 'м', qty: gutterQty, qtyLabel: 'шт.', bom }
 }
 
@@ -225,6 +249,10 @@ export function calcInsulationDetailed(inputs: InsulationInputs, variantSkuName 
   }
 
   const totalPacks = Math.ceil(Math.ceil(totalArea / plateM2) / packSize)
+
+  // Плёнка (паро-/ветрозащита) закрывает поверхность один раз, слои утеплителя не считаются
+  const surface = inputs.zones.reduce((a, z) => a + Math.max(0, z.area), 0)
+  if (surface > 0) bom.push({ label: 'Плёнка паро-/ветрозащиты (рулон 70 м²)', qty: Math.ceil((surface * 1.15) / 70), unit: 'рул.', href: '/catalog/group/izolyatsiya' })
 
   return { area: totalArea, unit: 'м²', qty: totalPacks, qtyLabel: 'уп.', bom }
 }
@@ -399,7 +427,7 @@ export function parseFenceWidthMm(features: Record<string, string> = {}, title =
 
 export function calcFence(inputs: FenceInputs, catSlug = '') {
   const margin = (inputs.margin ?? 5) / 100
-  const netLen = Math.max(0, inputs.length - Math.max(0, inputs.gatesWidth))
+  const netLen = inputs.height > 0 ? Math.max(0, inputs.length - Math.max(0, inputs.gatesWidth)) : 0
   const step = (Math.max(1, inputs.elementWidthMm) + Math.max(0, inputs.gapMm)) / 1000
   const elements = netLen > 0 ? Math.ceil((netLen / step) * (1 + margin)) : 0
 

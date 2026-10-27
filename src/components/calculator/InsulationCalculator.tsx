@@ -22,9 +22,9 @@ export function InsulationCalculator({ product }: Props) {
   const [margin, setMargin] = useState(10)
   const [packSize, setPackSize] = useState(variant?.pack_quantity ?? 1)
   const [zones, setZones] = useState<InsulationZoneItem[]>([
-    { id: nextId(), label: 'Стены', area: 60, layers: 1 },
-    { id: nextId(), label: 'Кровля / скаты', area: 60, layers: 2 },
-    { id: nextId(), label: 'Пол / перекрытие', area: 60, layers: 1 },
+    { id: nextId(), label: 'Стены', area: 0, layers: 1 },
+    { id: nextId(), label: 'Кровля / скаты', area: 0, layers: 1 },
+    { id: nextId(), label: 'Пол / перекрытие', area: 0, layers: 1 },
   ])
 
   const result = useMemo(
@@ -37,7 +37,7 @@ export function InsulationCalculator({ product }: Props) {
 
   const addZone = () => {
     extraZoneCounter++
-    setZones(z => [...z, { id: nextId(), label: `Доп. зона ${extraZoneCounter}`, area: 20, layers: 1 }])
+    setZones(z => [...z, { id: nextId(), label: `Доп. зона ${extraZoneCounter}`, area: 0, layers: 1 }])
   }
   const removeZone = (id: string) => setZones(z => (z.length > 1 ? z.filter(x => x.id !== id) : z))
 
@@ -107,6 +107,9 @@ export function InsulationCalculator({ product }: Props) {
         </div>
       </div>
 
+      {result.qty < 1 ? (
+        <p className="calcw-note">Введите размеры — расчёт появится здесь.</p>
+      ) : (
       <div className="calcw-result">
         <div className="calcw-result-area">
           Суммарная площадь с учётом слоёв: <strong>{result.area.toFixed(1)} м²</strong>
@@ -121,6 +124,7 @@ export function InsulationCalculator({ product }: Props) {
           </button>
         )}
       </div>
+      )}
     </div>
   )
 }
