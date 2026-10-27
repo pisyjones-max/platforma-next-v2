@@ -5,6 +5,7 @@ import { useCart } from '@/context/CartContext'
 import { imgUrl } from '@/lib/image'
 import { salePrice } from '@/lib/price'
 import type { Product } from '@/types/catalog'
+import { NumInput } from './NumInput'
 
 interface Props { product?: Product }
 
@@ -49,27 +50,27 @@ export function ScrewsCalculator({ product }: Props) {
         </div>
         <div className="calcw-field">
           <label>Площадь, м²</label>
-          <input
-            type="number" value={area}
-            onChange={e => setArea(parseFloat(e.target.value) || 0)}
+          <NumInput
+             value={area}
+            onChange={v => setArea(v || 0)}
             className="calcw-input"
           />
         </div>
         {materialId === 'custom' && (
           <div className="calcw-field">
             <label>Расход, шт/м²</label>
-            <input
-              type="number" value={customPerM2}
-              onChange={e => setCustomPerM2(parseFloat(e.target.value) || 0)}
+            <NumInput
+               value={customPerM2}
+              onChange={v => setCustomPerM2(v || 0)}
               className="calcw-input"
             />
           </div>
         )}
         <div className="calcw-field">
           <label>Штук в упаковке</label>
-          <input
-            type="number" value={packSize}
-            onChange={e => setPackSize(parseFloat(e.target.value) || 1)}
+          <NumInput
+             value={packSize}
+            onChange={v => setPackSize(v || 1)}
             className="calcw-input"
           />
         </div>

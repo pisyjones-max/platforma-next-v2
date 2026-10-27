@@ -7,6 +7,7 @@ import { salePrice } from '@/lib/price'
 import type { Product } from '@/types/catalog'
 import { CalcBom } from './CalcBom'
 import { CalcRowList, nextCalcId } from './CalcRowList'
+import { NumInput } from './NumInput'
 
 const nextId = () => nextCalcId('siding')
 
@@ -88,10 +89,10 @@ export function SidingCalculator({ product, catSlug }: Props) {
 
       <div className="calcw-margin-box">
         <label>Запас, %</label>
-        <input
-          type="number"
+        <NumInput
+          
           value={margin}
-          onChange={e => setMargin(parseFloat(e.target.value) || 0)}
+          onChange={v => setMargin(v || 0)}
           className="calcw-input"
         />
       </div>

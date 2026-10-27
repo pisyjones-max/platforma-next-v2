@@ -6,6 +6,7 @@ import { imgUrl } from '@/lib/image'
 import { salePrice } from '@/lib/price'
 import type { Product } from '@/types/catalog'
 import { CalcBom } from './CalcBom'
+import { NumInput } from './NumInput'
 
 interface Props { product?: Product; catSlug?: string }
 
@@ -13,11 +14,11 @@ function NumBox({ label, value, onChange, step = 1 }: { label: string; value: nu
   return (
     <div className="calcw-field">
       <label>{label}</label>
-      <input
-        type="number"
+      <NumInput
+        
         step={step}
         value={value}
-        onChange={e => onChange(parseFloat(e.target.value) || 0)}
+        onChange={v => onChange(v || 0)}
         className="calcw-input"
       />
     </div>

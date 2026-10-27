@@ -7,6 +7,7 @@ import { salePrice } from '@/lib/price'
 import type { Product } from '@/types/catalog'
 import { CalcBom } from './CalcBom'
 import { CalcRowList, nextCalcId } from './CalcRowList'
+import { NumInput } from './NumInput'
 
 const nextId = () => nextCalcId('run')
 
@@ -16,11 +17,11 @@ function NumBox({ label, value, onChange, unit = 'м' }: { label: string; value:
   return (
     <div className="calcw-field">
       <label>{label}, {unit}</label>
-      <input
-        type="number"
+      <NumInput
+        
         step="1"
         value={value}
-        onChange={e => onChange(parseFloat(e.target.value) || 0)}
+        onChange={v => onChange(v || 0)}
         className="calcw-input"
       />
     </div>

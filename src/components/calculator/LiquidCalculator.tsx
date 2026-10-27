@@ -5,6 +5,7 @@ import { useCart } from '@/context/CartContext'
 import { imgUrl } from '@/lib/image'
 import { salePrice } from '@/lib/price'
 import type { Product } from '@/types/catalog'
+import { NumInput } from './NumInput'
 
 interface Props { product?: Product; catSlug?: string }
 
@@ -56,41 +57,41 @@ export function LiquidCalculator({ product, catSlug = '' }: Props) {
       <div className="calcw-grid">
         <div className="calcw-field">
           <label>Площадь, м²</label>
-          <input
-            type="number" value={area}
-            onChange={e => setArea(parseFloat(e.target.value) || 0)}
+          <NumInput
+             value={area}
+            onChange={v => setArea(v || 0)}
             className="calcw-input"
           />
         </div>
         <div className="calcw-field">
           <label>Слоёв</label>
-          <input
-            type="number" min={1} value={coats}
-            onChange={e => setCoats(parseFloat(e.target.value) || 1)}
+          <NumInput
+             min={1} value={coats}
+            onChange={v => setCoats(v || 1)}
             className="calcw-input"
           />
         </div>
         <div className="calcw-field">
           <label>Расход, {pack.unit}/м² на слой</label>
-          <input
-            type="number" step="0.01" value={perM2}
-            onChange={e => setPerM2(parseFloat(e.target.value) || 0)}
+          <NumInput
+             step="0.01" value={perM2}
+            onChange={v => setPerM2(v || 0)}
             className="calcw-input"
           />
         </div>
         <div className="calcw-field">
           <label>В таре, {pack.unit}</label>
-          <input
-            type="number" step="0.1" value={packVolume}
-            onChange={e => setPackVolume(parseFloat(e.target.value) || 0)}
+          <NumInput
+             step="0.1" value={packVolume}
+            onChange={v => setPackVolume(v || 0)}
             className="calcw-input"
           />
         </div>
         <div className="calcw-field">
           <label>Запас, %</label>
-          <input
-            type="number" value={margin}
-            onChange={e => setMargin(parseFloat(e.target.value) || 0)}
+          <NumInput
+             value={margin}
+            onChange={v => setMargin(v || 0)}
             className="calcw-input"
           />
         </div>

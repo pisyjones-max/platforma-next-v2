@@ -1,4 +1,5 @@
 'use client'
+import { NumInput } from './NumInput'
 
 let uidCounter = 0
 export const nextCalcId = (prefix: string) => `${prefix}_${Date.now()}_${uidCounter++}`
@@ -24,11 +25,11 @@ export function CalcRowList<T extends { id: string }>({
           {fields.map((f, i) => (
             <span key={String(f.key)} className="calcw-row" style={{ gap: 8 }}>
               {i > 0 && <span className="calcw-x">×</span>}
-              <input
-                type="number"
+              <NumInput
+                
                 step="0.1"
                 value={item[f.key] as unknown as number}
-                onChange={e => onChange(item.id, f.key, parseFloat(e.target.value) || 0)}
+                onChange={v => onChange(item.id, f.key, v || 0)}
                 title={f.label}
                 className="calcw-input calcw-narrow"
               />
