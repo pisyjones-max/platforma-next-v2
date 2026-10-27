@@ -5,11 +5,12 @@ import { useCart } from '@/context/CartContext'
 import { imgUrl } from '@/lib/image'
 import { salePrice } from '@/lib/price'
 import type { Product } from '@/types/catalog'
+import { CalcBom } from './CalcBom'
 import { CalcRowList, nextCalcId } from './CalcRowList'
 
 const nextId = () => nextCalcId('slope')
 
-interface Props { product?: Product }
+interface Props { product?: Product; catSlug?: string }
 
 function NumBox({ label, value, onChange, unit = 'м' }: { label: string; value: number; onChange: (v: number) => void; unit?: string }) {
   return (
@@ -26,7 +27,7 @@ function NumBox({ label, value, onChange, unit = 'м' }: { label: string; value:
   )
 }
 
-export function RoofCalculator({ product }: Props) {
+export function RoofCalculator({ product, catSlug }: Props) {
   const { add } = useCart()
   const variant = product?.variants[0]
   const [added, setAdded] = useState(false)
@@ -93,14 +94,7 @@ export function RoofCalculator({ product }: Props) {
         <div className="calcw-result-area">
           Площадь кровли: <strong>{result.area.toFixed(1)} м²</strong>
         </div>
-        <div className="calcw-bom">
-          {result.bom.map((b, i) => (
-            <div key={i} className="calcw-bom-row">
-              <span>{b.label}</span>
-              <strong>{b.qty} {b.unit}</strong>
-            </div>
-          ))}
-        </div>
+        <CalcBom bom={result.bom} accessoriesHref={catSlug ? `/catalog/${catSlug}` : undefined} />
         <p className="calcw-note">
           Конёк, свесы и ендова — расчётные позиции для ориентира. Точный подбор доборных элементов под вашу кровлю — у нашего специалиста.
         </p>

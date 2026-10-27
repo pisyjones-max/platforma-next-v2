@@ -5,6 +5,7 @@ import { useCart } from '@/context/CartContext'
 import { imgUrl } from '@/lib/image'
 import { salePrice } from '@/lib/price'
 import type { Product } from '@/types/catalog'
+import { CalcBom } from './CalcBom'
 import { nextCalcId } from './CalcRowList'
 
 const nextId = () => nextCalcId('zone')
@@ -109,14 +110,7 @@ export function InsulationCalculator({ product }: Props) {
         <div className="calcw-result-area">
           Суммарная площадь с учётом слоёв: <strong>{result.area.toFixed(1)} м²</strong>
         </div>
-        <div className="calcw-bom">
-          {result.bom.map((b, i) => (
-            <div key={i} className="calcw-bom-row">
-              <span>{b.label}</span>
-              <strong>{b.qty} {b.unit}</strong>
-            </div>
-          ))}
-        </div>
+        <CalcBom bom={result.bom} />
         <p className="calcw-note">
           Расчёт по каждой конструкции — отдельно, т.к. у стен, кровли и пола обычно разное число слоёв утеплителя.
         </p>

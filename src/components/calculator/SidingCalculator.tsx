@@ -5,13 +5,14 @@ import { useCart } from '@/context/CartContext'
 import { imgUrl } from '@/lib/image'
 import { salePrice } from '@/lib/price'
 import type { Product } from '@/types/catalog'
+import { CalcBom } from './CalcBom'
 import { CalcRowList, nextCalcId } from './CalcRowList'
 
 const nextId = () => nextCalcId('siding')
 
-interface Props { product?: Product }
+interface Props { product?: Product; catSlug?: string }
 
-export function SidingCalculator({ product }: Props) {
+export function SidingCalculator({ product, catSlug }: Props) {
   const { add } = useCart()
   const variant = product?.variants[0]
   const [added, setAdded] = useState(false)
@@ -99,14 +100,7 @@ export function SidingCalculator({ product }: Props) {
         <div className="calcw-result-area">
           Чистая площадь стен: <strong>{result.area.toFixed(1)} м²</strong>
         </div>
-        <div className="calcw-bom">
-          {result.bom.map((b, i) => (
-            <div key={i} className="calcw-bom-row">
-              <span>{b.label}</span>
-              <strong>{b.qty} {b.unit}</strong>
-            </div>
-          ))}
-        </div>
+        <CalcBom bom={result.bom} accessoriesHref={catSlug ? `/catalog/${catSlug}` : undefined} />
         <p className="calcw-note">
           Углы и стартовая планка — расчётные позиции для ориентира. Точный подбор комплектующих под вашу коллекцию — у нашего специалиста.
         </p>

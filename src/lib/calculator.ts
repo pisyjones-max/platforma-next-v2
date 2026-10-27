@@ -1,5 +1,5 @@
 // CalcType = null означает "калькулятор не нужен для этой категории"
-export type CalcType = 'roofing' | 'gutter' | 'insulation' | 'screws' | 'siding' | 'sheet' | 'liquid' | null
+export type CalcType = 'roofing' | 'gutter' | 'insulation' | 'screws' | 'siding' | 'sheet' | 'liquid' | 'fence' | 'deck' | null
 
 // Определяем калькулятор СТРОГО по белым спискам: категория → тип.
 // Никакого "по умолчанию кровля": если товар не подходит ни под один калькулятор,
@@ -18,8 +18,13 @@ const LIQUID_CATS = new Set([
 const INSULATION_CATS = new Set(['uteplitel'])
 
 // Кровельные материалы и прочее, что считается по площади покрытия
-const ROOFING_CATS = new Set(['profnastil-dlya-zabora', 'evroshtaketnik', 'zabornaya-doska'])
-const ROOFING_GROUPS = new Set(['krovlya', 'terrasnaya-doska-dpk'])
+const ROOFING_GROUPS = new Set(['krovlya'])
+
+// Заборы — по длине забора и высоте, а не по скатам (раньше им показывался калькулятор кровли)
+const FENCE_CATS = new Set(['profnastil-dlya-zabora', 'evroshtaketnik', 'zabornaya-doska'])
+
+// Террасная доска ДПК — по площади террасы, размеру доски и шагу лаг
+const DECK_CATS = new Set(['treedeck', 'terrapol', 'deckart'])
 
 const SIDING_GROUPS = new Set(['sayding', 'fasadnye-materialy'])
 const GUTTER_GROUPS = new Set(['vodostoki'])
@@ -36,7 +41,8 @@ export function getCalcType(groupSlug: string, slug: string, name: string, produ
   if (SHEET_CATS.has(cat)) return 'sheet'
   if (LIQUID_CATS.has(cat)) return 'liquid'
   if (INSULATION_CATS.has(cat)) return 'insulation'
-  if (ROOFING_CATS.has(cat)) return 'roofing'
+  if (FENCE_CATS.has(cat)) return 'fence'
+  if (DECK_CATS.has(cat)) return 'deck'
 
   // 2. Гипсокартон/плиты, случайно лежащие в чужих категориях (напр. ветрозащитный ГКЛ в изоляции)
   if (/гипсокартон|(^|[\s-])(гкл|гвл|дсп|осб|osb)([\s-]|$)/.test(title)) return 'sheet'
@@ -65,7 +71,8 @@ export interface SidingInputs {
   margin: number
 }
 
-export interface BomItem { label: string; qty: number; unit: string }
+// href — ссылка «подобрать» на каталог (комплектующие лежат в той же категории, что и товар)
+export interface BomItem { label: string; qty: number; unit: string; href?: string }
 
 // Стандартная длина углового элемента и стартовой планки, м
 export const SIDING_CORNER_LEN_M = 3
@@ -357,4 +364,113 @@ export function calcLiquidDetailed(inputs: LiquidInputs) {
   const pack = Math.max(0.001, inputs.packVolume)
   const qty = total > 0 ? Math.ceil(total / pack) : 0
   return { total, qty, qtyLabel: 'уп.' }
+}
+
+
+// ─── Забор: секции между воротами, столбы, лаги, крепёж ───
+// Считаем по длине забора, а не по скатам. Ворота и калитка вычитаются из длины.
+export type FenceKind = 'sheet' | 'picket'
+
+export interface FenceInputs {
+  kind: FenceKind
+  length: number      // общая длина забора, м
+  height: number      // высота забора, м
+  gatesWidth: number  // суммарная ширина ворот и калиток, м
+  gatesCount: number  // сколько проёмов (ворота + калитка) — под каждый два столба
+  elementWidthMm: number // полезная ширина листа / ширина штакетины, мм
+  gapMm: number          // зазор между штакетинами, мм (для профнастила 0)
+  postStep: number       // шаг столбов, м
+  margin: number
+}
+
+export const FENCE_LAG_LEN_M = 6
+export const FENCE_DEFAULT_WIDTH_MM = { sheet: 1150, picket: 120 } as const
+
+export function parseFenceWidthMm(features: Record<string, string> = {}, title = '', kind: FenceKind = 'sheet'): number {
+  const fromFeature = firstNum(features['Ширина полезная']) || firstNum(features['Полезная ширина'])
+  if (fromFeature >= 50 && fromFeature <= 2000) return fromFeature
+  const w = firstNum(features['Ширина'])
+  // в карточках ширина бывает в мм (1150) или в метрах (1.15)
+  if (w >= 50 && w <= 2000) return w
+  if (w > 0 && w < 5) return Math.round(w * 1000)
+  void title
+  return FENCE_DEFAULT_WIDTH_MM[kind]
+}
+
+export function calcFence(inputs: FenceInputs, catSlug = '') {
+  const margin = (inputs.margin ?? 5) / 100
+  const netLen = Math.max(0, inputs.length - Math.max(0, inputs.gatesWidth))
+  const step = (Math.max(1, inputs.elementWidthMm) + Math.max(0, inputs.gapMm)) / 1000
+  const elements = netLen > 0 ? Math.ceil((netLen / step) * (1 + margin)) : 0
+
+  const postStep = Math.max(1, inputs.postStep)
+  const spans = netLen > 0 ? Math.ceil(netLen / postStep) : 0
+  const posts = (spans > 0 ? spans + 1 : 0) + Math.max(0, Math.round(inputs.gatesCount)) * 2
+
+  // 2 лаги до 1,7 м высоты, 3 — выше
+  const lagRows = inputs.height > 1.7 ? 3 : 2
+  const lagPcs = netLen > 0 ? Math.ceil((netLen * lagRows * (1 + margin)) / FENCE_LAG_LEN_M) : 0
+
+  // Крепёж: профнастил — ~4 самореза на лагу на лист, штакетник — 2 на пересечение
+  const screws = Math.ceil(elements * lagRows * (inputs.kind === 'sheet' ? 4 : 2))
+
+  const bom: BomItem[] = [
+    { label: inputs.kind === 'sheet' ? 'Листы профнастила' : 'Штакетник / доска', qty: elements, unit: 'шт.' },
+  ]
+  if (posts > 0) bom.push({ label: 'Столбы', qty: posts, unit: 'шт.', href: '/catalog/stolby-dlya-zabora' })
+  if (posts > 0) bom.push({ label: 'Колпаки на столбы', qty: posts, unit: 'шт.', href: '/catalog/kolpaki' })
+  if (lagPcs > 0) bom.push({ label: `Лаги (профтруба, ${lagRows} ряда по ${FENCE_LAG_LEN_M} м)`, qty: lagPcs, unit: 'шт.' })
+  if (screws > 0) bom.push({ label: 'Саморезы', qty: screws, unit: 'шт.', href: '/catalog/samorezy' })
+  void catSlug
+
+  return { netLen, area: netLen * Math.max(0, inputs.height), unit: 'м', qty: elements, qtyLabel: 'шт.', bom }
+}
+
+// ─── Террасная доска ДПК: доски, лаги, кляймеры ───
+export interface DeckInputs {
+  area: number         // площадь террасы, м²
+  boardLenM: number    // длина доски, м
+  boardWidMm: number   // ширина доски, мм
+  gapMm: number        // зазор между досками, мм
+  joistStep: number    // шаг лаг, м (обычно 0,3–0,4)
+  diagonal: boolean    // диагональная раскладка — больше отходов
+  margin: number
+}
+
+export const DECK_JOIST_LEN_M = 3
+
+export function parseDeckBoard(features: Record<string, string> = {}, title = '', skuName = ''): { lenM: number; widMm: number } {
+  let widMm = firstNum(features['Ширина'])
+  let lenMm = firstNum(features['Длина'])
+  if (!widMm || !lenMm) {
+    const m = `${title} ${skuName}`.match(/(\d{2,3})\s*[xхXХ*×]\s*(\d{1,2})\s*[xхXХ*×]\s*(\d{3,4})/)
+    if (m) { widMm = widMm || parseInt(m[1], 10); lenMm = lenMm || parseInt(m[3], 10) }
+  }
+  if (lenMm && lenMm < 20) lenMm *= 1000 // метры → мм
+  if (widMm && widMm < 5) widMm *= 1000
+  return { lenM: (lenMm || 3000) / 1000, widMm: widMm || 140 }
+}
+
+export function calcDeck(inputs: DeckInputs) {
+  const margin = (inputs.margin ?? 10) / 100 + (inputs.diagonal ? 0.05 : 0)
+  const widM = Math.max(1, inputs.boardWidMm) / 1000
+  const gapM = Math.max(0, inputs.gapMm) / 1000
+  const perBoardM2 = Math.max(0.1, inputs.boardLenM) * (widM + gapM)
+  const areaWithMargin = Math.max(0, inputs.area) * (1 + margin)
+  const boards = areaWithMargin > 0 ? Math.ceil(areaWithMargin / perBoardM2) : 0
+
+  const step = Math.max(0.2, inputs.joistStep)
+  // лаги идут поперёк досок: погонаж лаг = площадь / шаг
+  const joistMeters = areaWithMargin / step
+  const joists = joistMeters > 0 ? Math.ceil(joistMeters / DECK_JOIST_LEN_M) : 0
+  // кляймер на каждое пересечение доски с лагой
+  const clips = areaWithMargin > 0 ? Math.ceil(areaWithMargin / widM / step) : 0
+  const screws = clips // по самонарезу на кляймер
+
+  const bom: BomItem[] = [{ label: 'Террасная доска', qty: boards, unit: 'шт.' }]
+  if (joists > 0) bom.push({ label: `Лаги (по ${DECK_JOIST_LEN_M} м)`, qty: joists, unit: 'шт.' })
+  if (clips > 0) bom.push({ label: 'Кляймеры', qty: clips, unit: 'шт.' })
+  if (screws > 0) bom.push({ label: 'Саморезы для кляймеров', qty: screws, unit: 'шт.', href: '/catalog/samorezy' })
+
+  return { area: areaWithMargin, unit: 'м²', qty: boards, qtyLabel: 'шт.', bom }
 }
