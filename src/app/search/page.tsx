@@ -25,9 +25,9 @@ export default async function SearchPage({ searchParams }: Props) {
   const { q, brand } = await searchParams
   const query = q?.trim() ?? ''
   const selected = (Array.isArray(brand) ? brand : brand ? [brand] : []).filter(Boolean)
-  const { results, total, facets } = query
+  const { results, total, facets, approximate } = query
     ? searchProducts(query, RESULT_LIMIT, selected)
-    : { results: [], total: 0, facets: [] }
+    : { results: [], total: 0, facets: [], approximate: false }
 
   const hrefFor = (next: string[]) => {
     const sp = new URLSearchParams({ q: query })
@@ -66,6 +66,11 @@ export default async function SearchPage({ searchParams }: Props) {
 
       {query && (
         <>
+          {approximate && (
+            <p style={{ color: 'var(--muted)', fontSize: 13.5, margin: '0 0 12px' }}>
+              Точных совпадений нет — показали похожие товары.
+            </p>
+          )}
           <BrandChips items={chips} clearHref={hrefFor([])} />
           <div className="pgrid">
             {results.map(r => (

@@ -11,10 +11,10 @@ export async function GET(request: NextRequest) {
   const parsedLimit = parseInt(limitParam ?? '', 10)
   const limit = Number.isFinite(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 50) : 6
 
-  const { results, total } = searchProducts(q, limit)
+  const { results, total, approximate } = searchProducts(q, limit)
 
   return NextResponse.json(
-    { query: q, total, results },
+    { query: q, total, approximate, results },
     { headers: { 'Cache-Control': 'private, max-age=30' } }
   )
 }
