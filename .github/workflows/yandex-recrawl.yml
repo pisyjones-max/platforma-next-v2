@@ -51,7 +51,10 @@ jobs:
             B=/var/www/platforma-build
             mkdir -p $B
             rsync -a --delete --exclude .git --exclude .next --exclude node_modules --exclude public/images $LIVE/ $B/
-            ln -sfn $LIVE/node_modules $B/node_modules
+            # Turbopack (Next 16) не принимает symlink на node_modules за пределами проекта
+            # («points out of the filesystem root») — делаем копию жёсткими ссылками: места не ест, не трогает живой node_modules
+            rm -rf $B/node_modules
+            cp -al $LIVE/node_modules $B/node_modules
             ln -sfn $LIVE/public/images $B/public/images
             cd $B
             NEXT_PUBLIC_SITE_URL="https://platforma-msk.ru" NODE_OPTIONS="--max-old-space-size=1536" npm run build
