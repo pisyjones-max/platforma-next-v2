@@ -1427,13 +1427,15 @@ body { overflow-x: hidden; }
   box-shadow: 0 32px 80px rgba(0,0,0,.6);
 }
 .img-lightbox-close {
-  position: absolute; top: 16px; right: 16px;
-  width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(255,255,255,.12); border: none; color: #fff;
+  position: absolute; top: 16px; right: 16px; z-index: 2;
+  width: 44px; height: 44px; border-radius: 50%;
+  /* тёмная подложка + светлая рамка: крестик виден и на белых фото с белыми краями */
+  background: rgba(0,0,0,.65); border: 1px solid rgba(255,255,255,.6); color: #fff;
   font-size: 20px; display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: background .15s;
+  box-shadow: 0 2px 10px rgba(0,0,0,.5);
 }
-.img-lightbox-close:hover { background: rgba(255,255,255,.22); }
+.img-lightbox-close:hover { background: rgba(0,0,0,.85); }
 
 /* ══ STICKY FOOTER ═══════════════════════════════════════════════════════════ */
 html, body { height: 100%; }

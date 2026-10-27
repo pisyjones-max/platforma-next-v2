@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useCart } from '@/context/CartContext'
 import { useUI } from '@/context/UIContext'
@@ -49,6 +49,10 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
   const [toastTitle, setToastTitle] = useState('')
   const [lightbox, setLightbox] = useState(false)
   const [lbIdx, setLbIdx] = useState(0)
+  // свайп в лайтбоксе: стартовая точка касания и текущее смещение картинки
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
+  const [dragX, setDragX] = useState(0)
+  const [dragY, setDragY] = useState(0)
   const [callOpen, setCallOpen] = useState(false)
   const [callPhone, setCallPhone] = useState('')
   const [callErr, setCallErr] = useState(false)
@@ -84,6 +88,26 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
   }, [lightbox, lbPrev, lbNext])
 
   const openLightbox = (i: number) => { setLbIdx(i); setLightbox(true) }
+
+  const onLbTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length !== 1) { touchStart.current = null; return }
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+  }
+  const onLbTouchMove = (e: React.TouchEvent) => {
+    const st = touchStart.current
+    if (!st || e.touches.length !== 1) return
+    const dx = e.touches[0].clientX - st.x
+    const dy = e.touches[0].clientY - st.y
+    if (Math.abs(dx) > Math.abs(dy)) { setDragX(imgs.length > 1 ? dx : 0); setDragY(0) }
+    else { setDragY(dy > 0 ? dy : 0); setDragX(0) }
+  }
+  const onLbTouchEnd = () => {
+    const dx = dragX, dy = dragY
+    touchStart.current = null
+    setDragX(0); setDragY(0)
+    if (Math.abs(dx) > 50 && imgs.length > 1) { dx < 0 ? lbNext() : lbPrev(); return }
+    if (dy > 90) setLightbox(false) // свайп вниз — закрыть
+  }
 
   const handleAdd = (addQty = qty, label?: string) => {
     const title = label ?? (product.title + (v.color ? ` (${v.color})` : ''))
@@ -145,19 +169,27 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
 
         {/* Lightbox */}
         {lightbox && imgs.length > 0 && (
-          <div className="img-lightbox" onClick={() => setLightbox(false)}>
+          <div
+            className="img-lightbox"
+            onClick={() => setLightbox(false)}
+            onTouchStart={onLbTouchStart}
+            onTouchMove={onLbTouchMove}
+            onTouchEnd={onLbTouchEnd}
+            onTouchCancel={onLbTouchEnd}
+            style={{ touchAction: 'none' }}
+          >
             <button className="img-lightbox-close" onClick={e => { e.stopPropagation(); setLightbox(false) }}>✕</button>
 
             {imgs.length > 1 && (
               <button onClick={e => { e.stopPropagation(); lbPrev() }} style={{
                 position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
                 width: 44, height: 44, borderRadius: '50%',
-                background: 'rgba(255,255,255,.15)', border: 'none', color: '#fff',
+                background: 'rgba(0,0,0,.55)', border: '1px solid rgba(255,255,255,.55)', color: '#fff',
                 fontSize: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 transition: 'background .15s', zIndex: 1,
               }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,.3)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,.15)')}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,.8)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,0,0,.55)')}
               >‹</button>
             )}
 
@@ -165,19 +197,26 @@ export function ProductPage({ product, categorySlug, categoryName, groupSlug, gr
               src={imgUrl(imgs[lbIdx])}
               alt={product.title}
               onClick={e => e.stopPropagation()}
-              style={{ maxWidth: '90vw', maxHeight: '88vh', objectFit: 'contain', borderRadius: 8 }}
+              draggable={false}
+              style={{
+                maxWidth: '90vw', maxHeight: '88vh', objectFit: 'contain', borderRadius: 8,
+                transform: `translate(${dragX}px, ${dragY}px)`,
+                opacity: dragY > 0 ? Math.max(0.4, 1 - dragY / 400) : 1,
+                transition: dragX || dragY ? 'none' : 'transform .2s ease, opacity .2s ease',
+                userSelect: 'none', WebkitUserSelect: 'none',
+              }}
             />
 
             {imgs.length > 1 && (
               <button onClick={e => { e.stopPropagation(); lbNext() }} style={{
                 position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)',
                 width: 44, height: 44, borderRadius: '50%',
-                background: 'rgba(255,255,255,.15)', border: 'none', color: '#fff',
+                background: 'rgba(0,0,0,.55)', border: '1px solid rgba(255,255,255,.55)', color: '#fff',
                 fontSize: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 transition: 'background .15s', zIndex: 1,
               }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,.3)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,.15)')}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,.8)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,0,0,.55)')}
               >›</button>
             )}
 
