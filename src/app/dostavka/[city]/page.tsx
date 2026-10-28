@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ city: str
   if (!city) return {}
   return {
     title: `Доставка кровельных и фасадных материалов в ${city.nameGenitive} — PLATFORMA`,
-    description: `Доставка кровельных, фасадных материалов и водостоков в ${city.nameGenitive}: ${city.distanceNote}. Профлист, металлочерепица, сайдинг со склада в Новохаритонове.`,
+    description: `Доставка кровельных, фасадных материалов и водостоков в ${city.nameGenitive}: ${city.distanceNote}. ${city.partner ? 'Отгрузка со склада партнёра.' : 'Профлист, металлочерепица, сайдинг со склада в Новохаритонове.'}`,
     alternates: { canonical: `/dostavka/${city.slug}` },
   }
 }

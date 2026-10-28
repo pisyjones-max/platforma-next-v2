@@ -68,7 +68,9 @@ export default async function DistrictCommercePage({ params }: { params: Promise
   const priceRange = getGroupPriceRange(catalog, groupSlug)
   const topCategories = getGroupTopCategories(catalog, groupSlug)
   const content = CITY_CONTENT[city.slug]
-  const faqAnswer = meta.faqAnswerTpl(city.nameGenitive, city.distanceNote)
+  const faqAnswer = city.partner
+    ? `Отгружаем со склада партнёра в ${city.name}. Наличие и срок по вашему заказу подтверждает менеджер при оформлении.`
+    : meta.faqAnswerTpl(city.nameGenitive, city.distanceNote)
 
   const bcSchema = breadcrumbSchema([
     { name: 'Главная', url: '/' },
@@ -95,8 +97,9 @@ export default async function DistrictCommercePage({ params }: { params: Promise
       </h1>
       <p style={{ color: 'var(--muted)', marginBottom: 32, fontSize: 15.5, lineHeight: 1.6, maxWidth: 640 }}>
         Возим {meta.accusative} в {city.nameGenitive} и окрестности{' '}
-        {city.landmarks.length > 0 && `(${city.landmarks.join(', ')})`} напрямую со склада в Новохаритонове —
-        без перекупщиков и посредников, поэтому цена ниже, чем у большинства местных точек продаж.
+        {city.landmarks.length > 0 && `(${city.landmarks.join(', ')})`} {city.partner
+          ? 'со склада партнёра: наличие и срок по вашему заказу подтверждает менеджер.'
+          : 'напрямую со склада в Новохаритонове — без перекупщиков и посредников, поэтому цена ниже, чем у большинства местных точек продаж.'}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 40 }}>
