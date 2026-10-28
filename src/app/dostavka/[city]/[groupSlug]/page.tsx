@@ -10,6 +10,7 @@ import {
   getGroupTopCategories,
 } from '@/lib/districtCommerce'
 import { breadcrumbSchema, faqSchema, jsonLdScriptProps } from '@/lib/schema'
+import { CITY_CONTENT } from '@/lib/cityContent'
 import { CityConsultButton } from '@/components/ui/CityConsultButton'
 
 export function generateStaticParams() {
@@ -66,6 +67,7 @@ export default async function DistrictCommercePage({ params }: { params: Promise
 
   const priceRange = getGroupPriceRange(catalog, groupSlug)
   const topCategories = getGroupTopCategories(catalog, groupSlug)
+  const content = CITY_CONTENT[city.slug]
   const faqAnswer = meta.faqAnswerTpl(city.nameGenitive, city.distanceNote)
 
   const bcSchema = breadcrumbSchema([
@@ -119,6 +121,12 @@ export default async function DistrictCommercePage({ params }: { params: Promise
           <div style={{ fontSize: 15, color: 'var(--muted)' }}>{meta.unitNote}</div>
         </div>
       </div>
+
+      {content && (
+        <p style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.6, maxWidth: 640, marginBottom: 40 }}>
+          {content.about} {content.housing}
+        </p>
+      )}
 
       {topCategories.length > 0 && (
         <div style={{ marginBottom: 40 }}>

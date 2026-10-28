@@ -4,7 +4,8 @@ import { notFound } from 'next/navigation'
 import { CITIES, getCity } from '@/lib/cities'
 import { getCatalog } from '@/lib/catalog'
 import { SITE_URL } from '@/lib/site'
-import { breadcrumbSchema } from '@/lib/schema'
+import { breadcrumbSchema, faqSchema, jsonLdScriptProps } from '@/lib/schema'
+import { CITY_CONTENT } from '@/lib/cityContent'
 import { CityConsultButton } from '@/components/ui/CityConsultButton'
 import { DISTRICT_COMMERCE_GROUPS } from '@/lib/districtCommerce'
 
@@ -53,12 +54,16 @@ export default async function CityDeliveryPage({ params }: { params: Promise<{ c
     { name: city.name, url: `/dostavka/${city.slug}` },
   ])
 
+  const content = CITY_CONTENT[city.slug]
+  const faq = content ? faqSchema([content.faq]) : null
+
   return (
     <div style={{ maxWidth: 860, margin: '0 auto', padding: '48px 20px 80px' }}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(bcSchema) }}
       />
+      {faq && <script {...jsonLdScriptProps(faq)} />}
 
       <h1 style={{ fontFamily: 'var(--fh)', fontSize: 30, fontWeight: 800, marginBottom: 8 }}>
         Доставка стройматериалов в {city.nameGenitive}
@@ -140,6 +145,18 @@ export default async function CityDeliveryPage({ params }: { params: Promise<{ c
           ))}
         </div>
       </div>
+
+      {content && (
+        <div style={{ marginBottom: 40 }}>
+          <h2 style={{ fontFamily: 'var(--fh)', fontSize: 20, fontWeight: 700, marginBottom: 12 }}>
+            Особенности доставки в {city.nameGenitive}
+          </h2>
+          <p style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.6, maxWidth: 640, marginBottom: 12 }}>{content.about}</p>
+          <p style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.6, maxWidth: 640, marginBottom: 24 }}>{content.housing}</p>
+          <h3 style={{ fontFamily: 'var(--fh)', fontSize: 17, fontWeight: 700, marginBottom: 8 }}>{content.faq.q}</h3>
+          <p style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.6, maxWidth: 640 }}>{content.faq.a}</p>
+        </div>
+      )}
 
       <div style={{
         background: 'linear-gradient(135deg, #192C1E, #253d2b)',
