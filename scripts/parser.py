@@ -48,6 +48,7 @@ IMAGE_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS_I
 MAX_RETRIES = 4
 BACKOFF_BASE_SECONDS = 1.5
 REQUEST_DELAY_RANGE = (0.5, 1.5)  # секунды, случайная пауза между запросами
+IMAGE_DELAY_RANGE = (0.2, 0.6)  # для картинок пауза короче
 
 # Промежуточное сохранение прогресса — на случай обрыва скрипта
 CHECKPOINT_EVERY_N_CATEGORIES = 5
@@ -64,7 +65,7 @@ def log_progress(message):
         pass
 
 
-def request_with_retry(url, timeout=15):
+def request_with_retry(url, timeout=15, delay_range=None):
     """
     GET-запрос с retry и экспоненциальной задержкой (до MAX_RETRIES попыток),
     плюс случайная пауза между УСПЕШНЫМИ запросами, чтобы не получить бан по IP.
@@ -75,8 +76,11 @@ def request_with_retry(url, timeout=15):
         try:
             r = session.get(url, timeout=timeout)
             if r.status_code == 200:
-                time.sleep(random.uniform(*REQUEST_DELAY_RANGE))
+                time.sleep(random.uniform(*(delay_range or REQUEST_DELAY_RANGE)))
                 return r
+            if r.status_code in (404, 410):
+                log_progress(f"  ❌ {url}: HTTP {r.status_code}, повторы не нужны")
+                return None
             last_error = f"HTTP {r.status_code}"
         except requests.exceptions.RequestException as e:
             last_error = str(e)
@@ -162,7 +166,7 @@ def download_single_file(url, path):
     # Уже скачан — пропускаем
     if os.path.exists(path) and os.path.getsize(path) > 0:
         return True
-    r = request_with_retry(url, timeout=10)
+    r = request_with_retry(url, timeout=10, delay_range=IMAGE_DELAY_RANGE)
     if r is not None and r.status_code == 200:
         with open(path, "wb") as f:
             f.write(r.content)
