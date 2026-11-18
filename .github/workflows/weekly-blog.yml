@@ -4,8 +4,6 @@ name: Weekly blog articles (auto-publish)
 # коммит в main и запуск деплоя + пинга Яндекса (yandex-recrawl.yml).
 # Случайная пауза до 3 часов, чтобы публикации шли в разное время.
 on:
-  schedule:
-    - cron: '0 6 * * 3,4'
   workflow_dispatch:
     inputs:
       count:
