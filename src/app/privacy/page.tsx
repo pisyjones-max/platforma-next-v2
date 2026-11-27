@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/privacy' },
   title: 'Политика обработки персональных данных — PLATFORMA',
   description: 'Политика в отношении обработки персональных данных сайта platforma-msk.ru в соответствии с ФЗ-152 «О персональных данных».',
   robots: { index: false, follow: true },

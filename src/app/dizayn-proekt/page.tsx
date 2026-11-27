@@ -4,6 +4,7 @@ import { DesignRequestForm } from '@/components/design/DesignRequestForm'
 import { DESIGN_PROJECT_PRICE } from '@/lib/constants'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/dizayn-proekt' },
   title: 'Бесплатный дизайн-проект дома — примерьте сайдинг, кровлю и фасад | PLATFORMA',
   description:
     'Пришлите фото своего дома — покажем, как он будет выглядеть с новым сайдингом, кровлей или фасадными панелями. Дизайн-проект бесплатно при оформлении карты лояльности.',

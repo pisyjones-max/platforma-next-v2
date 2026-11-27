@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/delivery' },
   title: 'Доставка и оплата — PLATFORMA',
   description: 'Быстрая доставка кровельных материалов по Москве и Московской области — на объект или в пункт выдачи заказов Яндекс Маркета.',
 }

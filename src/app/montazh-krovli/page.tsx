@@ -6,6 +6,7 @@ import { getService } from '@/lib/services'
 const service = getService('krovli')!
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/montazh-krovli' },
   title: service.metaTitle,
   description: service.metaDescription,
 }

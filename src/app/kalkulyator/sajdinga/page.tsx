@@ -6,6 +6,7 @@ import { getCalcLanding } from '@/lib/calcLandingHub'
 const data = getCalcLanding('sajdinga')!
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/kalkulyator/sajdinga' },
   title: data.metaTitle,
   description: data.metaDescription,
 }

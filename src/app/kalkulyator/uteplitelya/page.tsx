@@ -6,6 +6,7 @@ import { getCalcLanding } from '@/lib/calcLandingHub'
 const data = getCalcLanding('uteplitelya')!
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/kalkulyator/uteplitelya' },
   title: data.metaTitle,
   description: data.metaDescription,
 }

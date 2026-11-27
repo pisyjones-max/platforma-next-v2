@@ -4,6 +4,7 @@ import { CARD_WELCOME_BONUS, DESIGN_PROJECT_PRICE } from '@/lib/constants'
 import { CASHBACK_TIERS, POINTS_EXPIRY_DAYS, REFERRAL_BONUS_POINTS } from '@/lib/loyaltyFeatures'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/loyalty-card' },
   title: 'Карта лояльности PLATFORMA — 15 000 баллов на карту',
   description:
     'Оформите бесплатную карту лояльности PLATFORMA: 15 000 баллов сразу на карту, растущий кэшбэк с покупок и бонус за дизайн-проект дома. Оформление по имени и телефону — без визита в офис.',

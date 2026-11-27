@@ -6,6 +6,7 @@ import { getCalcLanding } from '@/lib/calcLandingHub'
 const data = getCalcLanding('vodostoka')!
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/kalkulyator/vodostoka' },
   title: data.metaTitle,
   description: data.metaDescription,
 }

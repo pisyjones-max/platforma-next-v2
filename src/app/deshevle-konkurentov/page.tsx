@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { PriceMatchForm } from '@/components/pricematch/PriceMatchForm'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/deshevle-konkurentov' },
   title: 'Найдёте дешевле — предложим цену ниже — PLATFORMA',
   description:
     'Нашли кровельные или строительные материалы дешевле у другого поставщика в Москве и Раменском округе? Пришлите нам цену — посмотрим и постараемся предложить дешевле.',

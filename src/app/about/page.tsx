@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { CONTACT_EMAIL, MAX_ACCOUNT_LABEL, MAX_PROFILE_URL } from '@/lib/constants'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/about' },
   title: 'О компании — PLATFORMA',
   description: 'PLATFORMA — поставщик кровельных и строительных материалов в Московской области. Более 5 лет на рынке.',
 }
